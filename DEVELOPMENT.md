@@ -117,6 +117,39 @@ location_tracking_enabled: Boolean = false
 3. GPS accuracy depends on device power-saving settings
 4. Android Doze mode may pause background checks when device is idle (normal battery optimization)
 
+### Doze Mode Considerations
+
+**Current Implementation:** WorkManager (battery-friendly)
+
+**Doze Impact with 2-minute intervals:**
+- ✅ **In motion** (typical transport use): Doze doesn't activate, works perfectly
+- ⚠️ **Stationary 30+ minutes** with screen off: Checks may be delayed/batched
+- 🔋 **Battery friendly**: Respects Android power management
+
+**If Doze becomes problematic in real-world usage:**
+
+**Option 1: Foreground Service** (not recommended)
+- Pros: Never interrupted, guaranteed precision
+- Cons: Mandatory permanent notification, higher battery drain
+- Use case: Only if critical precision needed
+
+**Option 2: REQUEST_IGNORE_BATTERY_OPTIMIZATIONS** (recommended if needed)
+- Pros: Exempts app from Doze, no permanent notification
+- Cons: User must manually approve, Google Play may scrutinize
+- Implementation:
+  ```kotlin
+  // In AndroidManifest.xml
+  <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+  
+  // Request exemption
+  val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+  intent.data = Uri.parse("package:$packageName")
+  startActivity(intent)
+  ```
+- Add in Settings UI: "Disable battery optimization" option with explanation
+
+**Decision:** Stay with current WorkManager implementation. Only implement Option 2 if real-world testing reveals issues.
+
 ## Tests Performed
 
 ### Functional Tests ✅
