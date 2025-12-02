@@ -8,12 +8,14 @@ Android application to automate Fairtiq app launch based on geolocation.
 - **Points of Interest Management**:
   - Long press on map to create a point
   - Long press on marker to delete it
+  - Visual proximity circles (red semi-transparent) around each point
   - Persistent local storage of points (Room)
 - **Background Tracking**:
   - Periodic GPS position checking
   - Configurable proximity detection
   - Automatic launch of Fairtiq application
   - Phone vibration on trigger
+  - Auto-start on device boot
 - **Configurable Settings**:
   - Position check frequency (seconds or minutes)
   - Proximity distance (meters)
@@ -98,16 +100,19 @@ cd FairLaunch
 
 5. **Automatic Operation**:
    - The app checks your position in the background
+   - Red circles on the map show proximity zones
    - When you enter a zone (at configured distance):
      - The phone vibrates
      - The Fairtiq app launches automatically
    - You must leave and re-enter the zone to trigger again
+   - **Tracking persists after device reboot** (auto-restart if enabled)
 
 ## Permissions
 
 - `ACCESS_FINE_LOCATION`: Precise location
 - `ACCESS_COARSE_LOCATION`: Approximate location (fallback)
 - `ACCESS_BACKGROUND_LOCATION`: Background location
+- `RECEIVE_BOOT_COMPLETED`: Auto-start tracking on device boot
 - `VIBRATE`: Phone vibration
 - `INTERNET`: Map tiles loading
 
@@ -118,9 +123,10 @@ FairLaunch/
 ├── app/                    # UI layer
 │   └── src/main/java/com/fairlaunch/
 │       ├── di/            # Dependency injection
+│       ├── receiver/      # Boot receiver for auto-start
 │       ├── worker/        # Background location worker (WorkManager)
 │       ├── ui/
-│       │   ├── map/       # Map screen
+│       │   ├── map/       # Map screen with proximity circles
 │       │   ├── settings/  # Settings screen
 │       │   └── theme/     # Compose theme
 │       └── MainActivity.kt

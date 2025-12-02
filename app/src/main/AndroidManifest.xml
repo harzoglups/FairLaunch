@@ -12,6 +12,9 @@
     <!-- Vibration permission -->
     <uses-permission android:name="android.permission.VIBRATE" />
     
+    <!-- Boot completed permission to restart tracking after device reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    
     <!-- Write external storage for osmdroid cache (Android 12 and below) -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -39,6 +42,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Boot receiver to restart location tracking after device reboot -->
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <!-- Disable automatic WorkManager initialization -->
         <provider

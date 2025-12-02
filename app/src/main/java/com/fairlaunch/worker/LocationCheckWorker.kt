@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -14,11 +15,14 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.fairlaunch.domain.usecase.CheckProximityUseCase
 import com.fairlaunch.domain.usecase.GetSettingsUseCase
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeoutOrNull
 
 @HiltWorker
 class LocationCheckWorker @AssistedInject constructor(
@@ -32,6 +36,7 @@ class LocationCheckWorker @AssistedInject constructor(
         private const val TAG = "LocationCheckWorker"
         const val WORK_NAME = "location_check_work"
         private const val FAIRTIQ_PACKAGE = "com.fairtiq.android"
+        private const val LOCATION_TIMEOUT_MS = 30000L // 30 seconds timeout for GPS cold start
     }
 
     override suspend fun doWork(): androidx.work.ListenableWorker.Result {
@@ -58,12 +63,11 @@ class LocationCheckWorker @AssistedInject constructor(
                 return androidx.work.ListenableWorker.Result.success()
             }
             
-            // Get current location
-            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-            val location = fusedLocationClient.lastLocation.await()
+            // Get current location with fresh request
+            val location = getCurrentLocation()
 
             if (location == null) {
-                Log.w(TAG, "Location is null")
+                Log.w(TAG, "Location is null after timeout, will retry at next interval")
                 rescheduleIfNeeded(settings.checkIntervalSeconds)
                 return androidx.work.ListenableWorker.Result.success()
             }
@@ -90,8 +94,63 @@ class LocationCheckWorker @AssistedInject constructor(
             return androidx.work.ListenableWorker.Result.success()
         } catch (e: Exception) {
             Log.e(TAG, "Error during location check", e)
+            // Try to reschedule even on error
+            try {
+                val settings = getSettingsUseCase().first()
+                if (settings.isLocationTrackingEnabled) {
+                    rescheduleIfNeeded(settings.checkIntervalSeconds)
+                }
+            } catch (ex: Exception) {
+                Log.e(TAG, "Failed to reschedule after error", ex)
+            }
             return androidx.work.ListenableWorker.Result.failure()
         }
+    }
+    
+    private suspend fun getCurrentLocation(): Location? {
+        return withTimeoutOrNull(LOCATION_TIMEOUT_MS) {
+            try {
+                val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+                
+                // Try to get last known location first
+                val lastLocation = fusedLocationClient.lastLocation.await()
+                if (lastLocation != null && isLocationRecent(lastLocation)) {
+                    Log.d(TAG, "Using recent cached location")
+                    return@withTimeoutOrNull lastLocation
+                }
+                
+                // Request fresh location
+                Log.d(TAG, "Requesting fresh location...")
+                val locationRequest = LocationRequest.Builder(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    5000L
+                ).apply {
+                    setMaxUpdates(1)
+                    setWaitForAccurateLocation(false)
+                }.build()
+                
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    fusedLocationClient.getCurrentLocation(
+                        Priority.PRIORITY_HIGH_ACCURACY,
+                        null
+                    ).await()
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting location", e)
+                null
+            }
+        }
+    }
+    
+    private fun isLocationRecent(location: Location): Boolean {
+        val ageMs = System.currentTimeMillis() - location.time
+        return ageMs < 60000 // Less than 1 minute old
     }
     
     private fun rescheduleIfNeeded(intervalSeconds: Int) {
@@ -100,6 +159,8 @@ class LocationCheckWorker @AssistedInject constructor(
             Log.d(TAG, "Rescheduling next check in ${intervalSeconds}s")
             val scheduler = LocationWorkScheduler(context)
             scheduler.scheduleLocationChecks(intervalSeconds)
+        } else {
+            Log.d(TAG, "Interval >= 15min, using PeriodicWork (will be scheduled by LocationWorkScheduler)")
         }
     }
 

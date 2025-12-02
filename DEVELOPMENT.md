@@ -20,11 +20,20 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 # View Worker logs
 ~/Library/Android/sdk/platform-tools/adb logcat | grep LocationCheckWorker
 
+# View boot and worker logs
+~/Library/Android/sdk/platform-tools/adb logcat | grep -E "(BootReceiver|LocationCheckWorker)"
+
 # Clear and view logs
 ~/Library/Android/sdk/platform-tools/adb logcat -c && ~/Library/Android/sdk/platform-tools/adb logcat | grep LocationCheckWorker
 
 # Check if device is connected
 ~/Library/Android/sdk/platform-tools/adb devices
+
+# Check GPS/location status
+~/Library/Android/sdk/platform-tools/adb shell settings get secure location_providers_allowed
+
+# Check app permissions
+~/Library/Android/sdk/platform-tools/adb shell dumpsys package com.fairlaunch | grep -A 5 "granted=true"
 
 # Check WorkManager diagnostics
 ~/Library/Android/sdk/platform-tools/adb shell am broadcast -a "androidx.work.diagnostics.REQUEST_DIAGNOSTICS" -p com.fairlaunch
@@ -65,6 +74,14 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 - **Auto-centering**: `locationOverlay.runOnFirstFix` + `controller.animateTo()`
 - **Follow mode**: `enableFollowLocation()` enabled
 - **Initial zoom**: 15 (closer)
+- **Proximity circles**: Red semi-transparent circles displayed on map for each point
+
+### 7. Boot Auto-Start
+- **BootReceiver**: Triggers on `ACTION_BOOT_COMPLETED`
+- **Delay**: 30 seconds initial delay to allow GPS initialization (cold start)
+- **GPS timeout**: 30 seconds for first location request after boot
+- **Verification**: Checks DataStore file existence to avoid premature initialization
+- **Location**: `BootReceiver.kt` with 30s `setInitialDelay()`
 
 ## Data Structure
 
@@ -98,6 +115,7 @@ location_tracking_enabled: Boolean = false
 1. WorkManager PeriodicWork minimum = 15 minutes
 2. No notification during checks (by design)
 3. GPS accuracy depends on device power-saving settings
+4. Android Doze mode may pause background checks when device is idle (normal battery optimization)
 
 ## Tests Performed
 
@@ -113,6 +131,9 @@ location_tracking_enabled: Boolean = false
 - [x] Anti-spam (1 trigger per zone entry)
 - [x] Persistence after app closure
 - [x] Detailed logs in LocationCheckWorker
+- [x] Red proximity circles on map
+- [x] Auto-start on boot (with GPS cold start handling)
+- [x] GPS location after reboot without manual intervention
 
 ### Technical Tests ✅
 - [x] Gradle build
@@ -123,6 +144,17 @@ location_tracking_enabled: Boolean = false
 - [x] OneTimeWork rescheduling
 
 ## Typical Logs
+
+### Boot Sequence
+```
+BootReceiver: Device booted, checking if tracking was enabled
+BootReceiver: Settings file exists, scheduling worker to check settings
+BootReceiver: Worker scheduled successfully with 30s delay
+LocationCheckWorker: Starting location check...
+LocationCheckWorker: Settings: interval=5s, distance=100m, enabled=true
+LocationCheckWorker: Requesting fresh location...
+LocationCheckWorker: Current location: 43.342346, 1.5203021
+```
 
 ### Worker Success
 ```
