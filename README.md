@@ -1,117 +1,117 @@
 # FairLaunch
 
-Application Android pour automatiser le lancement de Fairtiq basé sur la géolocalisation.
+Android application to automate Fairtiq app launch based on geolocation.
 
-## Fonctionnalités
+## Features
 
-- **Carte interactive OpenStreetMap**: Zoom, déplacement, rotation
-- **Gestion de points d'intérêt**:
-  - Clic long sur la carte pour créer un point
-  - Clic long sur un marqueur pour le supprimer
-  - Stockage persistant des points en local (Room)
-- **Suivi en arrière-plan**:
-  - Vérification périodique de la position GPS
-  - Détection de proximité configurable
-  - Lancement automatique de l'application Fairtiq
-  - Vibration du téléphone lors du déclenchement
-- **Paramètres configurables**:
-  - Fréquence de vérification de la position (secondes ou minutes)
-  - Distance de proximité (mètres)
-  - Activation/désactivation du suivi
-- **Anti-spam**: Ne se déclenche qu'une fois par entrée de zone (nécessite de sortir et revenir)
+- **Interactive OpenStreetMap**: Zoom, pan, rotation
+- **Points of Interest Management**:
+  - Long press on map to create a point
+  - Long press on marker to delete it
+  - Persistent local storage of points (Room)
+- **Background Tracking**:
+  - Periodic GPS position checking
+  - Configurable proximity detection
+  - Automatic launch of Fairtiq application
+  - Phone vibration on trigger
+- **Configurable Settings**:
+  - Position check frequency (seconds or minutes)
+  - Proximity distance (meters)
+  - Enable/disable tracking
+- **Anti-spam**: Only triggers once per zone entry (requires leaving and returning)
 
 ## Architecture
 
-Architecture Clean Architecture en 3 couches :
+Clean Architecture with 3 layers:
 
-### Domain Layer (Kotlin pur)
-- `model/` - Entités: MapPoint, AppSettings, ProximityState
-- `repository/` - Interfaces des repositories
-- `usecase/` - Logique métier: Add/Delete points, Check proximity, Settings management
+### Domain Layer (Pure Kotlin)
+- `model/` - Entities: MapPoint, AppSettings, ProximityState
+- `repository/` - Repository interfaces
+- `usecase/` - Business logic: Add/Delete points, Check proximity, Settings management
 
 ### Data Layer
 - `local/dao/` - Room DAOs (MapPointDao, ProximityStateDao)
-- `local/entity/` - Entities Room
-- `repository/` - Implémentations des repositories
-- `mapper/` - Mappers Entity ↔ Domain
+- `local/entity/` - Room entities
+- `repository/` - Repository implementations
+- `mapper/` - Entity ↔ Domain mappers
 
 ### App Layer (Presentation)
-- `ui/map/` - Écran carte avec OpenStreetMap
-- `ui/settings/` - Écran de paramètres
-- `worker/` - WorkManager pour le suivi en arrière-plan
-- `di/` - Modules Hilt
+- `ui/map/` - Map screen with OpenStreetMap
+- `ui/settings/` - Settings screen
+- `worker/` - WorkManager for background tracking
+- `di/` - Hilt modules
 
-## Stack Technique
+## Tech Stack
 
-- **Langage**: Kotlin
+- **Language**: Kotlin
 - **UI**: Jetpack Compose + Material3
 - **Architecture**: Clean Architecture (Domain/Data/App)
-- **Carte**: OpenStreetMap (osmdroid)
-- **Localisation**: Google Play Services Location
-- **Tâches en arrière-plan**: WorkManager
+- **Map**: OpenStreetMap (osmdroid)
+- **Location**: Google Play Services Location
+- **Background Tasks**: WorkManager
 - **DI**: Hilt
 - **Async**: Coroutines + Flow
 - **Database**: Room
-- **Préférences**: DataStore
+- **Preferences**: DataStore
 
-## Installation et Configuration
+## Installation and Setup
 
-### Prérequis
-- Android Studio Hedgehog ou plus récent
-- SDK Android 24 minimum (Android 7.0)
-- SDK Android 34 pour la compilation
+### Prerequisites
+- Android Studio Hedgehog or newer
+- Android SDK 24 minimum (Android 7.0)
+- Android SDK 34 for compilation
 
 ### Build
 
 ```bash
-# Cloner le repository
+# Clone the repository
 cd FairLaunch
 
-# Build le projet
+# Build the project
 ./gradlew build
 
-# Assembler le debug APK
+# Assemble debug APK
 ./gradlew assembleDebug
 
-# Lancer les tests
+# Run tests
 ./gradlew test
 ```
 
-## Utilisation
+## Usage
 
-1. **Première utilisation**:
-   - L'application demande les permissions de localisation
-   - Accepter les permissions FINE_LOCATION et BACKGROUND_LOCATION
+1. **First Use**:
+   - The app requests location permissions
+   - Accept FINE_LOCATION and BACKGROUND_LOCATION permissions
 
-2. **Créer des points**:
-   - Appuyer longuement sur la carte pour créer un point
-   - Les points apparaissent comme des marqueurs
+2. **Create Points**:
+   - Long press on the map to create a point
+   - Points appear as markers
 
-3. **Supprimer des points**:
-   - Appuyer longuement sur un marqueur pour le supprimer
+3. **Delete Points**:
+   - Long press on a marker to delete it
 
-4. **Configurer le suivi**:
-   - Ouvrir les paramètres via l'icône en haut à droite
-   - Configurer la fréquence de vérification (défaut: 300 secondes = 5 minutes)
-   - Configurer la distance de proximité (défaut: 200 mètres)
-   - Activer le suivi via le switch dans la barre du haut (il devient vert)
+4. **Configure Tracking**:
+   - Open settings via the top-right icon
+   - Configure check frequency (default: 300 seconds = 5 minutes)
+   - Configure proximity distance (default: 200 meters)
+   - Enable tracking via the switch in the top bar (turns green)
 
-5. **Fonctionnement automatique**:
-   - L'application vérifie votre position en arrière-plan
-   - Quand vous entrez dans une zone (à la distance configurée):
-     - Le téléphone vibre
-     - L'application Fairtiq se lance automatiquement
-   - Il faut sortir de la zone et y revenir pour déclencher à nouveau
+5. **Automatic Operation**:
+   - The app checks your position in the background
+   - When you enter a zone (at configured distance):
+     - The phone vibrates
+     - The Fairtiq app launches automatically
+   - You must leave and re-enter the zone to trigger again
 
 ## Permissions
 
-- `ACCESS_FINE_LOCATION`: Localisation précise
-- `ACCESS_COARSE_LOCATION`: Localisation approximative (fallback)
-- `ACCESS_BACKGROUND_LOCATION`: Localisation en arrière-plan
-- `VIBRATE`: Vibration du téléphone
-- `INTERNET`: Chargement des tuiles de carte
+- `ACCESS_FINE_LOCATION`: Precise location
+- `ACCESS_COARSE_LOCATION`: Approximate location (fallback)
+- `ACCESS_BACKGROUND_LOCATION`: Background location
+- `VIBRATE`: Phone vibration
+- `INTERNET`: Map tiles loading
 
-## Structure du Projet
+## Project Structure
 
 ```
 FairLaunch/
@@ -136,10 +136,10 @@ FairLaunch/
         └── usecase/       # Business logic
 ```
 
-## Développement
+## Development
 
-Voir [AGENTS.md](AGENTS.md) pour les guidelines de développement détaillées.
+See [AGENTS.md](AGENTS.md) for detailed development guidelines.
 
 ## License
 
-Projet personnel - Tous droits réservés
+Personal project - All rights reserved

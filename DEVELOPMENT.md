@@ -1,76 +1,76 @@
 # FairLaunch - Development Notes
 
-## Quick Start pour Nouvelle Session
+## Quick Start for New Session
 
-### Build et Installation
+### Build and Installation
 ```bash
-# Build avec Java de Android Studio
+# Build with Android Studio Java
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 ./gradlew assembleDebug
 
-# Installation sur device
+# Install on device
 ~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk
 
-# Lancer l'app
+# Launch the app
 ~/Library/Android/sdk/platform-tools/adb shell am start -n com.fairlaunch/.MainActivity
 ```
 
 ### Debugging
 ```bash
-# Voir les logs du Worker
+# View Worker logs
 ~/Library/Android/sdk/platform-tools/adb logcat | grep LocationCheckWorker
 
-# Effacer et voir les logs
+# Clear and view logs
 ~/Library/Android/sdk/platform-tools/adb logcat -c && ~/Library/Android/sdk/platform-tools/adb logcat | grep LocationCheckWorker
 
-# Vérifier si device connecté
+# Check if device is connected
 ~/Library/Android/sdk/platform-tools/adb devices
 
-# Vérifier WorkManager diagnostics
+# Check WorkManager diagnostics
 ~/Library/Android/sdk/platform-tools/adb shell am broadcast -a "androidx.work.diagnostics.REQUEST_DIAGNOSTICS" -p com.fairlaunch
 ```
 
-## Décisions Techniques Importantes
+## Important Technical Decisions
 
 ### 1. Fairtiq Package Name
-- **Package utilisé** : `com.fairtiq.android` (vérifié et fonctionnel)
-- **Localisation** : `LocationCheckWorker.kt` ligne 34
-- Testé avec : `adb shell monkey -p com.fairtiq.android -c android.intent.category.LAUNCHER 1`
+- **Package used**: `com.fairtiq.android` (verified and working)
+- **Location**: `LocationCheckWorker.kt` line 34
+- Tested with: `adb shell monkey -p com.fairtiq.android -c android.intent.category.LAUNCHER 1`
 
-### 2. Intervalles de Vérification
-- **Format** : Secondes (pour faciliter les tests)
-- **Défaut** : 300 secondes (5 minutes)
-- **WorkManager limitation** : Minimum 15 minutes pour PeriodicWork
-- **Solution** : Pour intervalles < 900s, utilise OneTimeWorkRequest avec auto-rescheduling
-- **Localisation** : `LocationWorkScheduler.kt` et `LocationCheckWorker.rescheduleIfNeeded()`
+### 2. Check Intervals
+- **Format**: Seconds (to ease testing)
+- **Default**: 300 seconds (5 minutes)
+- **WorkManager limitation**: Minimum 15 minutes for PeriodicWork
+- **Solution**: For intervals < 900s, uses OneTimeWorkRequest with auto-rescheduling
+- **Location**: `LocationWorkScheduler.kt` and `LocationCheckWorker.rescheduleIfNeeded()`
 
 ### 3. Hilt + WorkManager
-- **Configuration obligatoire** :
+- **Required configuration**:
   - `FairLaunchApplication` implements `Configuration.Provider`
-  - Injection de `HiltWorkerFactory`
-  - Désactivation de l'init auto de WorkManager dans `AndroidManifest.xml`
-- **Localisation** : `FairLaunchApplication.kt`, `AndroidManifest.xml` (meta-data avec `tools:node="remove"`)
+  - `HiltWorkerFactory` injection
+  - Disable WorkManager auto-init in `AndroidManifest.xml`
+- **Location**: `FairLaunchApplication.kt`, `AndroidManifest.xml` (meta-data with `tools:node="remove"`)
 
-### 4. Calcul de Distance
-- **Méthode** : Formule de Haversine (pure Kotlin)
-- **Raison** : Éviter dépendance Android dans domain layer
-- **Localisation** : `CheckProximityUseCase.calculateDistance()`
+### 4. Distance Calculation
+- **Method**: Haversine formula (pure Kotlin)
+- **Reason**: Avoid Android dependency in domain layer
+- **Location**: `CheckProximityUseCase.calculateDistance()`
 
 ### 5. Anti-Spam Proximity
-- **Mécanisme** : Stockage de l'état (inside/outside) par point dans Room
-- **Déclenchement** : Seulement lors du passage outside → inside
-- **Base de données** : Table `proximity_states` avec `point_id` et `is_inside`
+- **Mechanism**: Store state (inside/outside) per point in Room
+- **Trigger**: Only on outside → inside transition
+- **Database**: Table `proximity_states` with `point_id` and `is_inside`
 
-### 6. Carte et Localisation
-- **Centrage auto** : `locationOverlay.runOnFirstFix` + `controller.animateTo()`
-- **Follow mode** : `enableFollowLocation()` activé
-- **Zoom initial** : 15 (plus proche)
+### 6. Map and Location
+- **Auto-centering**: `locationOverlay.runOnFirstFix` + `controller.animateTo()`
+- **Follow mode**: `enableFollowLocation()` enabled
+- **Initial zoom**: 15 (closer)
 
-## Structure des Données
+## Data Structure
 
 ### DataStore (Settings)
 ```kotlin
-check_interval_seconds: Int = 300    // Changé de minutes à secondes
+check_interval_seconds: Int = 300    // Changed from minutes to seconds
 proximity_distance_meters: Int = 200
 location_tracking_enabled: Boolean = false
 ```
@@ -86,43 +86,43 @@ location_tracking_enabled: Boolean = false
 - point_id (PK, FK → map_points)
 - is_inside (Boolean)
 
-## Points d'Attention
+## Points of Attention
 
-### Pour Production
-1. **Permissions** : Implémenter flow en 2 étapes pour BACKGROUND_LOCATION (Android 10+)
-2. **Intervalle** : Possibilité de revenir aux minutes (ou garder secondes avec validation min/max)
-3. **Battery optimization** : Tester sur différents devices avec Doze mode
-4. **Icons** : Ajouter launcher icons personnalisés
+### For Production
+1. **Permissions**: Implement 2-step flow for BACKGROUND_LOCATION (Android 10+)
+2. **Interval**: Option to revert to minutes (or keep seconds with min/max validation)
+3. **Battery optimization**: Test on different devices with Doze mode
+4. **Icons**: Add custom launcher icons
 
-### Limitations Connues
+### Known Limitations
 1. WorkManager PeriodicWork minimum = 15 minutes
-2. Pas de notification pendant les checks (by design)
-3. Précision GPS dépend des paramètres d'économie d'énergie de l'appareil
+2. No notification during checks (by design)
+3. GPS accuracy depends on device power-saving settings
 
-## Tests Effectués
+## Tests Performed
 
-### Tests Fonctionnels ✅
-- [x] Création/suppression de points sur carte
-- [x] Centrage automatique sur position utilisateur
-- [x] Activation/désactivation du tracking
-- [x] Modification intervalle et distance
-- [x] Worker se lance à intervalles courts (30-60s)
-- [x] Détection de proximité
-- [x] Lancement Fairtiq
-- [x] Vibration téléphone
-- [x] Anti-spam (1 trigger par entrée de zone)
-- [x] Persistence après fermeture app
-- [x] Logs détaillés dans LocationCheckWorker
+### Functional Tests ✅
+- [x] Create/delete points on map
+- [x] Automatic centering on user position
+- [x] Enable/disable tracking
+- [x] Modify interval and distance
+- [x] Worker runs at short intervals (30-60s)
+- [x] Proximity detection
+- [x] Fairtiq launch
+- [x] Phone vibration
+- [x] Anti-spam (1 trigger per zone entry)
+- [x] Persistence after app closure
+- [x] Detailed logs in LocationCheckWorker
 
-### Tests Techniques ✅
-- [x] Build Gradle
-- [x] Injection Hilt
+### Technical Tests ✅
+- [x] Gradle build
+- [x] Hilt injection
 - [x] Room migrations (none needed yet)
 - [x] DataStore persistence
 - [x] WorkManager scheduling
 - [x] OneTimeWork rescheduling
 
-## Logs Typiques
+## Typical Logs
 
 ### Worker Success
 ```
@@ -148,14 +148,14 @@ LocationCheckWorker: Error during location check
 
 ## Git
 
-### Premier Commit
-Commit effectué avec toutes les fonctionnalités principales.
+### First Commit
+Commit made with all main features.
 
-### Fichiers Importants
-- `README.md` - Documentation utilisateur
-- `AGENTS.md` - Guidelines pour agents IA
-- `TODO.md` - Status du projet + roadmap
-- `DEVELOPMENT.md` - Ce fichier (notes techniques)
+### Important Files
+- `README.md` - User documentation
+- `AGENTS.md` - Guidelines for AI agents
+- `TODO.md` - Project status + roadmap
+- `DEVELOPMENT.md` - This file (technical notes)
 
 ## Contact / Support
-Projet personnel - Sylvain
+Personal project - Sylvain

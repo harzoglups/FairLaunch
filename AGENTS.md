@@ -1,5 +1,12 @@
 # FairLaunch - Agent Guidelines
 
+## Language Policy
+**IMPORTANT**: All code, documentation, and commit messages MUST be in English, even if the conversation is in French.
+- **Code**: Function names, variable names, class names, comments - all in English
+- **Documentation**: All .md files must be in English (README.md, DEVELOPMENT.md, TODO.md, etc.)
+- **Commit messages**: Always in English
+- **Conversation**: Can be in French, but all written artifacts must be in English
+
 ## Build Commands
 - **Java setup**: If gradle fails, set `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`
 - Build: `./gradlew build`

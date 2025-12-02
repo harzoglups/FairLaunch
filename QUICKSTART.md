@@ -1,49 +1,49 @@
 # FairLaunch - Quick Start
 
-## 🚀 Pour une Nouvelle Session de Développement
+## 🚀 For a New Development Session
 
-### 1. Vérifier l'Environnement
+### 1. Check Environment
 
 ```bash
-# Device Android connecté ?
+# Android device connected?
 ~/Library/Android/sdk/platform-tools/adb devices
 
-# Doit afficher un device (pas "unauthorized")
-# Si unauthorized, accepter sur le téléphone
+# Should show a device (not "unauthorized")
+# If unauthorized, accept on the phone
 ```
 
 ### 2. Build & Install
 
 ```bash
-# Aller dans le projet
+# Go to the project
 cd /Users/sylvain/AndroidStudioProjects/FairLaunch
 
-# Build (avec Java de Android Studio)
+# Build (with Android Studio Java)
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 ./gradlew assembleDebug
 
-# Installer sur le device
+# Install on device
 ~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk
 
-# Lancer l'app
+# Launch the app
 ~/Library/Android/sdk/platform-tools/adb shell am start -n com.fairlaunch/.MainActivity
 ```
 
-### 3. Tester le Worker
+### 3. Test the Worker
 
 ```bash
-# Voir les logs du Worker en temps réel
+# View Worker logs in real-time
 ~/Library/Android/sdk/platform-tools/adb logcat -c
 ~/Library/Android/sdk/platform-tools/adb logcat | grep LocationCheckWorker
 
-# Dans l'app :
-# 1. Créer un point (long press sur la carte)
-# 2. Settings → Mettre intervalle à 30 secondes
-# 3. Activer le switch (barre du haut)
-# 4. Attendre 30 secondes → Logs devraient apparaître
+# In the app:
+# 1. Create a point (long press on map)
+# 2. Settings → Set interval to 30 seconds
+# 3. Enable the switch (top bar)
+# 4. Wait 30 seconds → Logs should appear
 ```
 
-### 4. Logs Attendus (Si Tout Fonctionne)
+### 4. Expected Logs (If Everything Works)
 
 ```
 LocationCheckWorker: Starting location check...
@@ -53,55 +53,55 @@ LocationCheckWorker: No proximity zones entered
 LocationCheckWorker: Rescheduling next check in 30s
 ```
 
-## 📚 Documentation Disponible
+## 📚 Available Documentation
 
-| Fichier | Description |
+| File | Description |
 |---------|-------------|
-| **README.md** | Documentation générale, architecture, utilisation |
-| **AGENTS.md** | Guidelines pour agents IA (build, architecture, style) |
-| **TODO.md** | Status du projet, features complétées, améliorations futures |
-| **DEVELOPMENT.md** | Notes techniques détaillées, décisions importantes |
-| **QUICKSTART.md** | Ce fichier - démarrage rapide |
-| **.env.example** | Variables d'environnement |
+| **README.md** | General documentation, architecture, usage |
+| **AGENTS.md** | Guidelines for AI agents (build, architecture, style) |
+| **TODO.md** | Project status, completed features, future improvements |
+| **DEVELOPMENT.md** | Detailed technical notes, important decisions |
+| **QUICKSTART.md** | This file - quick start |
+| **.env.example** | Environment variables |
 
-## 🔧 Commandes Utiles
+## 🔧 Useful Commands
 
 ### Debug
 ```bash
-# Effacer les logs
+# Clear logs
 ~/Library/Android/sdk/platform-tools/adb logcat -c
 
-# Voir tous les logs de l'app
+# View all app logs
 ~/Library/Android/sdk/platform-tools/adb logcat | grep fairlaunch
 
-# Diagnostics WorkManager
+# WorkManager diagnostics
 ~/Library/Android/sdk/platform-tools/adb shell am broadcast -a "androidx.work.diagnostics.REQUEST_DIAGNOSTICS" -p com.fairlaunch
 ```
 
 ### Build
 ```bash
-# Build complet (avec tests)
+# Complete build (with tests)
 ./gradlew build
 
-# Seulement les tests
+# Only tests
 ./gradlew test
 
 # Clean + build
 ./gradlew clean assembleDebug
 
-# Voir les tâches disponibles
+# View available tasks
 ./gradlew tasks
 ```
 
 ### Installation
 ```bash
-# Installer (écrase version existante)
+# Install (overwrites existing version)
 ~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk
 
-# Désinstaller
+# Uninstall
 ~/Library/Android/sdk/platform-tools/adb uninstall com.fairlaunch
 
-# Lancer Fairtiq (pour tester)
+# Launch Fairtiq (for testing)
 ~/Library/Android/sdk/platform-tools/adb shell monkey -p com.fairtiq.android -c android.intent.category.LAUNCHER 1
 ```
 
@@ -114,36 +114,36 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
 ### "Device not found"
 ```bash
-# Redémarrer serveur ADB
+# Restart ADB server
 killall adb
 ~/Library/Android/sdk/platform-tools/adb devices
 ```
 
-### "Worker ne se lance pas"
-- Vérifier que le switch est bien VERT (activé)
-- Vérifier dans Settings que l'intervalle est configuré
-- Regarder les logs : `adb logcat | grep -E "(WorkManager|LocationCheckWorker)"`
-- L'app doit avoir les permissions de localisation
+### "Worker doesn't start"
+- Check that the switch is GREEN (enabled)
+- Check in Settings that the interval is configured
+- View logs: `adb logcat | grep -E "(WorkManager|LocationCheckWorker)"`
+- The app must have location permissions
 
-### "Fairtiq ne se lance pas"
-- Vérifier que Fairtiq est bien installé : 
+### "Fairtiq doesn't launch"
+- Check that Fairtiq is installed: 
   ```bash
   ~/Library/Android/sdk/platform-tools/adb shell pm list packages | grep fairtiq
-  # Doit afficher : package:com.fairtiq.android
+  # Should display: package:com.fairtiq.android
   ```
 
-## 🎯 État Actuel du Projet
+## 🎯 Current Project Status
 
-✅ **Application complète et fonctionnelle**
+✅ **Complete and functional application**
 
-- Carte interactive avec création/suppression de points
-- Background service avec WorkManager
-- Détection de proximité anti-spam
-- Lancement automatique de Fairtiq + vibration
-- Paramètres configurables (intervalle en secondes, distance)
-- Persistance des données (Room + DataStore)
-- Architecture Clean avec Hilt
+- Interactive map with create/delete points
+- Background service with WorkManager
+- Anti-spam proximity detection
+- Automatic Fairtiq launch + vibration
+- Configurable settings (interval in seconds, distance)
+- Data persistence (Room + DataStore)
+- Clean Architecture with Hilt
 
-**Prêt pour** : Tests réels, ajout d'icônes, optimisations
+**Ready for**: Real testing, add icons, optimizations
 
-Voir **TODO.md** pour les améliorations futures optionnelles.
+See **TODO.md** for optional future improvements.
