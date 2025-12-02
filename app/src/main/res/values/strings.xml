@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">FairLaunch</string>
+    
+    <!-- Permission strings -->
+    <string name="permission_location_rationale">FairLaunch a besoin d\'accéder à votre position pour détecter quand vous approchez d\'un point sauvegardé.</string>
+    <string name="permission_background_location_rationale">Pour surveiller votre position en arrière-plan et lancer automatiquement Fairtiq, FairLaunch a besoin de la permission \"Toujours autoriser\".\n\nCette permission permet à l\'application de vérifier votre position même quand l\'app est fermée.</string>
+    <string name="permission_background_location_required">Permission arrière-plan requise</string>
+    <string name="permission_background_location_button">Autoriser l\'accès en arrière-plan</string>
+    <string name="permission_location_denied">Permission de localisation refusée. L\'application ne pourra pas fonctionner correctement.</string>
+    <string name="permission_background_location_denied">Sans la permission d\'accès en arrière-plan, l\'application ne pourra surveiller votre position que lorsqu\'elle est ouverte.</string>
+    <string name="permission_open_settings">Ouvrir les paramètres</string>
 </resources>

@@ -1,12 +1,14 @@
 # FairLaunch - Agent Guidelines
 
 ## Build Commands
+- **Java setup**: If gradle fails, set `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`
 - Build: `./gradlew build`
 - Run tests: `./gradlew test`
 - Run single test: `./gradlew test --tests "com.fairlaunch.domain.usecase.GetMapPointsUseCaseTest"`
 - Run instrumented tests: `./gradlew connectedAndroidTest`
 - Lint: `./gradlew lint`
 - Assemble debug: `./gradlew assembleDebug`
+- Install on device: `~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk`
 
 ## Architecture
 Clean Architecture with 3 layers: **domain** (pure Kotlin), **data** (Android), **app** (UI)
@@ -42,12 +44,20 @@ Clean Architecture with 3 layers: **domain** (pure Kotlin), **data** (Android), 
 - Permissions: FINE_LOCATION, COARSE_LOCATION, BACKGROUND_LOCATION, VIBRATE
 
 ## Background Service
-- LocationCheckWorker runs periodically based on user settings
-- Checks proximity to all saved points
-- Launches Fairtiq app and vibrates when entering a zone
-- Tracks proximity state per point to avoid repeated triggers
+- LocationCheckWorker runs periodically based on user settings (seconds, not minutes)
+- For intervals < 900s: Uses OneTimeWorkRequest with auto-rescheduling (WorkManager PeriodicWork min is 15min)
+- Checks proximity to all saved points using Haversine formula (pure Kotlin, no Android deps in domain)
+- Launches Fairtiq app (`com.fairtiq.android`) and vibrates when entering a zone
+- Tracks proximity state per point in Room to avoid repeated triggers (outside → inside only)
 
 ## Testing
-- Unit tests in `domain/` use JUnit + MockK, coroutines test with `kotlinx-coroutines-test`
+- Unit tests in `domain/` use JUnit + MockK, coroutines test with `kotlinx-coroutines-test` and `runTest`
 - Repository tests mock DAO, verify mapping and error handling
 - ViewModel tests use Turbine for Flow testing, verify state transitions
+- Test naming: Use backticks for descriptive names (e.g., `` `invoke creates point with correct coordinates` ``)
+- Structure: Given/When/Then comments for clarity
+
+## Debugging
+- View Worker logs: `~/Library/Android/sdk/platform-tools/adb logcat | grep LocationCheckWorker`
+- Check devices: `~/Library/Android/sdk/platform-tools/adb devices`
+- Launch app: `~/Library/Android/sdk/platform-tools/adb shell am start -n com.fairlaunch/.MainActivity`
