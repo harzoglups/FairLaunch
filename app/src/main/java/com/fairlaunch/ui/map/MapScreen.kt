@@ -252,10 +252,11 @@ private fun MapContent(
                         }
                     }
 
-                    // Variables to track long press on map
+                    // Variables to track long press on map and markers
                     var touchStartTime = 0L
                     var touchStartX = 0f
                     var touchStartY = 0f
+                    var touchedMarkerId: Long? = null
                     val longPressThreshold = 500L // milliseconds
                     val movementThreshold = 20f // pixels
 
@@ -265,6 +266,28 @@ private fun MapContent(
                                 touchStartTime = System.currentTimeMillis()
                                 touchStartX = event.x
                                 touchStartY = event.y
+                                
+                                // Check if touch is on a marker
+                                touchedMarkerId = null
+                                val projection = this.projection
+                                
+                                // Find closest marker within touch range
+                                // Note: We need to iterate through actual marker overlays
+                                overlays.filterIsInstance<Marker>().forEach { marker ->
+                                    val markerScreenPoint = projection.toPixels(marker.position, null)
+                                    val dx = event.x - markerScreenPoint.x
+                                    val dy = event.y - markerScreenPoint.y
+                                    val distance = Math.sqrt((dx * dx + dy * dy).toDouble())
+                                    
+                                    if (distance < 100) { // 100 pixels touch radius (enlarged from 50)
+                                        // Extract the point ID from marker title
+                                        val title = marker.title
+                                        if (title != null && title.contains("#")) {
+                                            val idStr = title.substringAfter("#")
+                                            touchedMarkerId = idStr.toLongOrNull()
+                                        }
+                                    }
+                                }
                                 false
                             }
                             MotionEvent.ACTION_UP -> {
@@ -272,15 +295,29 @@ private fun MapContent(
                                 val dx = Math.abs(event.x - touchStartX)
                                 val dy = Math.abs(event.y - touchStartY)
                                 
-                                if (duration >= longPressThreshold && dx < movementThreshold && dy < movementThreshold) {
-                                    // Long press detected on map
-                                    val projection = this.projection
-                                    val geoPoint = projection.fromPixels(
-                                        event.x.toInt(),
-                                        event.y.toInt()
-                                    ) as GeoPoint
-                                    onAddPoint(geoPoint.latitude, geoPoint.longitude)
-                                    true
+                                if (dx < movementThreshold && dy < movementThreshold) {
+                                    if (touchedMarkerId != null) {
+                                        // Touch on marker
+                                        if (duration >= longPressThreshold) {
+                                            // Long press on marker - delete it
+                                            onDeletePoint(touchedMarkerId!!)
+                                        } else {
+                                            // Short click on marker - reserved for future edit
+                                            // TODO: Add edit dialog here
+                                        }
+                                        true // Consume the event to prevent map interaction
+                                    } else if (duration >= longPressThreshold) {
+                                        // Long press on map - add point
+                                        val projection = this.projection
+                                        val geoPoint = projection.fromPixels(
+                                            event.x.toInt(),
+                                            event.y.toInt()
+                                        ) as GeoPoint
+                                        onAddPoint(geoPoint.latitude, geoPoint.longitude)
+                                        true
+                                    } else {
+                                        false
+                                    }
                                 } else {
                                     false
                                 }
@@ -318,39 +355,6 @@ private fun MapContent(
                         position = GeoPoint(mapPoint.latitude, mapPoint.longitude)
                         title = mapPoint.name ?: "Point #${mapPoint.id}"
                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                        
-                        // Variables to track long press on marker
-                        var markerTouchStartTime = 0L
-                        val handler = Handler(Looper.getMainLooper())
-                        var longPressRunnable: Runnable? = null
-                        
-                        setOnMarkerClickListener { clickedMarker, _ ->
-                            markerTouchStartTime = System.currentTimeMillis()
-                            
-                            // Setup long press detection
-                            longPressRunnable = Runnable {
-                                // Long press detected - delete the marker
-                                onDeletePoint(mapPoint.id)
-                            }
-                            handler.postDelayed(longPressRunnable!!, 500)
-                            
-                            true // Consume the event
-                        }
-                        
-                        // Cancel long press if touch is released quickly
-                        setOnMarkerDragListener(object : Marker.OnMarkerDragListener {
-                            override fun onMarkerDrag(marker: Marker?) {
-                                longPressRunnable?.let { handler.removeCallbacks(it) }
-                            }
-
-                            override fun onMarkerDragEnd(marker: Marker?) {
-                                longPressRunnable?.let { handler.removeCallbacks(it) }
-                            }
-
-                            override fun onMarkerDragStart(marker: Marker?) {
-                                longPressRunnable?.let { handler.removeCallbacks(it) }
-                            }
-                        })
                     }
                     
                     map.overlays.add(marker)

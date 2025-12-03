@@ -77,6 +77,11 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 - **Proximity circles**: Red semi-transparent circles displayed on map for each point
 - **Map layers**: User can switch between Street and Topographic views via floating button (Google Maps style)
 - **Layer persistence**: Selected layer saved in DataStore preferences
+- **Marker interaction**: Custom touch handling at map level distinguishes short/long press
+  - Long press on map (500ms) → Add marker
+  - Long press on marker (500ms) → Delete marker
+  - Short click on marker → Reserved for future edit feature
+  - Touch zone: 100px radius around markers for easy interaction
 
 ### 7. Boot Auto-Start
 - **BootReceiver**: Triggers on `ACTION_BOOT_COMPLETED`

@@ -7,6 +7,15 @@
 - Only commit after explicit approval: "make a commit", "commit this", "create a commit", etc.
 - If you commit prematurely, you MUST apologize and offer to amend or revert
 
+## Commit Message Format
+**REQUIRED**: All commit messages MUST follow Conventional Commits specification.
+- Format: `<type>(<scope>): <description>`
+- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+- Example: `feat(map): add floating layer selection button`
+- Example: `fix(markers): improve touch detection for marker deletion`
+- Example: `docs(readme): update map interaction instructions`
+- Keep description concise, use imperative mood ("add" not "added")
+
 ## Language Policy
 **IMPORTANT**: All code, documentation, and commit messages MUST be in English, even if the conversation is in French.
 - **Code**: Function names, variable names, class names, comments - all in English

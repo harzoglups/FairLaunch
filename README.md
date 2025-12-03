@@ -89,11 +89,12 @@ cd FairLaunch
    - Accept BACKGROUND_LOCATION in settings to enable background tracking
 
 2. **Create Points**:
-   - Long press on the map to create a point
-   - Points appear as markers
+   - Long press (500ms) on the map to create a point
+   - Points appear as markers with proximity circles
 
 3. **Delete Points**:
-   - Long press on a marker to delete it
+   - Long press (500ms) on a marker to delete it
+   - Markers have a large touch zone for easy interaction
 
 4. **Configure Tracking**:
    - Open settings via the top-right icon
