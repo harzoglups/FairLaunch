@@ -18,6 +18,7 @@ import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.fairlaunch.R
 import com.fairlaunch.domain.usecase.CheckProximityUseCase
 import com.fairlaunch.domain.usecase.GetSettingsUseCase
 import com.google.android.gms.location.LocationRequest
@@ -235,8 +236,8 @@ class LocationCheckWorker @AssistedInject constructor(
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_info) // Use system icon for now
-                .setContentTitle("Zone de transport détectée")
-                .setContentText("Ouverture de Fairtiq...")
+                .setContentTitle(context.getString(R.string.notification_transport_zone_detected))
+                .setContentText(context.getString(R.string.notification_launching_fairtiq))
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setAutoCancel(true)
@@ -290,10 +291,10 @@ class LocationCheckWorker @AssistedInject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
-                "Alertes de proximité",
+                context.getString(R.string.notification_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Notifications lors de l'entrée dans une zone de transport"
+                description = context.getString(R.string.notification_channel_desc)
                 // Don't set vibration here - we do it manually
                 enableVibration(false)
             }

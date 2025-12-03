@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">FairLaunch</string>
+    
+    <!-- Permission strings -->
+    <string name="permission_location_rationale">FairLaunch benötigt Zugriff auf Ihren Standort, um zu erkennen, wann Sie sich einem gespeicherten Punkt nähern.</string>
+    <string name="permission_background_location_rationale">Um Ihren Standort im Hintergrund zu überwachen und Fairtiq automatisch zu starten, benötigt FairLaunch die Berechtigung \"Immer erlauben\".\n\nDiese Berechtigung ermöglicht es der App, Ihren Standort auch dann zu überprüfen, wenn die App geschlossen ist.</string>
+    <string name="permission_background_location_required">Hintergrund-Berechtigung erforderlich</string>
+    <string name="permission_background_location_button">Hintergrund-Zugriff erlauben</string>
+    <string name="permission_location_denied">Standortberechtigung verweigert. Die App funktioniert nicht richtig.</string>
+    <string name="permission_background_location_denied">Ohne Hintergrund-Zugriffsberechtigung kann die App Ihren Standort nur überwachen, wenn sie geöffnet ist.</string>
+    <string name="permission_open_settings">Einstellungen öffnen</string>
+    <string name="permission_location_required">Standortberechtigung erforderlich</string>
+    <string name="permission_grant">Berechtigung erteilen</string>
+    <string name="permission_foreground_only">Berechtigung auf App-Nutzung beschränkt</string>
+    <string name="permission_allow_always">\"Immer\" erlauben</string>
+    <string name="permission_allow">Erlauben</string>
+    <string name="permission_later">Später</string>
+    
+    <!-- Map screen -->
+    <string name="map_layers">Kartenebenen</string>
+    <string name="settings">Einstellungen</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="point_number">Punkt #%1$d</string>
+    <string name="active_time">Aktiv: %1$s - %2$s</string>
+    
+    <!-- Edit marker dialog -->
+    <string name="edit_marker">Markierung bearbeiten</string>
+    <string name="marker_name">Name</string>
+    <string name="active_time_window">Aktives Zeitfenster</string>
+    <string name="start_time">Start:</string>
+    <string name="end_time">Ende:</string>
+    <string name="time_window_info">Fairtiq wird nur gestartet, wenn Sie die Zone innerhalb dieses Zeitfensters betreten</string>
+    <string name="save">Speichern</string>
+    <string name="cancel">Abbrechen</string>
+    
+    <!-- Map layer types -->
+    <string name="map_layer_street">Straßenkarte</string>
+    <string name="map_layer_topo">Topografisch</string>
+    
+    <!-- Settings screen -->
+    <string name="back">Zurück</string>
+    <string name="location_tracking">Standortverfolgung</string>
+    <string name="enable_background_tracking">Hintergrund-Tracking aktivieren</string>
+    <string name="enable_background_tracking_desc">Ihren Standort im Hintergrund überwachen</string>
+    <string name="detection_parameters">Erkennungsparameter</string>
+    <string name="check_interval">Prüfintervall (Sekunden)</string>
+    <string name="check_interval_desc">Wie oft Ihr Standort überprüft wird</string>
+    <string name="proximity_distance">Näherungsdistanz (Meter)</string>
+    <string name="proximity_distance_desc">Entfernung zum Auslösen des Fairtiq-Starts</string>
+    <string name="seconds">Sekunden</string>
+    <string name="meters">Meter</string>
+    <string name="info">Info</string>
+    <string name="how_it_works">So funktioniert\'s</string>
+    <string name="how_it_works_content">• Lange auf die Karte drücken, um einen Punkt hinzuzufügen (Bearbeitungsdialog öffnet sich automatisch)\n• Kurz auf eine Markierung tippen, um Details anzuzeigen\n• Lange auf eine Markierung drücken, um sie zu löschen\n• Punkteigenschaften konfigurieren: Name und aktives Zeitfenster (Stunde:Minute)\n• Hintergrund-Tracking aktivieren, um Ihren Standort zu überwachen\n• Wenn Sie während des aktiven Zeitfensters die Zone eines Punktes betreten:\n  - Fairtiq startet automatisch\n  - Das Telefon vibriert (3-Burst-Muster)\n  - Der Bildschirm wird aktiviert, wenn er gesperrt ist\n• Sie müssen die Zone verlassen und erneut betreten, um erneut auszulösen (Anti-Spam)</string>
+    
+    <!-- Notifications -->
+    <string name="notification_channel_name">Näherungswarnungen</string>
+    <string name="notification_channel_desc">Benachrichtigungen beim Betreten einer Transportzone</string>
+    <string name="notification_transport_zone_detected">Transportzone erkannt</string>
+    <string name="notification_launching_fairtiq">Fairtiq wird gestartet…</string>
+</resources>

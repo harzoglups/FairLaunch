@@ -71,10 +71,10 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -88,7 +88,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "Location Tracking",
+                text = stringResource(R.string.location_tracking),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -127,7 +127,7 @@ fun SettingsScreen(
                         SettingCard {
                             Column {
                                 Text(
-                                    text = "Permission limitée à l'utilisation de l'app",
+                                    text = stringResource(R.string.permission_foreground_only),
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.tertiary,
                                     modifier = Modifier.padding(bottom = 8.dp)
@@ -144,7 +144,7 @@ fun SettingsScreen(
                                     },
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("Autoriser \"Toujours\"")
+                                    Text(stringResource(R.string.permission_allow_always))
                                 }
                             }
                         }
@@ -163,11 +163,11 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Enable Background Tracking",
+                            text = stringResource(R.string.enable_background_tracking),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Monitor your location in the background",
+                            text = stringResource(R.string.enable_background_tracking_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -193,7 +193,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Detection Parameters",
+                text = stringResource(R.string.detection_parameters),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -205,12 +205,12 @@ fun SettingsScreen(
                     }
 
                     Text(
-                        text = "Check Interval (seconds)",
+                        text = stringResource(R.string.check_interval),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
-                        text = "How often to check your location",
+                        text = stringResource(R.string.check_interval_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -225,7 +225,7 @@ fun SettingsScreen(
                                 }
                             }
                         },
-                        label = { Text("Seconds") },
+                        label = { Text(stringResource(R.string.seconds)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
@@ -242,12 +242,12 @@ fun SettingsScreen(
                     }
 
                     Text(
-                        text = "Proximity Distance (meters)",
+                        text = stringResource(R.string.proximity_distance),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
-                        text = "Distance to trigger Fairtiq launch",
+                        text = stringResource(R.string.proximity_distance_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -262,7 +262,7 @@ fun SettingsScreen(
                                 }
                             }
                         },
-                        label = { Text("Meters") },
+                        label = { Text(stringResource(R.string.meters)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
@@ -273,7 +273,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Info",
+                text = stringResource(R.string.info),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -281,21 +281,12 @@ fun SettingsScreen(
             SettingCard {
                 Column {
                     Text(
-                        text = "How it works",
+                        text = stringResource(R.string.how_it_works),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
-                        text = "• Long press on the map to add a point (edit dialog opens automatically)\n" +
-                                "• Short tap on a marker to view its details\n" +
-                                "• Long press on a marker to delete it\n" +
-                                "• Configure point properties: name and active time window (hour:minute)\n" +
-                                "• Enable background tracking to monitor your location\n" +
-                                "• When you enter a point's zone during its active time window:\n" +
-                                "  - Fairtiq launches automatically\n" +
-                                "  - The phone vibrates (3-burst pattern)\n" +
-                                "  - The screen wakes up if locked\n" +
-                                "• You must exit the zone and re-enter to trigger again (anti-spam)",
+                        text = stringResource(R.string.how_it_works_content),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -324,7 +315,7 @@ fun SettingsScreen(
                         }
                     }
                 ) {
-                    Text("Autoriser")
+                    Text(stringResource(R.string.permission_allow))
                 }
             },
             dismissButton = {
@@ -333,7 +324,7 @@ fun SettingsScreen(
                         showBackgroundLocationDialog = false
                     }
                 ) {
-                    Text("Plus tard")
+                    Text(stringResource(R.string.permission_later))
                 }
             }
         )

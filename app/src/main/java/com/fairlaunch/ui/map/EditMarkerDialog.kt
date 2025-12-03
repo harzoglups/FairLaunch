@@ -33,9 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fairlaunch.R
 import com.fairlaunch.domain.model.MapPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -54,13 +56,13 @@ fun EditMarkerDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Marker") },
+        title = { Text(stringResource(R.string.edit_marker)) },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Name") },
+                    label = { Text(stringResource(R.string.marker_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -68,7 +70,7 @@ fun EditMarkerDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    "Active Time Window",
+                    stringResource(R.string.active_time_window),
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -78,7 +80,7 @@ fun EditMarkerDialog(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Start:", modifier = Modifier.width(50.dp))
+                    Text(stringResource(R.string.start_time), modifier = Modifier.width(50.dp))
                     TimePicker(
                         hour = startHour,
                         minute = startMinute,
@@ -94,7 +96,7 @@ fun EditMarkerDialog(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("End:", modifier = Modifier.width(50.dp))
+                    Text(stringResource(R.string.end_time), modifier = Modifier.width(50.dp))
                     TimePicker(
                         hour = endHour,
                         minute = endMinute,
@@ -106,7 +108,7 @@ fun EditMarkerDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
-                    "Fairtiq will only launch when entering the zone within this time window",
+                    stringResource(R.string.time_window_info),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp)
@@ -127,12 +129,12 @@ fun EditMarkerDialog(
                     )
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
