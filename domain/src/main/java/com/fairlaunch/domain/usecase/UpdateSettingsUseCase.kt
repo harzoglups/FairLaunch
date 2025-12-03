@@ -1,5 +1,6 @@
 package com.fairlaunch.domain.usecase
 
+import com.fairlaunch.domain.model.MapLayerType
 import com.fairlaunch.domain.repository.SettingsRepository
 
 class UpdateSettingsUseCase(
@@ -15,5 +16,9 @@ class UpdateSettingsUseCase(
 
     suspend fun updateLocationTrackingEnabled(enabled: Boolean) {
         repository.updateLocationTrackingEnabled(enabled)
+    }
+
+    suspend fun updateMapLayerType(layerType: MapLayerType) {
+        repository.updateMapLayerType(layerType)
     }
 }

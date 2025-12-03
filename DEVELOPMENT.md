@@ -75,6 +75,8 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 - **Follow mode**: `enableFollowLocation()` enabled
 - **Initial zoom**: 15 (closer)
 - **Proximity circles**: Red semi-transparent circles displayed on map for each point
+- **Map layers**: User can switch between Street and Topographic views
+- **Layer persistence**: Selected layer saved in DataStore preferences
 
 ### 7. Boot Auto-Start
 - **BootReceiver**: Triggers on `ACTION_BOOT_COMPLETED`
@@ -104,6 +106,7 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 check_interval_seconds: Int = 300    // Changed from minutes to seconds
 proximity_distance_meters: Int = 200
 location_tracking_enabled: Boolean = false
+map_layer_type: String = "STREET"   // STREET, TOPO
 ```
 
 ### Room Database
@@ -184,6 +187,7 @@ location_tracking_enabled: Boolean = false
 - [x] GPS location after reboot without manual intervention
 - [x] Notification permission request on first launch (Android 13+)
 - [x] Vibration and app launch with screen locked
+- [x] Map layer selection (Street, Topographic)
 
 ### Technical Tests ✅
 - [x] Gradle build

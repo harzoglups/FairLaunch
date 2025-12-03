@@ -14,10 +14,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,6 +43,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fairlaunch.domain.model.MapLayerType
 import com.fairlaunch.domain.model.MapPoint
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -58,6 +62,7 @@ fun MapScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showLayerMenu by remember { mutableStateOf(false) }
     
     var hasLocationPermission by remember {
         mutableStateOf(
@@ -82,6 +87,31 @@ fun MapScreen(
                 actions = {
                     when (val state = uiState) {
                         is MapUiState.Success -> {
+                            // Map layer selection
+                            Box {
+                                IconButton(onClick = { showLayerMenu = true }) {
+                                    Icon(Icons.Default.Layers, contentDescription = "Map layers")
+                                }
+                                DropdownMenu(
+                                    expanded = showLayerMenu,
+                                    onDismissRequest = { showLayerMenu = false }
+                                ) {
+                                    MapLayerType.entries.forEach { layerType ->
+                                        DropdownMenuItem(
+                                            text = { Text(layerType.displayName()) },
+                                            onClick = {
+                                                viewModel.updateMapLayer(layerType)
+                                                showLayerMenu = false
+                                            },
+                                            leadingIcon = if (layerType == state.settings.mapLayerType) {
+                                                { Text("✓") }
+                                            } else null
+                                        )
+                                    }
+                                }
+                            }
+                            
+                            // Location tracking toggle
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.padding(end = 8.dp)
@@ -123,6 +153,7 @@ fun MapScreen(
                 MapContent(
                     points = state.points,
                     proximityDistanceMeters = state.settings.proximityDistanceMeters,
+                    mapLayerType = state.settings.mapLayerType,
                     hasLocationPermission = hasLocationPermission,
                     onRequestPermission = {
                         permissionLauncher.launch(
@@ -145,6 +176,7 @@ fun MapScreen(
 private fun MapContent(
     points: List<MapPoint>,
     proximityDistanceMeters: Int,
+    mapLayerType: MapLayerType,
     hasLocationPermission: Boolean,
     onRequestPermission: () -> Unit,
     onAddPoint: (Double, Double) -> Unit,
@@ -185,7 +217,7 @@ private fun MapContent(
             factory = { ctx ->
                 MapView(ctx).apply {
                     mapView = this
-                    setTileSource(TileSourceFactory.MAPNIK)
+                    setTileSource(mapLayerType.toTileSource())
                     setMultiTouchControls(true)
                     
                     // Set default position (e.g., Zurich, Switzerland)
@@ -245,6 +277,11 @@ private fun MapContent(
                 }
             },
             update = { map ->
+                // Update tile source when layer changes
+                if (map.tileProvider.tileSource != mapLayerType.toTileSource()) {
+                    map.setTileSource(mapLayerType.toTileSource())
+                }
+                
                 // Remove old markers and circles
                 map.overlays.removeAll { it is Marker || it is Polygon }
                 
@@ -309,4 +346,15 @@ private fun MapContent(
             }
         )
     }
+}
+
+// Helper extension functions
+private fun MapLayerType.toTileSource() = when (this) {
+    MapLayerType.STREET -> TileSourceFactory.MAPNIK
+    MapLayerType.TOPO -> TileSourceFactory.OpenTopo
+}
+
+private fun MapLayerType.displayName() = when (this) {
+    MapLayerType.STREET -> "Street Map"
+    MapLayerType.TOPO -> "Topographic"
 }

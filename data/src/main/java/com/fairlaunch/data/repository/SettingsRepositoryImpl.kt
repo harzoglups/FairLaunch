@@ -6,8 +6,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.fairlaunch.domain.model.AppSettings
+import com.fairlaunch.domain.model.MapLayerType
 import com.fairlaunch.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -23,14 +25,23 @@ class SettingsRepositoryImpl @Inject constructor(
         val CHECK_INTERVAL = intPreferencesKey("check_interval_seconds")
         val PROXIMITY_DISTANCE = intPreferencesKey("proximity_distance_meters")
         val LOCATION_TRACKING_ENABLED = booleanPreferencesKey("location_tracking_enabled")
+        val MAP_LAYER_TYPE = stringPreferencesKey("map_layer_type")
     }
 
     override fun getSettings(): Flow<AppSettings> {
         return context.dataStore.data.map { preferences ->
+            val layerTypeString = preferences[PreferencesKeys.MAP_LAYER_TYPE] ?: MapLayerType.STREET.name
+            val layerType = try {
+                MapLayerType.valueOf(layerTypeString)
+            } catch (e: IllegalArgumentException) {
+                MapLayerType.STREET
+            }
+            
             AppSettings(
                 checkIntervalSeconds = preferences[PreferencesKeys.CHECK_INTERVAL] ?: 300,
                 proximityDistanceMeters = preferences[PreferencesKeys.PROXIMITY_DISTANCE] ?: 200,
-                isLocationTrackingEnabled = preferences[PreferencesKeys.LOCATION_TRACKING_ENABLED] ?: false
+                isLocationTrackingEnabled = preferences[PreferencesKeys.LOCATION_TRACKING_ENABLED] ?: false,
+                mapLayerType = layerType
             )
         }
     }
@@ -50,6 +61,12 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun updateLocationTrackingEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.LOCATION_TRACKING_ENABLED] = enabled
+        }
+    }
+
+    override suspend fun updateMapLayerType(layerType: MapLayerType) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.MAP_LAYER_TYPE] = layerType.name
         }
     }
 }

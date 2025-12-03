@@ -3,6 +3,7 @@ package com.fairlaunch.ui.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fairlaunch.domain.model.AppSettings
+import com.fairlaunch.domain.model.MapLayerType
 import com.fairlaunch.domain.model.MapPoint
 import com.fairlaunch.domain.usecase.AddMapPointUseCase
 import com.fairlaunch.domain.usecase.DeleteMapPointUseCase
@@ -84,6 +85,12 @@ class MapViewModel @Inject constructor(
             } else {
                 locationWorkScheduler.cancelLocationChecks()
             }
+        }
+    }
+
+    fun updateMapLayer(layerType: MapLayerType) {
+        viewModelScope.launch {
+            updateSettingsUseCase.updateMapLayerType(layerType)
         }
     }
 }
