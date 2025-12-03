@@ -1,5 +1,12 @@
 # FairLaunch - Agent Guidelines
 
+## Git Commit Policy
+**CRITICAL**: NEVER create git commits unless explicitly requested by the user.
+- Build and install the app for testing FIRST
+- Wait for user confirmation that the feature works correctly
+- Only commit after explicit approval: "make a commit", "commit this", "create a commit", etc.
+- If you commit prematurely, you MUST apologize and offer to amend or revert
+
 ## Language Policy
 **IMPORTANT**: All code, documentation, and commit messages MUST be in English, even if the conversation is in French.
 - **Code**: Function names, variable names, class names, comments - all in English
