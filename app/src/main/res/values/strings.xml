@@ -2,11 +2,60 @@
     <string name="app_name">FairLaunch</string>
     
     <!-- Permission strings -->
-    <string name="permission_location_rationale">FairLaunch a besoin d\'accéder à votre position pour détecter quand vous approchez d\'un point sauvegardé.</string>
-    <string name="permission_background_location_rationale">Pour surveiller votre position en arrière-plan et lancer automatiquement Fairtiq, FairLaunch a besoin de la permission \"Toujours autoriser\".\n\nCette permission permet à l\'application de vérifier votre position même quand l\'app est fermée.</string>
-    <string name="permission_background_location_required">Permission arrière-plan requise</string>
-    <string name="permission_background_location_button">Autoriser l\'accès en arrière-plan</string>
-    <string name="permission_location_denied">Permission de localisation refusée. L\'application ne pourra pas fonctionner correctement.</string>
-    <string name="permission_background_location_denied">Sans la permission d\'accès en arrière-plan, l\'application ne pourra surveiller votre position que lorsqu\'elle est ouverte.</string>
-    <string name="permission_open_settings">Ouvrir les paramètres</string>
+    <string name="permission_location_rationale">FairLaunch needs access to your location to detect when you approach a saved point.</string>
+    <string name="permission_background_location_rationale">To monitor your location in the background and automatically launch Fairtiq, FairLaunch needs the \"Allow all the time\" permission.\n\nThis permission allows the app to check your location even when the app is closed.</string>
+    <string name="permission_background_location_required">Background permission required</string>
+    <string name="permission_background_location_button">Allow background access</string>
+    <string name="permission_location_denied">Location permission denied. The app will not work properly.</string>
+    <string name="permission_background_location_denied">Without background access permission, the app can only monitor your location when it is open.</string>
+    <string name="permission_open_settings">Open settings</string>
+    <string name="permission_location_required">Location permission required</string>
+    <string name="permission_grant">Grant permission</string>
+    <string name="permission_foreground_only">Permission limited to app usage</string>
+    <string name="permission_allow_always">Allow \"Always\"</string>
+    <string name="permission_allow">Allow</string>
+    <string name="permission_later">Later</string>
+    
+    <!-- Map screen -->
+    <string name="map_layers">Map layers</string>
+    <string name="settings">Settings</string>
+    <string name="edit">Edit</string>
+    <string name="point_number">Point #%1$d</string>
+    <string name="active_time">Active: %1$s - %2$s</string>
+    
+    <!-- Edit marker dialog -->
+    <string name="edit_marker">Edit Marker</string>
+    <string name="marker_name">Name</string>
+    <string name="active_time_window">Active Time Window</string>
+    <string name="start_time">Start:</string>
+    <string name="end_time">End:</string>
+    <string name="time_window_info">Fairtiq will only launch when entering the zone within this time window</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    
+    <!-- Map layer types -->
+    <string name="map_layer_street">Street Map</string>
+    <string name="map_layer_topo">Topographic</string>
+    
+    <!-- Settings screen -->
+    <string name="back">Back</string>
+    <string name="location_tracking">Location Tracking</string>
+    <string name="enable_background_tracking">Enable Background Tracking</string>
+    <string name="enable_background_tracking_desc">Monitor your location in the background</string>
+    <string name="detection_parameters">Detection Parameters</string>
+    <string name="check_interval">Check Interval (seconds)</string>
+    <string name="check_interval_desc">How often to check your location</string>
+    <string name="proximity_distance">Proximity Distance (meters)</string>
+    <string name="proximity_distance_desc">Distance to trigger Fairtiq launch</string>
+    <string name="seconds">Seconds</string>
+    <string name="meters">Meters</string>
+    <string name="info">Info</string>
+    <string name="how_it_works">How it works</string>
+    <string name="how_it_works_content">• Long press on the map to add a point (edit dialog opens automatically)\n• Short tap on a marker to view its details\n• Long press on a marker to delete it\n• Configure point properties: name and active time window (hour:minute)\n• Enable background tracking to monitor your location\n• When you enter a point\'s zone during its active time window:\n  - Fairtiq launches automatically\n  - The phone vibrates (3-burst pattern)\n  - The screen wakes up if locked\n• You must exit the zone and re-enter to trigger again (anti-spam)</string>
+    
+    <!-- Notifications -->
+    <string name="notification_channel_name">Proximity alerts</string>
+    <string name="notification_channel_desc">Notifications when entering a transport zone</string>
+    <string name="notification_transport_zone_detected">Transport zone detected</string>
+    <string name="notification_launching_fairtiq">Launching Fairtiq…</string>
 </resources>

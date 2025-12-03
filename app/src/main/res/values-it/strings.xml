@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">FairLaunch</string>
+    
+    <!-- Permission strings -->
+    <string name="permission_location_rationale">FairLaunch necessita dell\'accesso alla tua posizione per rilevare quando ti avvicini a un punto salvato.</string>
+    <string name="permission_background_location_rationale">Per monitorare la tua posizione in background e avviare automaticamente Fairtiq, FairLaunch necessita del permesso \"Consenti sempre\".\n\nQuesto permesso consente all\'app di controllare la tua posizione anche quando l\'app è chiusa.</string>
+    <string name="permission_background_location_required">Permesso background richiesto</string>
+    <string name="permission_background_location_button">Consenti accesso in background</string>
+    <string name="permission_location_denied">Permesso di localizzazione negato. L\'app non funzionerà correttamente.</string>
+    <string name="permission_background_location_denied">Senza il permesso di accesso in background, l\'app può monitorare la tua posizione solo quando è aperta.</string>
+    <string name="permission_open_settings">Apri impostazioni</string>
+    <string name="permission_location_required">Permesso di localizzazione richiesto</string>
+    <string name="permission_grant">Concedi permesso</string>
+    <string name="permission_foreground_only">Permesso limitato all\'uso dell\'app</string>
+    <string name="permission_allow_always">Consenti \"Sempre\"</string>
+    <string name="permission_allow">Consenti</string>
+    <string name="permission_later">Più tardi</string>
+    
+    <!-- Map screen -->
+    <string name="map_layers">Livelli mappa</string>
+    <string name="settings">Impostazioni</string>
+    <string name="edit">Modifica</string>
+    <string name="point_number">Punto #%1$d</string>
+    <string name="active_time">Attivo: %1$s - %2$s</string>
+    
+    <!-- Edit marker dialog -->
+    <string name="edit_marker">Modifica marcatore</string>
+    <string name="marker_name">Nome</string>
+    <string name="active_time_window">Finestra temporale attiva</string>
+    <string name="start_time">Inizio:</string>
+    <string name="end_time">Fine:</string>
+    <string name="time_window_info">Fairtiq si avvierà solo entrando nella zona durante questa finestra temporale</string>
+    <string name="save">Salva</string>
+    <string name="cancel">Annulla</string>
+    
+    <!-- Map layer types -->
+    <string name="map_layer_street">Mappa stradale</string>
+    <string name="map_layer_topo">Topografica</string>
+    
+    <!-- Settings screen -->
+    <string name="back">Indietro</string>
+    <string name="location_tracking">Tracciamento posizione</string>
+    <string name="enable_background_tracking">Abilita tracciamento in background</string>
+    <string name="enable_background_tracking_desc">Monitora la tua posizione in background</string>
+    <string name="detection_parameters">Parametri di rilevamento</string>
+    <string name="check_interval">Intervallo di controllo (secondi)</string>
+    <string name="check_interval_desc">Frequenza di controllo della tua posizione</string>
+    <string name="proximity_distance">Distanza di prossimità (metri)</string>
+    <string name="proximity_distance_desc">Distanza per attivare l\'avvio di Fairtiq</string>
+    <string name="seconds">Secondi</string>
+    <string name="meters">Metri</string>
+    <string name="info">Info</string>
+    <string name="how_it_works">Come funziona</string>
+    <string name="how_it_works_content">• Premi a lungo sulla mappa per aggiungere un punto (il dialogo di modifica si apre automaticamente)\n• Tocca brevemente un marcatore per vederne i dettagli\n• Premi a lungo su un marcatore per eliminarlo\n• Configura le proprietà del punto: nome e finestra temporale attiva (ora:minuto)\n• Abilita il tracciamento in background per monitorare la tua posizione\n• Quando entri nella zona di un punto durante la sua finestra temporale attiva:\n  - Fairtiq si avvia automaticamente\n  - Il telefono vibra (pattern a 3 impulsi)\n  - Lo schermo si accende se bloccato\n• Devi uscire dalla zona e rientrare per attivare di nuovo (anti-spam)</string>
+    
+    <!-- Notifications -->
+    <string name="notification_channel_name">Avvisi di prossimità</string>
+    <string name="notification_channel_desc">Notifiche quando si entra in una zona di trasporto</string>
+    <string name="notification_transport_zone_detected">Zona di trasporto rilevata</string>
+    <string name="notification_launching_fairtiq">Avvio di Fairtiq…</string>
+</resources>

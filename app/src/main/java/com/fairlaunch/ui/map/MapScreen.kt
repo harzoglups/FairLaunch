@@ -36,11 +36,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fairlaunch.R
 import com.fairlaunch.domain.model.MapLayerType
 import com.fairlaunch.domain.model.MapPoint
 import org.osmdroid.config.Configuration
@@ -172,7 +174,7 @@ fun MapScreen(
                     ) {
                         MapLayerType.entries.forEach { layerType ->
                             DropdownMenuItem(
-                                text = { Text(layerType.displayName()) },
+                                text = { Text(layerType.displayName(LocalContext.current)) },
                                 onClick = {
                                     viewModel.updateMapLayer(layerType)
                                     showLayerMenu = false
@@ -225,6 +227,7 @@ private fun MarkerInfoCard(
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     androidx.compose.material3.Card(
         modifier = modifier.fillMaxWidth(),
         elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -239,16 +242,18 @@ private fun MarkerInfoCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = if (point.name.isNotEmpty()) point.name else "Point #${point.id}",
+                        text = if (point.name.isNotEmpty()) point.name else stringResource(R.string.point_number, point.id),
                         style = MaterialTheme.typography.titleMedium
                     )
+                    val startTime = String.format("%02d:%02d", point.startHour, point.startMinute)
+                    val endTime = String.format("%02d:%02d", point.endHour, point.endMinute)
                     Text(
-                        text = "Active: ${String.format("%02d:%02d", point.startHour, point.startMinute)} - ${String.format("%02d:%02d", point.endHour, point.endMinute)}",
+                        text = stringResource(R.string.active_time, startTime, endTime),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
                 androidx.compose.material3.TextButton(onClick = onEdit) {
-                    Text("Edit")
+                    Text(stringResource(R.string.edit))
                 }
             }
         }
@@ -292,14 +297,14 @@ private fun MapContent(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    "Location permission required",
+                    stringResource(R.string.permission_location_required),
                     style = MaterialTheme.typography.titleMedium
                 )
                 androidx.compose.material3.Button(
                     onClick = onRequestPermission,
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
-                    Text("Grant Permission")
+                    Text(stringResource(R.string.permission_grant))
                 }
             }
         }
@@ -429,7 +434,7 @@ private fun MapContent(
                     // Create marker
                     val marker = Marker(map).apply {
                         position = GeoPoint(mapPoint.latitude, mapPoint.longitude)
-                        title = if (mapPoint.name.isNotEmpty()) mapPoint.name else "Point #${mapPoint.id}"
+                        title = if (mapPoint.name.isNotEmpty()) mapPoint.name else context.getString(R.string.point_number, mapPoint.id)
                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                         // Disable default info window since we have custom Compose card
                         infoWindow = null
@@ -452,7 +457,7 @@ private fun MapLayerType.toTileSource() = when (this) {
     MapLayerType.TOPO -> TileSourceFactory.OpenTopo
 }
 
-private fun MapLayerType.displayName() = when (this) {
-    MapLayerType.STREET -> "Street Map"
-    MapLayerType.TOPO -> "Topographic"
+private fun MapLayerType.displayName(context: android.content.Context) = when (this) {
+    MapLayerType.STREET -> context.getString(R.string.map_layer_street)
+    MapLayerType.TOPO -> context.getString(R.string.map_layer_topo)
 }
