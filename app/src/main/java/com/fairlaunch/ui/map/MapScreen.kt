@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.LocationOff
@@ -22,10 +23,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -87,30 +90,6 @@ fun MapScreen(
                 actions = {
                     when (val state = uiState) {
                         is MapUiState.Success -> {
-                            // Map layer selection
-                            Box {
-                                IconButton(onClick = { showLayerMenu = true }) {
-                                    Icon(Icons.Default.Layers, contentDescription = "Map layers")
-                                }
-                                DropdownMenu(
-                                    expanded = showLayerMenu,
-                                    onDismissRequest = { showLayerMenu = false }
-                                ) {
-                                    MapLayerType.entries.forEach { layerType ->
-                                        DropdownMenuItem(
-                                            text = { Text(layerType.displayName()) },
-                                            onClick = {
-                                                viewModel.updateMapLayer(layerType)
-                                                showLayerMenu = false
-                                            },
-                                            leadingIcon = if (layerType == state.settings.mapLayerType) {
-                                                { Text("✓") }
-                                            } else null
-                                        )
-                                    }
-                                }
-                            }
-                            
                             // Location tracking toggle
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -150,23 +129,58 @@ fun MapScreen(
                 }
             }
             is MapUiState.Success -> {
-                MapContent(
-                    points = state.points,
-                    proximityDistanceMeters = state.settings.proximityDistanceMeters,
-                    mapLayerType = state.settings.mapLayerType,
-                    hasLocationPermission = hasLocationPermission,
-                    onRequestPermission = {
-                        permissionLauncher.launch(
-                            arrayOf(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
+                Box(modifier = Modifier.fillMaxSize()) {
+                    MapContent(
+                        points = state.points,
+                        proximityDistanceMeters = state.settings.proximityDistanceMeters,
+                        mapLayerType = state.settings.mapLayerType,
+                        hasLocationPermission = hasLocationPermission,
+                        onRequestPermission = {
+                            permissionLauncher.launch(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                )
                             )
-                        )
-                    },
-                    onAddPoint = { lat, lon -> viewModel.addPoint(lat, lon) },
-                    onDeletePoint = { id -> viewModel.deletePoint(id) },
-                    modifier = Modifier.padding(padding)
-                )
+                        },
+                        onAddPoint = { lat, lon -> viewModel.addPoint(lat, lon) },
+                        onDeletePoint = { id -> viewModel.deletePoint(id) },
+                        modifier = Modifier.padding(padding)
+                    )
+                    
+                    // Floating layer selection button
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(padding)
+                            .padding(16.dp)
+                    ) {
+                        SmallFloatingActionButton(
+                            onClick = { showLayerMenu = true },
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ) {
+                            Icon(Icons.Default.Layers, contentDescription = "Map layers")
+                        }
+                        DropdownMenu(
+                            expanded = showLayerMenu,
+                            onDismissRequest = { showLayerMenu = false }
+                        ) {
+                            MapLayerType.entries.forEach { layerType ->
+                                DropdownMenuItem(
+                                    text = { Text(layerType.displayName()) },
+                                    onClick = {
+                                        viewModel.updateMapLayer(layerType)
+                                        showLayerMenu = false
+                                    },
+                                    leadingIcon = if (layerType == state.settings.mapLayerType) {
+                                        { Text("✓") }
+                                    } else null
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }

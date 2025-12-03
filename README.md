@@ -5,7 +5,7 @@ Android application to automate Fairtiq app launch based on geolocation.
 ## Features
 
 - **Interactive OpenStreetMap**: Zoom, pan, rotation
-- **Map Layer Selection**: Switch between Street and Topographic views
+- **Map Layer Selection**: Switch between Street and Topographic views via floating button
 - **Points of Interest Management**:
   - Long press on map to create a point
   - Long press on marker to delete it
@@ -102,7 +102,7 @@ cd FairLaunch
    - Enable tracking via the switch in the top bar (turns green)
 
 5. **Change Map View**:
-   - Tap the layers icon in the top bar
+   - Tap the floating layers button in the top-right corner of the map
    - Select desired map type: Street or Topographic
    - Selection is saved automatically
 

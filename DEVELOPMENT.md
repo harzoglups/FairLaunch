@@ -75,7 +75,7 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 - **Follow mode**: `enableFollowLocation()` enabled
 - **Initial zoom**: 15 (closer)
 - **Proximity circles**: Red semi-transparent circles displayed on map for each point
-- **Map layers**: User can switch between Street and Topographic views
+- **Map layers**: User can switch between Street and Topographic views via floating button (Google Maps style)
 - **Layer persistence**: Selected layer saved in DataStore preferences
 
 ### 7. Boot Auto-Start
@@ -187,7 +187,7 @@ map_layer_type: String = "STREET"   // STREET, TOPO
 - [x] GPS location after reboot without manual intervention
 - [x] Notification permission request on first launch (Android 13+)
 - [x] Vibration and app launch with screen locked
-- [x] Map layer selection (Street, Topographic)
+- [x] Map layer selection (Street, Topographic) with floating button
 
 ### Technical Tests ✅
 - [x] Gradle build

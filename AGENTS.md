@@ -23,6 +23,14 @@
 - Lint: `./gradlew lint`
 - Assemble debug: `./gradlew assembleDebug`
 - Install on device: `~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk`
+- Launch app: `~/Library/Android/sdk/platform-tools/adb shell am start -n com.fairlaunch/.MainActivity`
+
+## Testing Changes
+**CRITICAL**: After making code changes, ALWAYS run these commands to build, install, and launch the app:
+```bash
+./gradlew assembleDebug && ~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk && ~/Library/Android/sdk/platform-tools/adb shell am start -n com.fairlaunch/.MainActivity
+```
+This ensures the user can immediately test the changes on their device.
 
 ## Architecture
 Clean Architecture with 3 layers: **domain** (pure Kotlin), **data** (Android), **app** (UI)
