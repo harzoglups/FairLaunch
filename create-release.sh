@@ -57,6 +57,10 @@ esac
 NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
 echo "New version: $NEW_VERSION"
 
+# Update version in build.gradle.kts
+echo "Updating version in app/build.gradle.kts..."
+./update-version.sh "$NEW_VERSION"
+
 # Get commits since last tag for preview
 echo -e "\n📝 Commits since $LATEST_TAG:"
 if [ "$LATEST_TAG" == "v0.0.0" ]; then
@@ -66,17 +70,24 @@ else
 fi
 
 echo -e "\n"
-read -p "Create tag $NEW_VERSION? (y/N) " -n 1 -r
+read -p "Create tag $NEW_VERSION and commit version changes? (y/N) " -n 1 -r
 echo
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
+  # Commit version changes
+  git add app/build.gradle.kts
+  git commit -m "chore(release): bump version to $NEW_VERSION"
+  
   # Create annotated tag with automatic message
   git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
-  echo "✅ Tag $NEW_VERSION created locally"
+  echo "✅ Version committed and tag $NEW_VERSION created locally"
   echo ""
-  echo "To push the tag and trigger the release workflow, run:"
+  echo "To push the changes and tag to trigger the release workflow, run:"
+  echo "  git push origin main"
   echo "  git push origin $NEW_VERSION"
 else
   echo "❌ Cancelled"
+  # Revert version changes
+  git checkout app/build.gradle.kts
   exit 1
 fi

@@ -166,10 +166,19 @@ jobs:
           java-version: '17'
           cache: 'gradle'
           
-      - name: Grant execute permission for gradlew
+      - name: Grant execute permission for scripts
         if: steps.analyze_commits.outputs.should_release == 'true'
-        run: chmod +x gradlew
-        
+        run: |
+          chmod +x gradlew
+          chmod +x update-version.sh
+          
+      - name: Update version in build.gradle.kts
+        if: steps.analyze_commits.outputs.should_release == 'true'
+        run: |
+          NEW_VERSION="${{ steps.next_version.outputs.new_version }}"
+          ./update-version.sh "$NEW_VERSION"
+          echo "✅ Version updated to $NEW_VERSION"
+          
       - name: Build Release APK
         if: steps.analyze_commits.outputs.should_release == 'true'
         run: ./gradlew assembleRelease
