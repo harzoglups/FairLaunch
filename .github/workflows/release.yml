@@ -124,16 +124,17 @@ jobs:
           echo "$NOTES" > release_notes.md
           echo "Release notes generated"
           
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
         
-      - name: Sign APK
-        id: sign_apk
+      - name: Prepare APK for Release
+        id: prepare_apk
         run: |
-          # For now, just use the debug APK as we don't have signing keys configured
-          # In production, you should configure proper signing
-          cp app/build/outputs/apk/debug/app-debug.apk app-release.apk
-          echo "APK prepared for release"
+          # Use debug APK for now (no signing keys configured)
+          # The APK is located at app/build/outputs/apk/debug/app-debug.apk
+          cp app/build/outputs/apk/debug/app-debug.apk FairLaunch-${{ steps.next_version.outputs.new_version }}.apk
+          echo "APK prepared: FairLaunch-${{ steps.next_version.outputs.new_version }}.apk"
+          ls -lh FairLaunch-*.apk
           
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -144,7 +145,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            app-release.apk
+            FairLaunch-${{ steps.next_version.outputs.new_version }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
