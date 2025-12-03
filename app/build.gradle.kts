@@ -34,8 +34,9 @@ android {
                 "proguard-rules.pro"
             )
             
-            // Use default debug signing (automatically handled by Gradle)
-            // No need to specify signingConfig - debug signing is used by default
+            // Sign with debug key (Gradle's default debug signing config)
+            // This makes APKs installable without managing production keystores
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
