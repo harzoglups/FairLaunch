@@ -170,50 +170,65 @@ See [AGENTS.md](AGENTS.md) for detailed development guidelines.
 
 ## Releases
 
-This project uses automated releases with semantic versioning based on conventional commits.
+This project uses **fully automated semantic versioning** based on conventional commits.
 
-### Creating a Release (Method 1: GitHub UI)
+### Automatic Releases 🤖
 
-1. Go to GitHub Actions tab
-2. Select "Create Release" workflow
-3. Click "Run workflow"
-4. Choose version bump type (major/minor/patch)
-5. The workflow will:
-   - Calculate the next version automatically
-   - Generate release notes from commits
-   - Build and attach the APK
-   - Create a GitHub release with the tag
+**Every push to `main`** automatically:
+1. Analyzes commits since last release
+2. Determines version bump type (major/minor/patch)
+3. Builds the APK
+4. Creates a GitHub release with the new version
 
-### Creating a Release (Method 2: Local Script)
+**No manual action needed!** Just merge to `main` and the release happens automatically.
 
-```bash
-# Make sure you're on main branch with a clean working directory
-git checkout main
-git pull origin main
+### Version Bump Rules
 
-# Create a release tag (major/minor/patch)
-./create-release.sh minor
+The version is determined by analyzing your commit messages:
 
-# Push the tag to trigger the release
-git push origin v1.0.0  # Replace with your tag
-```
-
-The tag push will automatically trigger the GitHub Actions workflow to build and create the release.
+| Commit Type | Version Bump | Example |
+|-------------|--------------|---------|
+| `feat:` | **MINOR** (0.X.0) | `feat(map): add marker clustering` |
+| `fix:` | **PATCH** (0.0.X) | `fix(location): resolve GPS issue` |
+| `feat!:` or `BREAKING CHANGE:` | **MAJOR** (X.0.0) | `feat!: redesign entire API` |
+| `docs:`, `refactor:`, `chore:` | **PATCH** (0.0.X) | `docs: update README` |
 
 ### Conventional Commit Format
 
-Use these prefixes for commits to get organized release notes:
+**Always use this format** for commits:
 
-- `feat:` - New features (appears under ✨ Features)
-- `fix:` - Bug fixes (appears under 🐛 Bug Fixes)
-- `docs:` - Documentation (appears under 📚 Documentation)
-- `refactor:` - Code refactoring (appears under ♻️ Refactoring)
-- `chore:` - Maintenance tasks (appears under 🔧 Chores)
-
-Example:
 ```bash
-git commit -m "feat(map): add new marker clustering feature"
-git commit -m "fix(location): resolve background tracking issue"
+<type>(<scope>): <description>
+
+# Examples:
+feat(map): add new marker clustering feature
+fix(location): resolve background tracking issue
+docs(readme): update installation instructions
+refactor(ui): simplify settings screen
+chore(deps): update dependencies
+
+# Breaking changes (major version bump):
+feat(api)!: redesign location API
+# or
+feat(api): redesign location API
+
+BREAKING CHANGE: The location API has been completely redesigned
+```
+
+### Manual Release (Optional)
+
+You can also trigger a release manually:
+1. Go to **Actions** → **Auto Release**
+2. Click **"Run workflow"**
+3. The workflow analyzes commits and creates the appropriate release
+
+### Alternative: Tag-based Releases
+
+You can still create releases with tags:
+
+```bash
+./create-release.sh minor  # Creates tag locally
+git push origin v1.0.0     # Triggers "Build and Release on Tag" workflow
 ```
 
 ## License
