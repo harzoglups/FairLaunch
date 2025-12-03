@@ -75,13 +75,21 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 - **Follow mode**: `enableFollowLocation()` enabled
 - **Initial zoom**: 15 (closer)
 - **Proximity circles**: Red semi-transparent circles displayed on map for each point
-- **Map layers**: User can switch between Street and Topographic views via floating button (Google Maps style)
+- **Map layers**: User can switch between Street and Topographic views via floating button (top-right)
 - **Layer persistence**: Selected layer saved in DataStore preferences
+- **UI Style**: Full-screen edge-to-edge map with floating action buttons (Google Maps style)
+  - Settings button: bottom-right floating button
+  - Layer selection: top-right floating button
+  - No top app bar for immersive experience
 - **Marker interaction**: Custom touch handling at map level distinguishes short/long press
-  - Long press on map (500ms) → Add marker
+  - Long press on map (500ms) → Add marker (opens edit dialog automatically)
   - Long press on marker (500ms) → Delete marker
-  - Short click on marker → Reserved for future edit feature
+  - Short click on marker → Show info card with details
   - Touch zone: 100px radius around markers for easy interaction
+- **Marker properties**: Editable name and time window (HH:MM precision)
+  - Edit dialog with scroll pickers for hour and minute selection
+  - Time window determines when point can trigger Fairtiq launch
+  - Active time displayed in info card (e.g., "Active: 08:30 - 18:45")
 
 ### 7. Boot Auto-Start
 - **BootReceiver**: Triggers on `ACTION_BOOT_COMPLETED`
@@ -119,6 +127,11 @@ map_layer_type: String = "STREET"   // STREET, TOPO
 - id (PK, auto-increment)
 - latitude (Double)
 - longitude (Double)
+- name (String)
+- start_hour (Int, 0-23)
+- start_minute (Int, 0-59)
+- end_hour (Int, 0-23)
+- end_minute (Int, 0-59)
 - created_at (Long)
 
 **Table: proximity_states**
@@ -177,11 +190,14 @@ map_layer_type: String = "STREET"   // STREET, TOPO
 
 ### Functional Tests ✅
 - [x] Create/delete points on map
+- [x] Edit marker properties (name, time window with HH:MM precision)
+- [x] View marker details via info card
+- [x] Scroll pickers for time selection (hours and minutes)
 - [x] Automatic centering on user position
 - [x] Enable/disable tracking
 - [x] Modify interval and distance
 - [x] Worker runs at short intervals (30-60s)
-- [x] Proximity detection
+- [x] Proximity detection with time window validation
 - [x] Fairtiq launch (with notification + full-screen intent)
 - [x] Phone vibration (direct vibration, works with screen off)
 - [x] Anti-spam (1 trigger per zone entry)
@@ -193,6 +209,7 @@ map_layer_type: String = "STREET"   // STREET, TOPO
 - [x] Notification permission request on first launch (Android 13+)
 - [x] Vibration and app launch with screen locked
 - [x] Map layer selection (Street, Topographic) with floating button
+- [x] Full-screen immersive UI with floating action buttons
 
 ### Technical Tests ✅
 - [x] Gradle build

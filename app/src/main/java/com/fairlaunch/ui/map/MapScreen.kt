@@ -12,26 +12,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Layers
-import androidx.compose.material.icons.filled.LocationOff
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -65,9 +60,22 @@ fun MapScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val lastAddedPointId by viewModel.lastAddedPointId.collectAsStateWithLifecycle()
     var showLayerMenu by remember { mutableStateOf(false) }
     var editingPoint by remember { mutableStateOf<MapPoint?>(null) }
     var selectedPoint by remember { mutableStateOf<MapPoint?>(null) } // For showing info bubble
+    
+    // When a new point is added, automatically open edit dialog
+    androidx.compose.runtime.LaunchedEffect(lastAddedPointId) {
+        if (lastAddedPointId != null && uiState is MapUiState.Success) {
+            val newPoint = (uiState as MapUiState.Success).points.find { it.id == lastAddedPointId }
+            if (newPoint != null) {
+                editingPoint = newPoint
+                selectedPoint = null // Close info card if open
+                viewModel.clearLastAddedPointId()
+            }
+        }
+    }
     
     var hasLocationPermission by remember {
         mutableStateOf(
@@ -85,122 +93,109 @@ fun MapScreen(
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("FairLaunch") },
-                actions = {
-                    when (val state = uiState) {
-                        is MapUiState.Success -> {
-                            // Location tracking toggle
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(end = 8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = if (state.settings.isLocationTrackingEnabled)
-                                        Icons.Default.LocationOn
-                                    else
-                                        Icons.Default.LocationOff,
-                                    contentDescription = "Location tracking"
-                                )
-                                Switch(
-                                    checked = state.settings.isLocationTrackingEnabled,
-                                    onCheckedChange = { viewModel.toggleLocationTracking(it) }
-                                )
-                            }
-                        }
-                        else -> {}
-                    }
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
-                    }
-                }
-            )
+    when (val state = uiState) {
+        is MapUiState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
         }
-    ) { padding ->
-        when (val state = uiState) {
-            is MapUiState.Loading -> {
+        is MapUiState.Success -> {
+            Box(modifier = Modifier.fillMaxSize()) {
+                MapContent(
+                    points = state.points,
+                    proximityDistanceMeters = state.settings.proximityDistanceMeters,
+                    mapLayerType = state.settings.mapLayerType,
+                    hasLocationPermission = hasLocationPermission,
+                    onRequestPermission = {
+                        permissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
+                        )
+                    },
+                    onAddPoint = { lat, lon -> viewModel.addPoint(lat, lon) },
+                    onDeletePoint = { id -> 
+                        // Close dialogs if deleting the currently selected/editing point
+                        if (selectedPoint?.id == id) {
+                            selectedPoint = null
+                        }
+                        if (editingPoint?.id == id) {
+                            editingPoint = null
+                        }
+                        viewModel.deletePoint(id)
+                    },
+                    onMarkerClick = { point -> 
+                        // Toggle: if same point clicked, close info; otherwise show info
+                        selectedPoint = if (selectedPoint?.id == point.id) null else point
+                    },
+                    onMapClick = { selectedPoint = null }, // Close info card when clicking on map
+                    modifier = Modifier.fillMaxSize()
+                )
+                
+                // Show info card for selected marker
+                selectedPoint?.let { point ->
+                    MarkerInfoCard(
+                        point = point,
+                        onEdit = { 
+                            editingPoint = point
+                        },
+                        onClose = { selectedPoint = null },
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .navigationBarsPadding()
+                            .padding(bottom = 80.dp)
+                            .padding(horizontal = 16.dp)
+                    )
+                }
+                
+                // Floating layer selection button (top right)
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
+                        .align(Alignment.TopEnd)
+                        .statusBarsPadding()
+                        .padding(16.dp)
                 ) {
-                    CircularProgressIndicator()
-                }
-            }
-            is MapUiState.Success -> {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    MapContent(
-                        points = state.points,
-                        proximityDistanceMeters = state.settings.proximityDistanceMeters,
-                        mapLayerType = state.settings.mapLayerType,
-                        hasLocationPermission = hasLocationPermission,
-                        onRequestPermission = {
-                            permissionLauncher.launch(
-                                arrayOf(
-                                    Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION
-                                )
-                            )
-                        },
-                        onAddPoint = { lat, lon -> viewModel.addPoint(lat, lon) },
-                        onDeletePoint = { id -> viewModel.deletePoint(id) },
-                        onMarkerClick = { point -> 
-                            // Toggle: if same point clicked, close info; otherwise show info
-                            selectedPoint = if (selectedPoint?.id == point.id) null else point
-                        },
-                        onMapClick = { selectedPoint = null }, // Close info card when clicking on map
-                        modifier = Modifier.padding(padding)
-                    )
-                    
-                    // Show info card for selected marker
-                    selectedPoint?.let { point ->
-                        MarkerInfoCard(
-                            point = point,
-                            onEdit = { 
-                                editingPoint = point
-                            },
-                            onClose = { selectedPoint = null },
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(16.dp)
-                        )
-                    }
-                    
-                    // Floating layer selection button
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(padding)
-                            .padding(16.dp)
+                    SmallFloatingActionButton(
+                        onClick = { showLayerMenu = true },
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
                     ) {
-                        SmallFloatingActionButton(
-                            onClick = { showLayerMenu = true },
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ) {
-                            Icon(Icons.Default.Layers, contentDescription = "Map layers")
-                        }
-                        DropdownMenu(
-                            expanded = showLayerMenu,
-                            onDismissRequest = { showLayerMenu = false }
-                        ) {
-                            MapLayerType.entries.forEach { layerType ->
-                                DropdownMenuItem(
-                                    text = { Text(layerType.displayName()) },
-                                    onClick = {
-                                        viewModel.updateMapLayer(layerType)
-                                        showLayerMenu = false
-                                    },
-                                    leadingIcon = if (layerType == state.settings.mapLayerType) {
-                                        { Text("✓") }
-                                    } else null
-                                )
-                            }
+                        Icon(Icons.Default.Layers, contentDescription = "Map layers")
+                    }
+                    DropdownMenu(
+                        expanded = showLayerMenu,
+                        onDismissRequest = { showLayerMenu = false }
+                    ) {
+                        MapLayerType.entries.forEach { layerType ->
+                            DropdownMenuItem(
+                                text = { Text(layerType.displayName()) },
+                                onClick = {
+                                    viewModel.updateMapLayer(layerType)
+                                    showLayerMenu = false
+                                },
+                                leadingIcon = if (layerType == state.settings.mapLayerType) {
+                                    { Text("✓") }
+                                } else null
+                            )
                         }
                     }
+                }
+                
+                // Floating settings button (bottom right)
+                SmallFloatingActionButton(
+                    onClick = onNavigateToSettings,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .navigationBarsPadding()
+                        .padding(16.dp)
+                ) {
+                    Icon(Icons.Default.Settings, contentDescription = "Settings")
                 }
             }
         }
@@ -214,6 +209,10 @@ fun MapScreen(
             onSave = { updatedPoint ->
                 viewModel.updatePoint(updatedPoint)
                 editingPoint = null
+                // Update selected point if it's the same one
+                if (selectedPoint?.id == updatedPoint.id) {
+                    selectedPoint = updatedPoint
+                }
             }
         )
     }
@@ -244,7 +243,7 @@ private fun MarkerInfoCard(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "Active: ${String.format("%02d:00", point.startHour)} - ${String.format("%02d:00", point.endHour)}",
+                        text = "Active: ${String.format("%02d:%02d", point.startHour, point.startMinute)} - ${String.format("%02d:%02d", point.endHour, point.endMinute)}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

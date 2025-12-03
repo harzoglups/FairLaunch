@@ -38,9 +38,10 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
 # In the app:
 # 1. Create a point (long press on map)
-# 2. Settings → Set interval to 30 seconds
-# 3. Enable the switch (top bar)
-# 4. Wait 30 seconds → Logs should appear
+# 2. Configure time window in the edit dialog
+# 3. Settings (bottom-right button) → Set interval to 30 seconds
+# 4. Enable tracking switch
+# 5. Wait 30 seconds → Logs should appear
 ```
 
 ### 4. Expected Logs (If Everything Works)
@@ -120,7 +121,7 @@ killall adb
 ```
 
 ### "Worker doesn't start"
-- Check that the switch is GREEN (enabled)
+- Check that tracking is enabled in Settings
 - Check in Settings that the interval is configured
 - View logs: `adb logcat | grep -E "(WorkManager|LocationCheckWorker)"`
 - The app must have location permissions
@@ -136,9 +137,12 @@ killall adb
 
 ✅ **Complete and functional application**
 
-- Interactive map with create/delete points
+- Full-screen immersive map with floating action buttons
+- Interactive map with create/delete/edit points
+- Editable marker properties (name, time window with HH:MM precision)
 - Background service with WorkManager
 - Anti-spam proximity detection
+- Time-based activation (points only trigger within their time window)
 - Automatic Fairtiq launch + vibration
 - Configurable settings (interval in seconds, distance)
 - Data persistence (Room + DataStore)

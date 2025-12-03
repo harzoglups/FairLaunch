@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.fairlaunch.data.local.FairLaunchDatabase
 import com.fairlaunch.data.local.MIGRATION_1_2
+import com.fairlaunch.data.local.MIGRATION_2_3
 import com.fairlaunch.data.local.dao.MapPointDao
 import com.fairlaunch.data.local.dao.ProximityStateDao
 import dagger.Module
@@ -25,7 +26,7 @@ object DatabaseModule {
             FairLaunchDatabase::class.java,
             "fairlaunch_database"
         )
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
     }
 

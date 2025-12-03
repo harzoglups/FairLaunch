@@ -286,11 +286,16 @@ fun SettingsScreen(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
-                        text = "• Long press on the map to add a point\n" +
+                        text = "• Long press on the map to add a point (edit dialog opens automatically)\n" +
+                                "• Short tap on a marker to view its details\n" +
                                 "• Long press on a marker to delete it\n" +
+                                "• Configure point properties: name and active time window (hour:minute)\n" +
                                 "• Enable background tracking to monitor your location\n" +
-                                "• When you approach a point, Fairtiq will launch and the phone will vibrate\n" +
-                                "• You must exit the zone and re-enter to trigger again",
+                                "• When you enter a point's zone during its active time window:\n" +
+                                "  - Fairtiq launches automatically\n" +
+                                "  - The phone vibrates (3-burst pattern)\n" +
+                                "  - The screen wakes up if locked\n" +
+                                "• You must exit the zone and re-enter to trigger again (anti-spam)",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

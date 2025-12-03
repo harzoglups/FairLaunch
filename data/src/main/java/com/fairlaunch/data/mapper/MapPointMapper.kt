@@ -10,7 +10,9 @@ fun MapPointEntity.toDomain(): MapPoint {
         longitude = longitude,
         name = name,
         startHour = startHour,
+        startMinute = startMinute,
         endHour = endHour,
+        endMinute = endMinute,
         createdAt = createdAt
     )
 }
@@ -22,7 +24,9 @@ fun MapPoint.toEntity(): MapPointEntity {
         longitude = longitude,
         name = name,
         startHour = startHour,
+        startMinute = startMinute,
         endHour = endHour,
+        endMinute = endMinute,
         createdAt = createdAt
     )
 }

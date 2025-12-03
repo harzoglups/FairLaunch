@@ -89,23 +89,24 @@ class LocationCheckWorker @AssistedInject constructor(
             )
 
             if (pointsToTrigger.isNotEmpty()) {
-                // Get current hour (0-23)
+                // Get current hour and minute
                 val calendar = java.util.Calendar.getInstance()
                 val currentHour = calendar.get(java.util.Calendar.HOUR_OF_DAY)
+                val currentMinute = calendar.get(java.util.Calendar.MINUTE)
                 
                 // Filter points that are within their time window
                 val activePoints = pointsToTrigger.filter { point ->
-                    isWithinTimeWindow(currentHour, point.startHour, point.endHour)
+                    isWithinTimeWindow(currentHour, currentMinute, point.startHour, point.startMinute, point.endHour, point.endMinute)
                 }
                 
                 if (activePoints.isNotEmpty()) {
-                    Log.d(TAG, "Entered proximity zone for ${activePoints.size} point(s) within time window (current hour: $currentHour)")
+                    Log.d(TAG, "Entered proximity zone for ${activePoints.size} point(s) within time window (current time: $currentHour:${currentMinute.toString().padStart(2, '0')})")
                     activePoints.forEach { point ->
-                        Log.d(TAG, "  Point '${point.name}' (${point.startHour}:00-${point.endHour}:00)")
+                        Log.d(TAG, "  Point '${point.name}' (${point.startHour}:${point.startMinute.toString().padStart(2, '0')}-${point.endHour}:${point.endMinute.toString().padStart(2, '0')})")
                     }
                     launchFairtiqAndVibrate()
                 } else {
-                    Log.d(TAG, "Entered ${pointsToTrigger.size} proximity zone(s) but none are active at current hour: $currentHour")
+                    Log.d(TAG, "Entered ${pointsToTrigger.size} proximity zone(s) but none are active at current time: $currentHour:${currentMinute.toString().padStart(2, '0')}")
                 }
             } else {
                 Log.d(TAG, "No proximity zones entered")
@@ -183,13 +184,25 @@ class LocationCheckWorker @AssistedInject constructor(
         }
     }
     
-    private fun isWithinTimeWindow(currentHour: Int, startHour: Int, endHour: Int): Boolean {
-        return if (startHour <= endHour) {
-            // Normal case: e.g., 8:00 - 18:00
-            currentHour in startHour..endHour
+    private fun isWithinTimeWindow(
+        currentHour: Int, 
+        currentMinute: Int, 
+        startHour: Int, 
+        startMinute: Int, 
+        endHour: Int, 
+        endMinute: Int
+    ): Boolean {
+        // Convert times to minutes since midnight for easier comparison
+        val currentTimeInMinutes = currentHour * 60 + currentMinute
+        val startTimeInMinutes = startHour * 60 + startMinute
+        val endTimeInMinutes = endHour * 60 + endMinute
+        
+        return if (startTimeInMinutes <= endTimeInMinutes) {
+            // Normal case: e.g., 8:30 - 18:45
+            currentTimeInMinutes in startTimeInMinutes..endTimeInMinutes
         } else {
-            // Wraps around midnight: e.g., 22:00 - 6:00
-            currentHour >= startHour || currentHour <= endHour
+            // Wraps around midnight: e.g., 22:30 - 6:15
+            currentTimeInMinutes >= startTimeInMinutes || currentTimeInMinutes <= endTimeInMinutes
         }
     }
 
