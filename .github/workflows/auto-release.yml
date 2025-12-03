@@ -170,14 +170,14 @@ jobs:
         if: steps.analyze_commits.outputs.should_release == 'true'
         run: chmod +x gradlew
         
-      - name: Build Debug APK
+      - name: Build Release APK
         if: steps.analyze_commits.outputs.should_release == 'true'
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleRelease
         
       - name: Prepare APK for Release
         if: steps.analyze_commits.outputs.should_release == 'true'
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk FairLaunch-${{ steps.next_version.outputs.new_version }}.apk
+          cp app/build/outputs/apk/release/app-release.apk FairLaunch-${{ steps.next_version.outputs.new_version }}.apk
           echo "✅ APK prepared: FairLaunch-${{ steps.next_version.outputs.new_version }}.apk"
           ls -lh FairLaunch-*.apk
           

@@ -87,13 +87,13 @@ jobs:
           
           echo "$NOTES" > release_notes.md
           
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
         
       - name: Prepare APK
         run: |
-          # Use debug APK (no signing keys configured)
-          cp app/build/outputs/apk/debug/app-debug.apk FairLaunch-${{ steps.previous_tag.outputs.current_tag }}.apk
+          # Use release APK (signed with debug key)
+          cp app/build/outputs/apk/release/app-release.apk FairLaunch-${{ steps.previous_tag.outputs.current_tag }}.apk
           echo "APK prepared: FairLaunch-${{ steps.previous_tag.outputs.current_tag }}.apk"
           ls -lh FairLaunch-*.apk
           
