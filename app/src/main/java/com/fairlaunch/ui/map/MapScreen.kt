@@ -65,9 +65,22 @@ fun MapScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val lastAddedPointId by viewModel.lastAddedPointId.collectAsStateWithLifecycle()
     var showLayerMenu by remember { mutableStateOf(false) }
     var editingPoint by remember { mutableStateOf<MapPoint?>(null) }
     var selectedPoint by remember { mutableStateOf<MapPoint?>(null) } // For showing info bubble
+    
+    // When a new point is added, automatically open edit dialog
+    androidx.compose.runtime.LaunchedEffect(lastAddedPointId) {
+        if (lastAddedPointId != null && uiState is MapUiState.Success) {
+            val newPoint = (uiState as MapUiState.Success).points.find { it.id == lastAddedPointId }
+            if (newPoint != null) {
+                editingPoint = newPoint
+                selectedPoint = null // Close info card if open
+                viewModel.clearLastAddedPointId()
+            }
+        }
+    }
     
     var hasLocationPermission by remember {
         mutableStateOf(
@@ -146,7 +159,16 @@ fun MapScreen(
                             )
                         },
                         onAddPoint = { lat, lon -> viewModel.addPoint(lat, lon) },
-                        onDeletePoint = { id -> viewModel.deletePoint(id) },
+                        onDeletePoint = { id -> 
+                            // Close dialogs if deleting the currently selected/editing point
+                            if (selectedPoint?.id == id) {
+                                selectedPoint = null
+                            }
+                            if (editingPoint?.id == id) {
+                                editingPoint = null
+                            }
+                            viewModel.deletePoint(id)
+                        },
                         onMarkerClick = { point -> 
                             // Toggle: if same point clicked, close info; otherwise show info
                             selectedPoint = if (selectedPoint?.id == point.id) null else point
@@ -214,6 +236,10 @@ fun MapScreen(
             onSave = { updatedPoint ->
                 viewModel.updatePoint(updatedPoint)
                 editingPoint = null
+                // Update selected point if it's the same one
+                if (selectedPoint?.id == updatedPoint.id) {
+                    selectedPoint = updatedPoint
+                }
             }
         )
     }
@@ -244,7 +270,7 @@ private fun MarkerInfoCard(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "Active: ${String.format("%02d:00", point.startHour)} - ${String.format("%02d:00", point.endHour)}",
+                        text = "Active: ${String.format("%02d:%02d", point.startHour, point.startMinute)} - ${String.format("%02d:%02d", point.endHour, point.endMinute)}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

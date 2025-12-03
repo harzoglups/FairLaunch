@@ -56,7 +56,8 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = addMapPointUseCase(latitude, longitude)) {
                 is Result.Success -> {
-                    // Point added successfully, flow will update automatically
+                    // Point added successfully, return the new point ID
+                    _lastAddedPointId.value = result.data
                 }
                 is Result.Error -> {
                     // Handle error if needed
@@ -64,6 +65,13 @@ class MapViewModel @Inject constructor(
                 Result.Loading -> {}
             }
         }
+    }
+    
+    private val _lastAddedPointId = MutableStateFlow<Long?>(null)
+    val lastAddedPointId: StateFlow<Long?> = _lastAddedPointId.asStateFlow()
+    
+    fun clearLastAddedPointId() {
+        _lastAddedPointId.value = null
     }
 
     fun deletePoint(id: Long) {

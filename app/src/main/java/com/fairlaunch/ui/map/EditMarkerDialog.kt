@@ -1,5 +1,9 @@
 package com.fairlaunch.ui.map
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -7,22 +11,34 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.fairlaunch.domain.model.MapPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 @Composable
 fun EditMarkerDialog(
@@ -31,9 +47,10 @@ fun EditMarkerDialog(
     onSave: (MapPoint) -> Unit
 ) {
     var name by remember { mutableStateOf(point.name) }
-    var startHour by remember { mutableStateOf(point.startHour.toString()) }
-    var endHour by remember { mutableStateOf(point.endHour.toString()) }
-    var showError by remember { mutableStateOf(false) }
+    var startHour by remember { mutableIntStateOf(point.startHour) }
+    var startMinute by remember { mutableIntStateOf(point.startMinute) }
+    var endHour by remember { mutableIntStateOf(point.endHour) }
+    var endMinute by remember { mutableIntStateOf(point.endMinute) }
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -51,59 +68,45 @@ fun EditMarkerDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    "Active Hours",
+                    "Active Time Window",
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
+                // Start time
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    OutlinedTextField(
-                        value = startHour,
-                        onValueChange = { 
-                            if (it.length <= 2) startHour = it.filter { char -> char.isDigit() }
-                            showError = false
-                        },
-                        label = { Text("Start") },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        suffix = { Text("h") },
-                        isError = showError
-                    )
-                    
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("-")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    
-                    OutlinedTextField(
-                        value = endHour,
-                        onValueChange = { 
-                            if (it.length <= 2) endHour = it.filter { char -> char.isDigit() }
-                            showError = false
-                        },
-                        label = { Text("End") },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        suffix = { Text("h") },
-                        isError = showError
+                    Text("Start:", modifier = Modifier.width(50.dp))
+                    TimePicker(
+                        hour = startHour,
+                        minute = startMinute,
+                        onHourChange = { startHour = it },
+                        onMinuteChange = { startMinute = it }
                     )
                 }
                 
-                if (showError) {
-                    Text(
-                        "Hours must be between 0-23",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp)
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // End time
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("End:", modifier = Modifier.width(50.dp))
+                    TimePicker(
+                        hour = endHour,
+                        minute = endMinute,
+                        onHourChange = { endHour = it },
+                        onMinuteChange = { endMinute = it }
                     )
                 }
+                
+                Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
-                    "Fairtiq will only launch when entering the zone between these hours",
+                    "Fairtiq will only launch when entering the zone within this time window",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp)
@@ -113,20 +116,15 @@ fun EditMarkerDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val start = startHour.toIntOrNull() ?: -1
-                    val end = endHour.toIntOrNull() ?: -1
-                    
-                    if (start in 0..23 && end in 0..23) {
-                        onSave(
-                            point.copy(
-                                name = name.trim().ifEmpty { "Point #${point.id}" },
-                                startHour = start,
-                                endHour = end
-                            )
+                    onSave(
+                        point.copy(
+                            name = name.trim().ifEmpty { "Point #${point.id}" },
+                            startHour = startHour,
+                            startMinute = startMinute,
+                            endHour = endHour,
+                            endMinute = endMinute
                         )
-                    } else {
-                        showError = true
-                    }
+                    )
                 }
             ) {
                 Text("Save")
@@ -138,4 +136,109 @@ fun EditMarkerDialog(
             }
         }
     )
+}
+
+@Composable
+fun TimePicker(
+    hour: Int,
+    minute: Int,
+    onHourChange: (Int) -> Unit,
+    onMinuteChange: (Int) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Hour picker
+        NumberPicker(
+            value = hour,
+            range = 0..23,
+            onValueChange = onHourChange,
+            modifier = Modifier.width(60.dp)
+        )
+        
+        Text(
+            text = ":",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+        
+        // Minute picker
+        NumberPicker(
+            value = minute,
+            range = 0..59,
+            onValueChange = onMinuteChange,
+            modifier = Modifier.width(60.dp)
+        )
+    }
+}
+
+@Composable
+fun NumberPicker(
+    value: Int,
+    range: IntRange,
+    onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = value)
+    
+    // Update value when scroll position changes
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }
+            .distinctUntilChanged()
+            .collect { index ->
+                if (index in range) {
+                    onValueChange(index)
+                }
+            }
+    }
+    
+    Box(
+        modifier = modifier.height(120.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        // Selection indicator
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .background(
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                    RoundedCornerShape(8.dp)
+                )
+        )
+        
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(range.count()) { index ->
+                val itemValue = range.first + index
+                val isSelected = itemValue == value
+                
+                Text(
+                    text = String.format("%02d", itemValue),
+                    fontSize = if (isSelected) 24.sp else 18.sp,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                    color = if (isSelected) 
+                        MaterialTheme.colorScheme.primary 
+                    else 
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .height(40.dp)
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .clickable { 
+                            onValueChange(itemValue)
+                        }
+                )
+            }
+        }
+    }
 }

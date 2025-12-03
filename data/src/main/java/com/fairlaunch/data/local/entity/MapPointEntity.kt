@@ -11,6 +11,8 @@ data class MapPointEntity(
     val longitude: Double,
     val name: String,
     val startHour: Int,
+    val startMinute: Int,
     val endHour: Int,
+    val endMinute: Int,
     val createdAt: Long
 )

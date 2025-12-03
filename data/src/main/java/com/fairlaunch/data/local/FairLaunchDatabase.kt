@@ -11,7 +11,7 @@ import com.fairlaunch.data.local.entity.ProximityStateEntity
 
 @Database(
     entities = [MapPointEntity::class, ProximityStateEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class FairLaunchDatabase : RoomDatabase() {
@@ -49,5 +49,13 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         
         // 4. Rename new table to original name
         db.execSQL("ALTER TABLE map_points_new RENAME TO map_points")
+    }
+}
+
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Add minute fields to map_points table
+        db.execSQL("ALTER TABLE map_points ADD COLUMN startMinute INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE map_points ADD COLUMN endMinute INTEGER NOT NULL DEFAULT 59")
     }
 }
