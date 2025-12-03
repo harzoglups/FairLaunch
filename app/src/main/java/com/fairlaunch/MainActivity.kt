@@ -30,7 +30,17 @@ class MainActivity : ComponentActivity() {
         
         if (fineLocationGranted || coarseLocationGranted) {
             // Basic location permissions granted
-            // Note: Background location will be requested later in Settings
+            // Now request notification permission for Android 13+
+            requestNotificationPermissionIfNeeded()
+        }
+    }
+    
+    // Request notification permission for Android 13+
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Notification permission granted
         }
     }
 
@@ -40,6 +50,9 @@ class MainActivity : ComponentActivity() {
         
         // Request basic location permissions if not granted
         requestLocationPermissionsIfNeeded()
+        
+        // Request notification permission if not granted (Android 13+)
+        requestNotificationPermissionIfNeeded()
 
         setContent {
             FairLaunchTheme {
@@ -75,6 +88,20 @@ class MainActivity : ComponentActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
+        }
+    }
+    
+    private fun requestNotificationPermissionIfNeeded() {
+        // Only needed for Android 13+ (API 33+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasNotificationPermission = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            
+            if (!hasNotificationPermission) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
 }

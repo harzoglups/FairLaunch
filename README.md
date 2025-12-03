@@ -82,8 +82,9 @@ cd FairLaunch
 ## Usage
 
 1. **First Use**:
-   - The app requests location permissions
-   - Accept FINE_LOCATION and BACKGROUND_LOCATION permissions
+   - The app requests location permissions - accept to use the app
+   - The app requests notification permissions (Android 13+) - **required for alerts**
+   - Accept BACKGROUND_LOCATION in settings to enable background tracking
 
 2. **Create Points**:
    - Long press on the map to create a point
@@ -102,7 +103,8 @@ cd FairLaunch
    - The app checks your position in the background
    - Red circles on the map show proximity zones
    - When you enter a zone (at configured distance):
-     - The phone vibrates
+     - The phone vibrates (strong 3-burst pattern)
+     - The screen wakes up if locked
      - The Fairtiq app launches automatically
    - You must leave and re-enter the zone to trigger again
    - **Tracking persists after device reboot** (auto-restart if enabled)
@@ -113,6 +115,8 @@ cd FairLaunch
 - `ACCESS_COARSE_LOCATION`: Approximate location (fallback)
 - `ACCESS_BACKGROUND_LOCATION`: Background location
 - `RECEIVE_BOOT_COMPLETED`: Auto-start tracking on device boot
+- `POST_NOTIFICATIONS`: Notification alerts (Android 13+)
+- `USE_FULL_SCREEN_INTENT`: Wake screen when entering zone
 - `VIBRATE`: Phone vibration
 - `INTERNET`: Map tiles loading
 

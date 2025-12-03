@@ -1,6 +1,9 @@
 package com.fairlaunch.worker
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -8,8 +11,10 @@ import android.location.Location
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.os.VibratorManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -37,6 +42,8 @@ class LocationCheckWorker @AssistedInject constructor(
         const val WORK_NAME = "location_check_work"
         private const val FAIRTIQ_PACKAGE = "com.fairtiq.android"
         private const val LOCATION_TIMEOUT_MS = 30000L // 30 seconds timeout for GPS cold start
+        private const val NOTIFICATION_CHANNEL_ID = "proximity_alerts"
+        private const val NOTIFICATION_ID = 1001
     }
 
     override suspend fun doWork(): androidx.work.ListenableWorker.Result {
@@ -166,32 +173,98 @@ class LocationCheckWorker @AssistedInject constructor(
 
     private fun launchFairtiqAndVibrate() {
         try {
-            // Launch Fairtiq app
-            val intent = context.packageManager.getLaunchIntentForPackage(FAIRTIQ_PACKAGE)
-            if (intent != null) {
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-                Log.d(TAG, "Launched Fairtiq app")
-            } else {
+            // Vibrate directly FIRST (before notification to ensure it works)
+            vibratePhone()
+            
+            // Create notification channel
+            createNotificationChannel()
+            
+            // Create intent to launch Fairtiq
+            val fairtiqIntent = context.packageManager.getLaunchIntentForPackage(FAIRTIQ_PACKAGE)
+            if (fairtiqIntent == null) {
                 Log.w(TAG, "Fairtiq app not installed")
+                return
             }
-
-            // Vibrate
-            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(
-                    VibrationEffect.createWaveform(
-                        longArrayOf(0, 200, 100, 200, 100, 200),
-                        -1
-                    )
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                vibrator.vibrate(longArrayOf(0, 200, 100, 200, 100, 200), -1)
-            }
-            Log.d(TAG, "Vibration triggered")
+            
+            fairtiqIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            
+            // Create PendingIntent for full-screen intent
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                fairtiqIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            
+            // Build notification with full-screen intent (no vibration here, done separately)
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_dialog_info) // Use system icon for now
+                .setContentTitle("Zone de transport détectée")
+                .setContentText("Ouverture de Fairtiq...")
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .setFullScreenIntent(pendingIntent, true) // This launches Fairtiq even with screen off
+                .build()
+            
+            notificationManager.notify(NOTIFICATION_ID, notification)
+            Log.d(TAG, "Notification sent with full-screen intent")
+            
+            // Also try direct launch as fallback (works if screen is on)
+            context.startActivity(fairtiqIntent)
+            Log.d(TAG, "Direct launch attempted")
         } catch (e: Exception) {
             Log.e(TAG, "Error launching Fairtiq or vibrating", e)
+        }
+    }
+    
+    private fun vibratePhone() {
+        try {
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                vibratorManager.defaultVibrator
+            } else {
+                @Suppress("DEPRECATION")
+                context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            }
+            
+            // Strong vibration pattern: 3 long bursts
+            val pattern = longArrayOf(0, 500, 200, 500, 200, 500)
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val effect = VibrationEffect.createWaveform(
+                    pattern,
+                    intArrayOf(0, 255, 0, 255, 0, 255), // Max amplitude
+                    -1 // Don't repeat
+                )
+                vibrator.vibrate(effect)
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(pattern, -1)
+            }
+            
+            Log.d(TAG, "Direct vibration triggered")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error vibrating phone", e)
+        }
+    }
+    
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                "Alertes de proximité",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications lors de l'entrée dans une zone de transport"
+                // Don't set vibration here - we do it manually
+                enableVibration(false)
+            }
+            
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 }

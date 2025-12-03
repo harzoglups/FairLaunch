@@ -83,6 +83,13 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 - **Verification**: Checks DataStore file existence to avoid premature initialization
 - **Location**: `BootReceiver.kt` with 30s `setInitialDelay()`
 
+### 8. Notifications and Alerts
+- **Full-screen intent**: Launches Fairtiq and wakes screen even when locked
+- **Direct vibration**: Strong 3-burst pattern (500ms each) at max amplitude
+- **Permission flow**: Requests POST_NOTIFICATIONS on first launch (Android 13+)
+- **Channel**: "Alertes de proximité" with HIGH importance
+- **Location**: `LocationCheckWorker.launchFairtiqAndVibrate()` and `MainActivity.requestNotificationPermissionIfNeeded()`
+
 ## Data Structure
 
 ### DataStore (Settings)
@@ -110,6 +117,7 @@ location_tracking_enabled: Boolean = false
 2. **Interval**: Option to revert to minutes (or keep seconds with min/max validation)
 3. **Battery optimization**: Test on different devices with Doze mode
 4. **Icons**: Add custom launcher icons
+5. **Notification permission**: Already implemented - requests on first launch (Android 13+)
 
 ### Known Limitations
 1. WorkManager PeriodicWork minimum = 15 minutes
@@ -159,14 +167,16 @@ location_tracking_enabled: Boolean = false
 - [x] Modify interval and distance
 - [x] Worker runs at short intervals (30-60s)
 - [x] Proximity detection
-- [x] Fairtiq launch
-- [x] Phone vibration
+- [x] Fairtiq launch (with notification + full-screen intent)
+- [x] Phone vibration (direct vibration, works with screen off)
 - [x] Anti-spam (1 trigger per zone entry)
 - [x] Persistence after app closure
 - [x] Detailed logs in LocationCheckWorker
 - [x] Red proximity circles on map
 - [x] Auto-start on boot (with GPS cold start handling)
 - [x] GPS location after reboot without manual intervention
+- [x] Notification permission request on first launch (Android 13+)
+- [x] Vibration and app launch with screen locked
 
 ### Technical Tests ✅
 - [x] Gradle build
