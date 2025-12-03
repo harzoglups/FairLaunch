@@ -23,9 +23,16 @@ android {
     }
 
     signingConfigs {
-        // Use debug signing for release builds (no keystore needed)
-        getByName("debug") {
-            storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
+        // Create a debug signing config for release builds (no keystore management needed)
+        create("release") {
+            // Use debug keystore if it exists, otherwise Android will create it automatically
+            val debugKeystorePath = "${System.getProperty("user.home")}/.android/debug.keystore"
+            val debugKeystoreFile = file(debugKeystorePath)
+            
+            if (debugKeystoreFile.exists()) {
+                storeFile = debugKeystoreFile
+            }
+            // If keystore doesn't exist, Gradle will create it automatically with these credentials
             storePassword = "android"
             keyAlias = "androiddebugkey"
             keyPassword = "android"
@@ -45,7 +52,7 @@ android {
             )
             
             // Sign with debug key (installable, no keystore management needed)
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
