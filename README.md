@@ -4,16 +4,20 @@ Android application to automate Fairtiq app launch based on geolocation.
 
 ## Features
 
-- **Interactive OpenStreetMap**: Zoom, pan, rotation
-- **Map Layer Selection**: Switch between Street and Topographic views via floating button
+- **Interactive OpenStreetMap**: Full-screen immersive map with zoom, pan, rotation
+- **Modern UI**: Edge-to-edge design with floating action buttons (Google Maps style)
+- **Map Layer Selection**: Switch between Street and Topographic views via floating button (top-right)
 - **Points of Interest Management**:
   - Long press on map to create a point
+  - Short tap on marker to view details (name, active time window)
   - Long press on marker to delete it
+  - Editable properties: name, active time window (hour:minute precision with scroll pickers)
   - Visual proximity circles (red semi-transparent) around each point
   - Persistent local storage of points (Room)
 - **Background Tracking**:
   - Periodic GPS position checking
   - Configurable proximity detection
+  - Time-based activation: points only trigger within their configured time window
   - Automatic launch of Fairtiq application
   - Phone vibration on trigger
   - Auto-start on device boot
@@ -91,26 +95,32 @@ cd FairLaunch
 2. **Create Points**:
    - Long press (500ms) on the map to create a point
    - Points appear as markers with proximity circles
+   - Edit dialog opens automatically: set name and active time window (HH:MM precision)
 
-3. **Delete Points**:
+3. **View/Edit Points**:
+   - Short tap on a marker to view its details card
+   - Tap "Edit" in the card to modify name or time window
+   - Use scroll pickers to select hours and minutes precisely
+
+4. **Delete Points**:
    - Long press (500ms) on a marker to delete it
    - Markers have a large touch zone for easy interaction
 
-4. **Configure Tracking**:
-   - Open settings via the top-right icon
+5. **Configure Tracking**:
+   - Tap the floating settings button (bottom-right)
    - Configure check frequency (default: 300 seconds = 5 minutes)
    - Configure proximity distance (default: 200 meters)
-   - Enable tracking via the switch in the top bar (turns green)
+   - Enable tracking via the switch
 
-5. **Change Map View**:
-   - Tap the floating layers button in the top-right corner of the map
+6. **Change Map View**:
+   - Tap the floating layers button (top-right corner of the map)
    - Select desired map type: Street or Topographic
    - Selection is saved automatically
 
-6. **Automatic Operation**:
+7. **Automatic Operation**:
    - The app checks your position in the background
    - Red circles on the map show proximity zones
-   - When you enter a zone (at configured distance):
+   - When you enter a zone (at configured distance) **within the point's active time window**:
      - The phone vibrates (strong 3-burst pattern)
      - The screen wakes up if locked
      - The Fairtiq app launches automatically
