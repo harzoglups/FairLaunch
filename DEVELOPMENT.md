@@ -90,6 +90,13 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 - **Channel**: "Alertes de proximité" with HIGH importance
 - **Location**: `LocationCheckWorker.launchFairtiqAndVibrate()` and `MainActivity.requestNotificationPermissionIfNeeded()`
 
+### 9. App Icon
+- **Style**: Custom vector drawable, red background with white rounded "L"
+- **Color**: Red (#E53935) - distinctive and visible
+- **Design**: Smaller "L" with rounded corners (Q-like style)
+- **Format**: Adaptive icon for Android 8+ with fallback for older versions
+- **Location**: `drawable/ic_launcher_*` files
+
 ## Data Structure
 
 ### DataStore (Settings)
@@ -116,7 +123,7 @@ location_tracking_enabled: Boolean = false
 1. **Permissions**: Implement 2-step flow for BACKGROUND_LOCATION (Android 10+)
 2. **Interval**: Option to revert to minutes (or keep seconds with min/max validation)
 3. **Battery optimization**: Test on different devices with Doze mode
-4. **Icons**: Add custom launcher icons
+4. ~~**Icons**: Add custom launcher icons~~ ✅ Done - Custom red icon with rounded "L"
 5. **Notification permission**: Already implemented - requests on first launch (Android 13+)
 
 ### Known Limitations

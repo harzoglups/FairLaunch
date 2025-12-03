@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- White "L" smaller with rounded corners (Q-like style) -->
+    <group>
+        <!-- Vertical part of L -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M40,35 
+                             C40,33 41.5,32 43,32 
+                             L47,32 
+                             C48.5,32 50,33 50,35 
+                             L50,70 
+                             L50,70 
+                             L40,70 
+                             Z" />
+        <!-- Horizontal part of L with rounded corner -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M40,70 
+                             L40,73 
+                             C40,74.5 41,76 43,76 
+                             L63,76 
+                             C64.5,76 66,77 66,78.5 
+                             L66,80 
+                             C66,81.5 64.5,83 63,83 
+                             L40,83 
+                             C38,83 37,82 37,80 
+                             L37,70 
+                             Z" />
+    </group>
+</vector>

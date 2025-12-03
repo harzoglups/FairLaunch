@@ -55,6 +55,7 @@ Clean Architecture with 3 layers:
 - **Async**: Coroutines + Flow
 - **Database**: Room
 - **Preferences**: DataStore
+- **Icon**: Custom vector drawable (red "L" on adaptive icon)
 
 ## Installation and Setup
 
