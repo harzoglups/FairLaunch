@@ -1,0 +1,134 @@
+@startuml FairLaunch-Data-Layer
+!theme plain
+skinparam backgroundColor #FFFFFF
+
+title FairLaunch - Data Layer (Database & Repositories)
+
+package "Repository Implementations" {
+  class MapPointRepositoryImpl {
+    - dao: MapPointDao
+    - mapper: MapPointMapper
+    + getAll(): Flow<List<MapPoint>>
+    + getById(id: Long): Result<MapPoint>
+    + insert(point: MapPoint): Result<Long>
+    + update(point: MapPoint): Result<Unit>
+    + delete(id: Long): Result<Unit>
+  }
+  
+  class ProximityRepositoryImpl {
+    - dao: ProximityStateDao
+    - mapper: ProximityStateMapper
+    + getState(pointId: Long): Result<ProximityState?>
+    + updateState(state: ProximityState): Result<Unit>
+  }
+  
+  class SettingsRepositoryImpl {
+    - dataStore: DataStore<Preferences>
+    + getSettings(): Flow<AppSettings>
+    + updateCheckInterval(seconds: Int): Result<Unit>
+    + updateProximityDistance(meters: Int): Result<Unit>
+    + updateLocationTracking(enabled: Boolean): Result<Unit>
+    + updateMapLayer(layer: String): Result<Unit>
+    + updateActiveWeekdays(weekdays: Set<Int>): Result<Unit>
+  }
+}
+
+package "Room Database" {
+  class FairLaunchDatabase {
+    + mapPointDao(): MapPointDao
+    + proximityStateDao(): ProximityStateDao
+  }
+  
+  interface MapPointDao {
+    + getAll(): Flow<List<MapPointEntity>>
+    + getById(id: Long): MapPointEntity?
+    + insert(point: MapPointEntity): Long
+    + update(point: MapPointEntity)
+    + delete(id: Long)
+  }
+  
+  interface ProximityStateDao {
+    + getByPointId(pointId: Long): ProximityStateEntity?
+    + insert(state: ProximityStateEntity)
+    + update(state: ProximityStateEntity)
+  }
+  
+  class MapPointEntity {
+    + id: Long
+    + latitude: Double
+    + longitude: Double
+    + name: String
+    + startHour: Int
+    + startMinute: Int
+    + endHour: Int
+    + endMinute: Int
+    + createdAt: Long
+  }
+  
+  class ProximityStateEntity {
+    + pointId: Long <<PK, FK>>
+    + isInside: Boolean
+  }
+}
+
+package "Mappers" {
+  class MapPointMapper {
+    + toDomain(entity: MapPointEntity): MapPoint
+    + toEntity(domain: MapPoint): MapPointEntity
+    + toDomainList(entities: List<MapPointEntity>): List<MapPoint>
+  }
+  
+  class ProximityStateMapper {
+    + toDomain(entity: ProximityStateEntity): ProximityState
+    + toEntity(domain: ProximityState): ProximityStateEntity
+  }
+}
+
+package "Preferences" {
+  class DataStore {
+    <<Android DataStore>>
+  }
+}
+
+' Relationships
+MapPointRepositoryImpl --> MapPointDao
+MapPointRepositoryImpl --> MapPointMapper
+
+ProximityRepositoryImpl --> ProximityStateDao
+ProximityRepositoryImpl --> ProximityStateMapper
+
+SettingsRepositoryImpl --> DataStore
+
+FairLaunchDatabase --> MapPointDao : provides
+FairLaunchDatabase --> ProximityStateDao : provides
+
+MapPointDao ..> MapPointEntity : uses
+ProximityStateDao ..> ProximityStateEntity : uses
+
+MapPointMapper ..> MapPointEntity : converts
+ProximityStateMapper ..> ProximityStateEntity : converts
+
+ProximityStateEntity --> MapPointEntity : FK
+
+note right of FairLaunchDatabase
+  Room Database
+  Version: 1
+  Entities: MapPointEntity, ProximityStateEntity
+end note
+
+note right of DataStore
+  Stores app settings:
+  - Check interval
+  - Proximity distance
+  - Tracking enabled
+  - Map layer type
+  - Active weekdays
+end note
+
+note right of ProximityStateEntity
+  Anti-spam mechanism:
+  Tracks if user is inside/outside
+  each point's proximity zone
+end note
+
+@enduml

@@ -1,0 +1,122 @@
+@startuml FairLaunch-Sequence-Proximity-Check
+!theme plain
+skinparam backgroundColor #FFFFFF
+
+title FairLaunch - Proximity Check Sequence
+
+actor User
+participant "Android System" as System
+participant BootReceiver
+participant LocationWorkScheduler
+participant LocationCheckWorker
+participant GetSettingsUseCase
+participant GetMapPointsUseCase
+participant CheckProximityUseCase
+participant ProximityRepository
+participant FusedLocationClient
+participant "Fairtiq App" as Fairtiq
+
+== Device Boot ==
+System -> BootReceiver: BOOT_COMPLETED broadcast
+activate BootReceiver
+BootReceiver -> BootReceiver: Check if DataStore exists
+BootReceiver -> LocationWorkScheduler: scheduleLocationCheck()
+activate LocationWorkScheduler
+LocationWorkScheduler -> LocationWorkScheduler: Schedule with 30s delay\n(for GPS cold start)
+LocationWorkScheduler --> BootReceiver: Scheduled
+deactivate LocationWorkScheduler
+deactivate BootReceiver
+
+== Periodic Location Check ==
+System -> LocationCheckWorker: Execute work
+activate LocationCheckWorker
+
+LocationCheckWorker -> GetSettingsUseCase: invoke()
+activate GetSettingsUseCase
+GetSettingsUseCase --> LocationCheckWorker: AppSettings
+deactivate GetSettingsUseCase
+
+alt Tracking disabled
+  LocationCheckWorker --> System: Result.success()
+  deactivate LocationCheckWorker
+end
+
+LocationCheckWorker -> LocationCheckWorker: Check if today is active weekday
+alt Today not in active weekdays
+  LocationCheckWorker --> System: Result.success()
+  deactivate LocationCheckWorker
+end
+
+LocationCheckWorker -> FusedLocationClient: getCurrentLocation(timeout=30s)
+activate FusedLocationClient
+FusedLocationClient --> LocationCheckWorker: Location(lat, lon)
+deactivate FusedLocationClient
+
+alt Location null
+  LocationCheckWorker --> System: Result.failure()
+  deactivate LocationCheckWorker
+end
+
+LocationCheckWorker -> GetMapPointsUseCase: invoke()
+activate GetMapPointsUseCase
+GetMapPointsUseCase --> LocationCheckWorker: List<MapPoint>
+deactivate GetMapPointsUseCase
+
+LocationCheckWorker -> CheckProximityUseCase: invoke(lat, lon, distance)
+activate CheckProximityUseCase
+
+loop For each MapPoint
+  CheckProximityUseCase -> CheckProximityUseCase: calculateDistance()\n(Haversine formula)
+  
+  alt Distance <= proximityDistance
+    CheckProximityUseCase -> CheckProximityUseCase: isWithinTimeWindow()
+    
+    alt Within time window
+      CheckProximityUseCase -> ProximityRepository: getState(pointId)
+      activate ProximityRepository
+      ProximityRepository --> CheckProximityUseCase: ProximityState
+      deactivate ProximityRepository
+      
+      alt Was outside, now inside
+        CheckProximityUseCase -> ProximityRepository: updateState(isInside=true)
+        activate ProximityRepository
+        ProximityRepository --> CheckProximityUseCase: Success
+        deactivate ProximityRepository
+        CheckProximityUseCase -> CheckProximityUseCase: Add to triggeredPoints
+      else Already inside
+        CheckProximityUseCase -> CheckProximityUseCase: Skip (anti-spam)
+      end
+    else Outside time window
+      CheckProximityUseCase -> CheckProximityUseCase: Skip point
+    end
+  else Distance > proximityDistance
+    alt Was inside, now outside
+      CheckProximityUseCase -> ProximityRepository: updateState(isInside=false)
+      activate ProximityRepository
+      ProximityRepository --> CheckProximityUseCase: Success
+      deactivate ProximityRepository
+    end
+  end
+end
+
+CheckProximityUseCase --> LocationCheckWorker: Result<List<MapPoint>>
+deactivate CheckProximityUseCase
+
+alt triggeredPoints not empty
+  LocationCheckWorker -> LocationCheckWorker: launchFairtiqAndVibrate()
+  LocationCheckWorker -> System: Create notification with\nfull-screen intent
+  LocationCheckWorker -> System: Vibrate (3 bursts)
+  System -> Fairtiq: Launch app
+  Fairtiq -> User: App appears on screen\n(even if locked)
+end
+
+LocationCheckWorker -> LocationWorkScheduler: rescheduleIfNeeded()
+activate LocationWorkScheduler
+LocationWorkScheduler -> LocationWorkScheduler: Schedule next check\n(OneTimeWork for <15min)
+LocationWorkScheduler --> LocationCheckWorker: Scheduled
+deactivate LocationWorkScheduler
+
+LocationCheckWorker --> System: Result.success()
+deactivate LocationCheckWorker
+
+@enduml

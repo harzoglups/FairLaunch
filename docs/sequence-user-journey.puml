@@ -1,0 +1,120 @@
+@startuml FairLaunch-Sequence-User-Journey
+!theme plain
+skinparam backgroundColor #FFFFFF
+
+title FairLaunch - User Journey (First Launch to Automatic Trigger)
+
+actor User
+participant MainActivity
+participant SplashScreen
+participant OnboardingScreen
+participant MapScreen
+participant SettingsScreen
+participant MapViewModel
+participant SettingsViewModel
+participant "Location Worker" as Worker
+participant "Android System" as System
+participant "Fairtiq App" as Fairtiq
+
+== First Launch ==
+User -> MainActivity: Launch app
+activate MainActivity
+MainActivity -> SplashScreen: Navigate
+activate SplashScreen
+SplashScreen -> SplashScreen: Animated logo\n(3 seconds)
+SplashScreen -> OnboardingScreen: Navigate
+deactivate SplashScreen
+activate OnboardingScreen
+
+OnboardingScreen -> User: Welcome screen
+User -> OnboardingScreen: Tap "Get Started"
+
+OnboardingScreen -> User: Request location permission
+User -> OnboardingScreen: Grant location permission
+
+OnboardingScreen -> User: Request background location\n(with "Allow all the time" instruction)
+User -> OnboardingScreen: Grant "Allow all the time"
+
+OnboardingScreen -> User: Request notification permission
+User -> OnboardingScreen: Grant notification permission
+
+OnboardingScreen -> OnboardingScreen: Mark onboarding completed\n(SharedPreferences)
+OnboardingScreen -> MapScreen: Navigate
+deactivate OnboardingScreen
+deactivate MainActivity
+
+== Map Configuration ==
+activate MapScreen
+MapScreen -> User: Display map
+User -> MapScreen: Long press on map\n(train station)
+MapScreen -> User: Show edit dialog
+User -> MapScreen: Enter name "Train Station"\nSet time 08:00 - 18:00
+MapScreen -> MapViewModel: addPoint()
+activate MapViewModel
+MapViewModel -> MapViewModel: AddMapPointUseCase.invoke()
+MapViewModel --> MapScreen: Point added
+deactivate MapViewModel
+MapScreen -> User: Show marker with\nproximity circle
+
+User -> MapScreen: Tap settings button
+MapScreen -> SettingsScreen: Navigate
+deactivate MapScreen
+
+== Settings Configuration ==
+activate SettingsScreen
+SettingsScreen -> User: Display settings
+User -> SettingsScreen: Set check interval: 60s
+User -> SettingsScreen: Set proximity: 200m
+User -> SettingsScreen: Select weekdays: Mon-Fri
+User -> SettingsScreen: Enable tracking
+SettingsScreen -> SettingsViewModel: updateSettings()
+activate SettingsViewModel
+SettingsViewModel -> SettingsViewModel: UpdateSettingsUseCase.invoke()
+SettingsViewModel -> Worker: Schedule periodic check
+SettingsViewModel --> SettingsScreen: Settings saved
+deactivate SettingsViewModel
+User -> SettingsScreen: Tap back
+SettingsScreen -> MapScreen: Navigate back
+deactivate SettingsScreen
+
+== Background Operation ==
+User -> User: Close app, lock phone,\ngo to train station
+
+loop Every 60 seconds
+  Worker -> Worker: Check GPS location
+  Worker -> Worker: Check proximity to points
+  
+  alt Within 200m and time window
+    Worker -> System: Launch notification +\nfull-screen intent
+    Worker -> System: Vibrate phone\n(3 bursts)
+    System -> System: Wake screen\n(even if locked)
+    System -> Fairtiq: Launch app
+    Fairtiq -> User: Fairtiq visible on screen
+    User -> Fairtiq: Check-in to start journey
+    note right
+      User can't forget to check-in!
+      App is right there on the screen.
+    end note
+  end
+end
+
+== Next Day (Boot) ==
+User -> System: Restart phone
+System -> Worker: BOOT_COMPLETED
+Worker -> Worker: Check if tracking was enabled
+Worker -> Worker: Reschedule location checks\n(30s delay for GPS)
+note right
+  Tracking continues
+  automatically after reboot
+end note
+
+== Subsequent Launches ==
+User -> MainActivity: Launch app again
+MainActivity -> SplashScreen: Navigate
+SplashScreen -> SplashScreen: Check onboarding flag
+SplashScreen -> MapScreen: Navigate directly\n(skip onboarding)
+note right
+  Onboarding only shows once
+end note
+
+@enduml

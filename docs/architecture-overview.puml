@@ -1,0 +1,142 @@
+@startuml FairLaunch-Architecture-Overview
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+
+title FairLaunch - Clean Architecture Overview
+
+package "App Layer (Presentation)" {
+  [MainActivity]
+  [SplashScreen]
+  [OnboardingScreen]
+  [MapScreen]
+  [SettingsScreen]
+  [MapViewModel]
+  [SettingsViewModel]
+  [LocationCheckWorker]
+  [BootReceiver]
+}
+
+package "Domain Layer (Pure Kotlin)" {
+  package "Use Cases" {
+    [AddMapPointUseCase]
+    [DeleteMapPointUseCase]
+    [GetMapPointsUseCase]
+    [UpdateMapPointUseCase]
+    [CheckProximityUseCase]
+    [GetSettingsUseCase]
+    [UpdateSettingsUseCase]
+  }
+  
+  package "Models" {
+    [MapPoint]
+    [ProximityState]
+    [AppSettings]
+  }
+  
+  package "Repository Interfaces" {
+    interface MapPointRepository
+    interface ProximityRepository
+    interface SettingsRepository
+  }
+}
+
+package "Data Layer" {
+  package "Repository Implementations" {
+    [MapPointRepositoryImpl]
+    [ProximityRepositoryImpl]
+    [SettingsRepositoryImpl]
+  }
+  
+  package "Database (Room)" {
+    [FairLaunchDatabase]
+    [MapPointDao]
+    [ProximityStateDao]
+    [MapPointEntity]
+    [ProximityStateEntity]
+  }
+  
+  package "Preferences" {
+    [DataStore]
+  }
+  
+  package "Mappers" {
+    [MapPointMapper]
+    [ProximityStateMapper]
+  }
+}
+
+' Relationships
+[MainActivity] --> [SplashScreen]
+[SplashScreen] --> [OnboardingScreen]
+[OnboardingScreen] --> [MapScreen]
+[MapScreen] --> [MapViewModel]
+[SettingsScreen] --> [SettingsViewModel]
+
+[MapViewModel] --> [GetMapPointsUseCase]
+[MapViewModel] --> [AddMapPointUseCase]
+[MapViewModel] --> [UpdateMapPointUseCase]
+[MapViewModel] --> [DeleteMapPointUseCase]
+
+[SettingsViewModel] --> [GetSettingsUseCase]
+[SettingsViewModel] --> [UpdateSettingsUseCase]
+
+[LocationCheckWorker] --> [GetMapPointsUseCase]
+[LocationCheckWorker] --> [CheckProximityUseCase]
+[LocationCheckWorker] --> [GetSettingsUseCase]
+
+[BootReceiver] --> [LocationCheckWorker]
+
+[GetMapPointsUseCase] --> MapPointRepository
+[AddMapPointUseCase] --> MapPointRepository
+[UpdateMapPointUseCase] --> MapPointRepository
+[DeleteMapPointUseCase] --> MapPointRepository
+
+[CheckProximityUseCase] --> MapPointRepository
+[CheckProximityUseCase] --> ProximityRepository
+
+[GetSettingsUseCase] --> SettingsRepository
+[UpdateSettingsUseCase] --> SettingsRepository
+
+MapPointRepository <|.. [MapPointRepositoryImpl]
+ProximityRepository <|.. [ProximityRepositoryImpl]
+SettingsRepository <|.. [SettingsRepositoryImpl]
+
+[MapPointRepositoryImpl] --> [MapPointDao]
+[MapPointRepositoryImpl] --> [MapPointMapper]
+
+[ProximityRepositoryImpl] --> [ProximityStateDao]
+[ProximityRepositoryImpl] --> [ProximityStateMapper]
+
+[SettingsRepositoryImpl] --> [DataStore]
+
+[MapPointDao] --> [FairLaunchDatabase]
+[ProximityStateDao] --> [FairLaunchDatabase]
+
+[MapPointDao] --> [MapPointEntity]
+[ProximityStateDao] --> [ProximityStateEntity]
+
+[MapPointMapper] --> [MapPoint]
+[MapPointMapper] --> [MapPointEntity]
+
+[ProximityStateMapper] --> [ProximityState]
+[ProximityStateMapper] --> [ProximityStateEntity]
+
+note right of "Domain Layer (Pure Kotlin)"
+  No Android dependencies
+  Pure business logic
+  Testable without Android
+end note
+
+note right of "Data Layer"
+  Android dependencies allowed
+  Room, DataStore, etc.
+end note
+
+note right of "App Layer (Presentation)"
+  UI and Android-specific code
+  Jetpack Compose
+  WorkManager
+end note
+
+@enduml

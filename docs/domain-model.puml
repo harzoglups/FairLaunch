@@ -1,0 +1,133 @@
+@startuml FairLaunch-Domain-Model
+!theme plain
+skinparam backgroundColor #FFFFFF
+
+title FairLaunch - Domain Model (Models & Use Cases)
+
+package "Domain Models" {
+  class MapPoint {
+    + id: Long
+    + latitude: Double
+    + longitude: Double
+    + name: String
+    + startHour: Int
+    + startMinute: Int
+    + endHour: Int
+    + endMinute: Int
+    + createdAt: Long
+  }
+  
+  class ProximityState {
+    + pointId: Long
+    + isInside: Boolean
+  }
+  
+  class AppSettings {
+    + checkIntervalSeconds: Int
+    + proximityDistanceMeters: Int
+    + isLocationTrackingEnabled: Boolean
+    + mapLayerType: String
+    + activeWeekdays: Set<Int>
+  }
+}
+
+package "Repository Interfaces" {
+  interface MapPointRepository {
+    + getAll(): Flow<List<MapPoint>>
+    + getById(id: Long): Result<MapPoint>
+    + insert(point: MapPoint): Result<Long>
+    + update(point: MapPoint): Result<Unit>
+    + delete(id: Long): Result<Unit>
+  }
+  
+  interface ProximityRepository {
+    + getState(pointId: Long): Result<ProximityState?>
+    + updateState(state: ProximityState): Result<Unit>
+  }
+  
+  interface SettingsRepository {
+    + getSettings(): Flow<AppSettings>
+    + updateCheckInterval(seconds: Int): Result<Unit>
+    + updateProximityDistance(meters: Int): Result<Unit>
+    + updateLocationTracking(enabled: Boolean): Result<Unit>
+    + updateMapLayer(layer: String): Result<Unit>
+    + updateActiveWeekdays(weekdays: Set<Int>): Result<Unit>
+  }
+}
+
+package "Use Cases" {
+  class GetMapPointsUseCase {
+    - repository: MapPointRepository
+    + invoke(): Flow<List<MapPoint>>
+  }
+  
+  class AddMapPointUseCase {
+    - repository: MapPointRepository
+    + invoke(point: MapPoint): Result<Long>
+  }
+  
+  class UpdateMapPointUseCase {
+    - repository: MapPointRepository
+    + invoke(point: MapPoint): Result<Unit>
+  }
+  
+  class DeleteMapPointUseCase {
+    - repository: MapPointRepository
+    + invoke(id: Long): Result<Unit>
+  }
+  
+  class CheckProximityUseCase {
+    - mapPointRepository: MapPointRepository
+    - proximityRepository: ProximityRepository
+    + invoke(lat: Double, lon: Double, \n        distance: Int): Result<List<MapPoint>>
+    - calculateDistance(lat1, lon1, lat2, lon2): Double
+    - isWithinTimeWindow(point: MapPoint): Boolean
+  }
+  
+  class GetSettingsUseCase {
+    - repository: SettingsRepository
+    + invoke(): Flow<AppSettings>
+  }
+  
+  class UpdateSettingsUseCase {
+    - repository: SettingsRepository
+    + updateCheckInterval(seconds: Int): Result<Unit>
+    + updateProximityDistance(meters: Int): Result<Unit>
+    + updateLocationTracking(enabled: Boolean): Result<Unit>
+    + updateMapLayer(layer: String): Result<Unit>
+    + updateActiveWeekdays(weekdays: Set<Int>): Result<Unit>
+  }
+}
+
+' Relationships
+GetMapPointsUseCase --> MapPointRepository
+AddMapPointUseCase --> MapPointRepository
+UpdateMapPointUseCase --> MapPointRepository
+DeleteMapPointUseCase --> MapPointRepository
+
+CheckProximityUseCase --> MapPointRepository
+CheckProximityUseCase --> ProximityRepository
+
+GetSettingsUseCase --> SettingsRepository
+UpdateSettingsUseCase --> SettingsRepository
+
+MapPointRepository ..> MapPoint : returns
+ProximityRepository ..> ProximityState : returns
+SettingsRepository ..> AppSettings : returns
+
+CheckProximityUseCase ..> MapPoint : uses
+
+note right of CheckProximityUseCase
+  Core business logic:
+  1. Calculate distance (Haversine)
+  2. Check time window
+  3. Check proximity state
+  4. Return triggered points
+end note
+
+note top of "Domain Models"
+  Pure Kotlin data classes
+  No Android dependencies
+end note
+
+@enduml

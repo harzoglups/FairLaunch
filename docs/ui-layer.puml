@@ -1,0 +1,186 @@
+@startuml FairLaunch-UI-Layer
+!theme plain
+skinparam backgroundColor #FFFFFF
+
+title FairLaunch - UI Layer (Screens & Navigation)
+
+package "Navigation" {
+  class AppNavigation {
+    + navController: NavHostController
+    - isOnboardingCompleted(): Boolean
+    - markOnboardingCompleted()
+  }
+  
+  enum Screen {
+    SPLASH
+    ONBOARDING
+    MAP
+    SETTINGS
+  }
+}
+
+package "Screens" {
+  class SplashScreen {
+    + onNavigateToNext: () -> Unit
+    - rotation: Float (animation)
+    - scale: Float (animation)
+  }
+  
+  class OnboardingScreen {
+    + onComplete: () -> Unit
+    - currentStep: OnboardingStep
+    - hasLocationPermission: Boolean
+    - hasBackgroundPermission: Boolean
+    - hasNotificationPermission: Boolean
+  }
+  
+  enum OnboardingStep {
+    WELCOME
+    LOCATION
+    BACKGROUND_LOCATION
+    NOTIFICATIONS
+    COMPLETE
+  }
+  
+  class MapScreen {
+    + onNavigateToSettings: () -> Unit
+    - viewModel: MapViewModel
+    - mapView: MapView (OSMDroid)
+    - selectedPoint: MapPoint?
+    - searchQuery: String
+  }
+  
+  class SettingsScreen {
+    + onNavigateBack: () -> Unit
+    - viewModel: SettingsViewModel
+    - settings: AppSettings
+    - permissionStatus: PermissionStatus
+  }
+  
+  enum PermissionStatus {
+    NOT_GRANTED
+    FOREGROUND_ONLY
+    GRANTED
+  }
+}
+
+package "ViewModels" {
+  class MapViewModel {
+    - getMapPointsUseCase: GetMapPointsUseCase
+    - addMapPointUseCase: AddMapPointUseCase
+    - updateMapPointUseCase: UpdateMapPointUseCase
+    - deleteMapPointUseCase: DeleteMapPointUseCase
+    + points: StateFlow<List<MapPoint>>
+    + addPoint(point: MapPoint)
+    + updatePoint(point: MapPoint)
+    + deletePoint(id: Long)
+  }
+  
+  class SettingsViewModel {
+    - getSettingsUseCase: GetSettingsUseCase
+    - updateSettingsUseCase: UpdateSettingsUseCase
+    + settings: StateFlow<AppSettings>
+    + permissionStatus: StateFlow<PermissionStatus>
+    + updateCheckInterval(seconds: Int)
+    + updateProximityDistance(meters: Int)
+    + updateLocationTracking(enabled: Boolean)
+    + updateActiveWeekdays(weekdays: Set<Int>)
+    + onBackgroundLocationPermissionResult(granted: Boolean)
+  }
+}
+
+package "Background Processing" {
+  class LocationCheckWorker {
+    - getMapPointsUseCase: GetMapPointsUseCase
+    - checkProximityUseCase: CheckProximityUseCase
+    - getSettingsUseCase: GetSettingsUseCase
+    + doWork(): Result
+    - getCurrentLocation(): Location?
+    - launchFairtiqAndVibrate()
+    - rescheduleIfNeeded()
+  }
+  
+  class LocationWorkScheduler {
+    + scheduleLocationCheck(intervalSeconds: Int)
+    + cancelLocationCheck()
+  }
+  
+  class BootReceiver {
+    + onReceive(context: Context, intent: Intent)
+    - scheduleWorkerIfNeeded()
+  }
+}
+
+package "Dependency Injection" {
+  class AppModule {
+    + provideContext(): Context
+    + provideWorkManager(): WorkManager
+    + provideLocationClient(): FusedLocationProviderClient
+  }
+  
+  class DatabaseModule {
+    + provideDatabase(): FairLaunchDatabase
+    + provideMapPointDao(): MapPointDao
+    + provideProximityStateDao(): ProximityStateDao
+    + provideDataStore(): DataStore<Preferences>
+    + provideMapPointRepository(): MapPointRepository
+    + provideProximityRepository(): ProximityRepository
+    + provideSettingsRepository(): SettingsRepository
+  }
+}
+
+' Relationships
+AppNavigation --> Screen
+AppNavigation --> SplashScreen
+AppNavigation --> OnboardingScreen
+AppNavigation --> MapScreen
+AppNavigation --> SettingsScreen
+
+SplashScreen --> OnboardingScreen : navigates to
+OnboardingScreen --> MapScreen : navigates to
+MapScreen --> SettingsScreen : navigates to
+
+OnboardingScreen --> OnboardingStep
+
+MapScreen --> MapViewModel
+SettingsScreen --> SettingsViewModel
+
+SettingsScreen --> PermissionStatus
+
+LocationCheckWorker --> LocationWorkScheduler : schedules
+BootReceiver --> LocationWorkScheduler : schedules
+
+MapViewModel ..> "Use Cases" : uses
+SettingsViewModel ..> "Use Cases" : uses
+LocationCheckWorker ..> "Use Cases" : uses
+
+AppModule ..> LocationCheckWorker : provides dependencies
+DatabaseModule ..> "Repositories" : provides
+
+note right of SplashScreen
+  3-second animated splash
+  Rotation + zoom/dezoom
+  Pastel background
+end note
+
+note right of OnboardingScreen
+  Step-by-step permission setup
+  Multilingual (6 languages)
+  Shows only on first launch
+end note
+
+note right of MapScreen
+  OpenStreetMap integration
+  Marker management
+  Location search (Photon API)
+  Proximity circles
+end note
+
+note right of LocationCheckWorker
+  Background GPS monitoring
+  Proximity detection
+  Fairtiq auto-launch
+  Vibration + screen wake
+end note
+
+@enduml

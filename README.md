@@ -191,7 +191,18 @@ The app requires the following permissions, explained during onboarding:
 
 ## 🏗️ Architecture
 
-Clean Architecture with 3 layers:
+FairLaunch follows Clean Architecture principles with 3 distinct layers:
+
+### Architecture Diagrams
+
+Detailed PlantUML diagrams are available in the `docs/` folder:
+
+- **[Architecture Overview](docs/architecture-overview.puml)** - Complete system architecture with all layers
+- **[Domain Model](docs/domain-model.puml)** - Domain entities, use cases, and repository interfaces
+- **[Data Layer](docs/data-layer.puml)** - Database entities, DAOs, repositories, and mappers
+- **[UI Layer](docs/ui-layer.puml)** - Screens, ViewModels, navigation, and background workers
+- **[Proximity Check Sequence](docs/sequence-proximity-check.puml)** - Background location monitoring flow
+- **[User Journey](docs/sequence-user-journey.puml)** - End-to-end user experience flow
 
 ### Domain Layer (Pure Kotlin)
 - `model/` - Entities: MapPoint, AppSettings, ProximityState
