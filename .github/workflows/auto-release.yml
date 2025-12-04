@@ -124,38 +124,53 @@ jobs:
           OTHER=$(echo "$COMMITS" | grep -v "^- feat\|^- fix\|^- docs\|^- refactor\|^- chore" || true)
           
           # Build release notes
-          NOTES="## What's Changed\n\n"
-          NOTES="${NOTES}**Version bump**: ${BUMP_TYPE} (${LATEST_TAG} → ${NEW_VERSION})\n\n"
+          echo "## What's Changed" > release_notes.md
+          echo "" >> release_notes.md
+          echo "**Version bump**: ${BUMP_TYPE} (${LATEST_TAG} → ${NEW_VERSION})" >> release_notes.md
+          echo "" >> release_notes.md
           
           if [ -n "$BREAKING" ]; then
-            NOTES="${NOTES}### ⚠️ BREAKING CHANGES\n${BREAKING}\n\n"
+            echo "### ⚠️ BREAKING CHANGES" >> release_notes.md
+            echo "$BREAKING" >> release_notes.md
+            echo "" >> release_notes.md
           fi
           
           if [ -n "$FEATURES" ]; then
-            NOTES="${NOTES}### ✨ Features\n${FEATURES}\n\n"
+            echo "### ✨ Features" >> release_notes.md
+            echo "$FEATURES" >> release_notes.md
+            echo "" >> release_notes.md
           fi
           
           if [ -n "$FIXES" ]; then
-            NOTES="${NOTES}### 🐛 Bug Fixes\n${FIXES}\n\n"
+            echo "### 🐛 Bug Fixes" >> release_notes.md
+            echo "$FIXES" >> release_notes.md
+            echo "" >> release_notes.md
           fi
           
           if [ -n "$REFACTOR" ]; then
-            NOTES="${NOTES}### ♻️ Refactoring\n${REFACTOR}\n\n"
+            echo "### ♻️ Refactoring" >> release_notes.md
+            echo "$REFACTOR" >> release_notes.md
+            echo "" >> release_notes.md
           fi
           
           if [ -n "$DOCS" ]; then
-            NOTES="${NOTES}### 📚 Documentation\n${DOCS}\n\n"
+            echo "### 📚 Documentation" >> release_notes.md
+            echo "$DOCS" >> release_notes.md
+            echo "" >> release_notes.md
           fi
           
           if [ -n "$CHORE" ]; then
-            NOTES="${NOTES}### 🔧 Chores\n${CHORE}\n\n"
+            echo "### 🔧 Chores" >> release_notes.md
+            echo "$CHORE" >> release_notes.md
+            echo "" >> release_notes.md
           fi
           
           if [ -n "$OTHER" ]; then
-            NOTES="${NOTES}### Other Changes\n${OTHER}\n\n"
+            echo "### Other Changes" >> release_notes.md
+            echo "$OTHER" >> release_notes.md
+            echo "" >> release_notes.md
           fi
           
-          echo "$NOTES" > release_notes.md
           cat release_notes.md
           
       - name: Set up JDK 17
