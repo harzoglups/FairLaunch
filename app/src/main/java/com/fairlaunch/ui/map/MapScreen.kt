@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -117,6 +118,9 @@ fun MapScreen(
             }
         }
         is MapUiState.Success -> {
+            var locationOverlay by remember { mutableStateOf<MyLocationNewOverlay?>(null) }
+            var mapView by remember { mutableStateOf<MapView?>(null) }
+            
             Box(modifier = Modifier.fillMaxSize()) {
                 MapContent(
                     points = state.points,
@@ -147,6 +151,8 @@ fun MapScreen(
                         selectedPoint = if (selectedPoint?.id == point.id) null else point
                     },
                     onMapClick = { selectedPoint = null }, // Close info card when clicking on map
+                    onLocationOverlayReady = { overlay -> locationOverlay = overlay },
+                    onMapViewReady = { view -> mapView = view },
                     modifier = Modifier.fillMaxSize()
                 )
                 
@@ -200,16 +206,36 @@ fun MapScreen(
                 }
                 
                 // Floating settings button (bottom right)
-                SmallFloatingActionButton(
-                    onClick = onNavigateToSettings,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
+                Column(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .navigationBarsPadding()
-                        .padding(16.dp)
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    // GPS location button
+                    SmallFloatingActionButton(
+                        onClick = {
+                            locationOverlay?.myLocation?.let { location ->
+                                mapView?.controller?.animateTo(location)
+                                mapView?.controller?.setZoom(17.0)
+                            }
+                        },
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ) {
+                        Icon(Icons.Default.MyLocation, contentDescription = "My Location")
+                    }
+                    
+                    // Settings button
+                    SmallFloatingActionButton(
+                        onClick = onNavigateToSettings,
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
                 }
             }
         }
@@ -283,6 +309,8 @@ private fun MapContent(
     onDeletePoint: (Long) -> Unit,
     onMarkerClick: (MapPoint) -> Unit,
     onMapClick: () -> Unit,
+    onLocationOverlayReady: (MyLocationNewOverlay) -> Unit,
+    onMapViewReady: (MapView) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -326,6 +354,10 @@ private fun MapContent(
             factory = { ctx ->
                 MapView(ctx).apply {
                     mapView = this
+                    
+                    // Notify that map view is ready
+                    onMapViewReady(this)
+                    
                     setTileSource(mapLayerType.toTileSource())
                     setMultiTouchControls(true)
                     
@@ -338,6 +370,9 @@ private fun MapContent(
                     locationOverlay.enableMyLocation()
                     locationOverlay.enableFollowLocation()
                     overlays.add(locationOverlay)
+                    
+                    // Notify that location overlay is ready
+                    onLocationOverlayReady(locationOverlay)
                     
                     // Center on user location when available
                     locationOverlay.runOnFirstFix {
