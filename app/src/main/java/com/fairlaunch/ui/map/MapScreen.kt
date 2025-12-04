@@ -8,6 +8,7 @@ import android.os.Looper
 import android.view.MotionEvent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,19 +17,29 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
@@ -120,6 +131,10 @@ fun MapScreen(
         is MapUiState.Success -> {
             var locationOverlay by remember { mutableStateOf<MyLocationNewOverlay?>(null) }
             var mapView by remember { mutableStateOf<MapView?>(null) }
+            var searchQuery by remember { mutableStateOf("") }
+            var searchResults by remember { mutableStateOf<List<SearchResult>>(emptyList()) }
+            var isSearching by remember { mutableStateOf(false) }
+            var searchMarker by remember { mutableStateOf<Marker?>(null) } // Temporary marker for search results
             
             Box(modifier = Modifier.fillMaxSize()) {
                 MapContent(
@@ -150,10 +165,130 @@ fun MapScreen(
                         // Toggle: if same point clicked, close info; otherwise show info
                         selectedPoint = if (selectedPoint?.id == point.id) null else point
                     },
-                    onMapClick = { selectedPoint = null }, // Close info card when clicking on map
+                    onMapClick = { 
+                        selectedPoint = null // Close info card when clicking on map
+                        // Remove search marker when clicking on map
+                        searchMarker?.let { marker ->
+                            mapView?.overlays?.remove(marker)
+                            mapView?.invalidate()
+                            searchMarker = null
+                        }
+                    },
                     onLocationOverlayReady = { overlay -> locationOverlay = overlay },
                     onMapViewReady = { view -> mapView = view },
+                    searchMarker = searchMarker,
                     modifier = Modifier.fillMaxSize()
+                )
+                
+                // Search bar (top center)
+                SearchBar(
+                    query = searchQuery,
+                    onQueryChange = { query ->
+                        searchQuery = query
+                        if (query.length >= 3) {
+                            isSearching = true
+                            // Get current map bounds for search prioritization
+                            val viewbox = mapView?.boundingBox?.let { bbox ->
+                                Viewbox(
+                                    minLat = bbox.latSouth,
+                                    maxLat = bbox.latNorth,
+                                    minLon = bbox.lonWest,
+                                    maxLon = bbox.lonEast
+                                )
+                            }
+                            // Perform search with debounce
+                            viewModel.searchLocation(query, viewbox) { results ->
+                                // Keep previous results if new search returns nothing
+                                if (results.isNotEmpty()) {
+                                    searchResults = results
+                                }
+                                isSearching = false
+                            }
+                        } else {
+                            searchResults = emptyList()
+                            isSearching = false
+                        }
+                    },
+                    onClear = {
+                        searchQuery = ""
+                        searchResults = emptyList()
+                    },
+                    searchResults = searchResults,
+                    isSearching = isSearching,
+                    onResultClick = { result ->
+                        mapView?.let { map ->
+                            // Remove previous search marker if exists
+                            searchMarker?.let { marker ->
+                                map.overlays.remove(marker)
+                            }
+                            
+                            // Create new temporary marker for search result (red colored, larger and more visible)
+                            val marker = Marker(map).apply {
+                                position = GeoPoint(result.lat, result.lon)
+                                title = result.displayName
+                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                
+                                // Mark this as a search marker using relatedObject
+                                relatedObject = "SEARCH_MARKER"
+                                
+                                // Create a larger red pin-style marker to differentiate from user markers
+                                val size = 80 // Increased size for better visibility
+                                val bitmap = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+                                val canvas = android.graphics.Canvas(bitmap)
+                                
+                                // Draw a pin shape (circle on top, triangle pointing down)
+                                val paint = android.graphics.Paint().apply {
+                                    color = android.graphics.Color.RED
+                                    style = android.graphics.Paint.Style.FILL
+                                    isAntiAlias = true
+                                }
+                                val strokePaint = android.graphics.Paint().apply {
+                                    color = android.graphics.Color.WHITE
+                                    style = android.graphics.Paint.Style.STROKE
+                                    strokeWidth = 4f
+                                    isAntiAlias = true
+                                }
+                                
+                                // Draw circle (top part of pin)
+                                val circleRadius = size / 4f
+                                val circleCenterX = size / 2f
+                                val circleCenterY = circleRadius + 5
+                                canvas.drawCircle(circleCenterX, circleCenterY, circleRadius, paint)
+                                canvas.drawCircle(circleCenterX, circleCenterY, circleRadius, strokePaint)
+                                
+                                // Draw triangle pointing down (bottom part of pin)
+                                val path = android.graphics.Path().apply {
+                                    moveTo(circleCenterX - circleRadius / 2, circleCenterY + circleRadius)
+                                    lineTo(circleCenterX, size - 5f)
+                                    lineTo(circleCenterX + circleRadius / 2, circleCenterY + circleRadius)
+                                    close()
+                                }
+                                canvas.drawPath(path, paint)
+                                canvas.drawPath(path, strokePaint)
+                                
+                                icon = android.graphics.drawable.BitmapDrawable(context.resources, bitmap)
+                            }
+                            
+                            map.overlays.add(marker)
+                            searchMarker = marker
+                            
+                            android.util.Log.d("MapScreen", "Added search marker at ${result.lat}, ${result.lon}")
+                            
+                            map.invalidate()
+                            
+                            // Animate to location
+                            map.controller.animateTo(GeoPoint(result.lat, result.lon))
+                            map.controller.setZoom(15.0)
+                        }
+                        
+                        searchQuery = ""
+                        searchResults = emptyList()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .statusBarsPadding()
+                        .padding(16.dp)
+                        .fillMaxWidth(0.9f)
                 )
                 
                 // Show info card for selected marker
@@ -172,12 +307,12 @@ fun MapScreen(
                     )
                 }
                 
-                // Floating layer selection button (top right)
+                // Floating layer selection button (top right, below search bar)
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .statusBarsPadding()
-                        .padding(16.dp)
+                        .padding(top = 72.dp, end = 16.dp) // Extra top padding to avoid search bar overlap
                 ) {
                     SmallFloatingActionButton(
                         onClick = { showLayerMenu = true },
@@ -311,6 +446,7 @@ private fun MapContent(
     onMapClick: () -> Unit,
     onLocationOverlayReady: (MyLocationNewOverlay) -> Unit,
     onMapViewReady: (MapView) -> Unit,
+    searchMarker: Marker? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -368,13 +504,13 @@ private fun MapContent(
                     // Enable location overlay
                     val locationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(ctx), this)
                     locationOverlay.enableMyLocation()
-                    locationOverlay.enableFollowLocation()
+                    // Don't enable follow location - let user control the map manually
                     overlays.add(locationOverlay)
                     
                     // Notify that location overlay is ready
                     onLocationOverlayReady(locationOverlay)
                     
-                    // Center on user location when available
+                    // Center on user location when available (only once on first fix)
                     locationOverlay.runOnFirstFix {
                         post {
                             controller.animateTo(locationOverlay.myLocation)
@@ -461,8 +597,14 @@ private fun MapContent(
                     map.setTileSource(mapLayerType.toTileSource())
                 }
                 
-                // Remove old markers and circles
-                map.overlays.removeAll { it is Marker || it is Polygon }
+                // Remove old markers and circles (but keep search marker)
+                map.overlays.removeAll { overlay ->
+                    when {
+                        overlay is Marker && overlay.relatedObject == "SEARCH_MARKER" -> false // Keep search marker
+                        overlay is Marker || overlay is Polygon -> true // Remove user markers and circles
+                        else -> false
+                    }
+                }
                 
                 // Add circles and markers for each point
                 points.forEach { mapPoint ->
@@ -492,6 +634,14 @@ private fun MapContent(
                     map.overlays.add(marker)
                 }
                 
+                // Re-add search marker on top if it exists
+                searchMarker?.let { search ->
+                    // Remove it first if it's already in the list
+                    map.overlays.remove(search)
+                    // Add it at the end so it's on top
+                    map.overlays.add(search)
+                }
+                
                 map.invalidate()
             }
         )
@@ -507,4 +657,85 @@ private fun MapLayerType.toTileSource() = when (this) {
 private fun MapLayerType.displayName(context: android.content.Context) = when (this) {
     MapLayerType.STREET -> context.getString(R.string.map_layer_street)
     MapLayerType.TOPO -> context.getString(R.string.map_layer_topo)
+}
+
+// Search bar composable
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClear: () -> Unit,
+    searchResults: List<SearchResult>,
+    isSearching: Boolean,
+    onResultClick: (SearchResult) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Card(
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = onQueryChange,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text(stringResource(R.string.search_location)) },
+                leadingIcon = {
+                    Icon(Icons.Default.Search, contentDescription = null)
+                },
+                trailingIcon = {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = onClear) {
+                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                        }
+                    }
+                },
+                singleLine = true,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    focusedBorderColor = MaterialTheme.colorScheme.surface,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.surface
+                )
+            )
+        }
+        
+        // Search results dropdown
+        if (searchResults.isNotEmpty() || isSearching) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (isSearching) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                    } else {
+                        items(searchResults) { result ->
+                            Text(
+                                text = result.displayName,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onResultClick(result) }
+                                    .padding(16.dp),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -22,6 +22,8 @@
     <string name="edit">Edit</string>
     <string name="point_number">Point #%1$d</string>
     <string name="active_time">Active: %1$s - %2$s</string>
+    <string name="search_location">Search for a place</string>
+    <string name="my_location">My Location</string>
     
     <!-- Edit marker dialog -->
     <string name="edit_marker">Edit Marker</string>

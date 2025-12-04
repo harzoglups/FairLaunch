@@ -14,11 +14,17 @@ import com.fairlaunch.domain.usecase.UpdateSettingsUseCase
 import com.fairlaunch.domain.util.Result
 import com.fairlaunch.worker.LocationWorkScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import java.net.URLEncoder
 import javax.inject.Inject
 
 @HiltViewModel
@@ -117,7 +123,157 @@ class MapViewModel @Inject constructor(
             updateSettingsUseCase.updateMapLayerType(layerType)
         }
     }
+    
+    private var searchJob: Job? = null
+    
+    fun searchLocation(
+        query: String,
+        viewbox: Viewbox? = null,
+        onResults: (List<SearchResult>) -> Unit
+    ) {
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(300) // Debounce for 300ms (reduced from 500ms)
+            try {
+                val results = withContext(Dispatchers.IO) {
+                    performNominatimSearch(query, viewbox)
+                }
+                onResults(results)
+            } catch (e: Exception) {
+                // Handle error silently or log it
+                onResults(emptyList())
+            }
+        }
+    }
+    
+    private fun performNominatimSearch(query: String, viewbox: Viewbox?): List<SearchResult> {
+        try {
+            val encodedQuery = URLEncoder.encode(query, "UTF-8")
+            
+            // Use Photon API (better partial search than Nominatim)
+            var url = "https://photon.komoot.io/api/?q=$encodedQuery&limit=10&lang=fr"
+            
+            // Add location bias if viewbox available
+            if (viewbox != null) {
+                val centerLat = (viewbox.minLat + viewbox.maxLat) / 2
+                val centerLon = (viewbox.minLon + viewbox.maxLon) / 2
+                url += "&lat=$centerLat&lon=$centerLon"
+            }
+            
+            val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+            connection.setRequestProperty("User-Agent", "FairLaunch/1.0")
+            connection.requestMethod = "GET"
+            
+            val response = connection.inputStream.bufferedReader().use { it.readText() }
+            connection.disconnect()
+            
+            // Parse GeoJSON response
+            val json = org.json.JSONObject(response)
+            val features = json.getJSONArray("features")
+            val results = mutableListOf<SearchResult>()
+            
+            for (i in 0 until features.length()) {
+                val feature = features.getJSONObject(i)
+                val properties = feature.getJSONObject("properties")
+                val geometry = feature.getJSONObject("geometry")
+                val coordinates = geometry.getJSONArray("coordinates")
+                
+                // Build display name from properties
+                val name = properties.optString("name", "")
+                val city = properties.optString("city", "")
+                val state = properties.optString("state", "")
+                val country = properties.optString("country", "")
+                
+                val displayParts = mutableListOf<String>()
+                if (name.isNotEmpty()) displayParts.add(name)
+                if (city.isNotEmpty() && city != name) displayParts.add(city)
+                if (state.isNotEmpty()) displayParts.add(state)
+                if (country.isNotEmpty()) displayParts.add(country)
+                
+                val displayName = displayParts.joinToString(", ")
+                
+                // Get type and classification
+                val osmValue = properties.optString("osm_value", "")
+                val osmKey = properties.optString("osm_key", "")
+                val type = properties.optString("type", "")
+                
+                results.add(
+                    SearchResult(
+                        displayName = displayName,
+                        lat = coordinates.getDouble(1), // GeoJSON: [lon, lat]
+                        lon = coordinates.getDouble(0),
+                        type = type,
+                        placeClass = osmKey,
+                        addressType = osmValue
+                    )
+                )
+            }
+            
+            // Sort by priority: cities/villages first, then other places
+            val sortedResults = results.sortedBy { result ->
+                when {
+                    result.addressType in listOf("city", "town", "village", "municipality") -> 0
+                    result.placeClass == "place" -> 0
+                    result.addressType in listOf("administrative", "hamlet", "suburb") -> 1
+                    result.placeClass in listOf("highway", "railway") -> 2
+                    else -> 3
+                }
+            }
+            
+            return sortedResults.take(5)
+        } catch (e: Exception) {
+            return emptyList()
+        }
+    }
+    
+    private fun fetchNominatimResults(url: String): List<SearchResult> {
+        return try {
+            val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+            connection.setRequestProperty("User-Agent", "FairLaunch/1.0")
+            connection.requestMethod = "GET"
+            
+            val response = connection.inputStream.bufferedReader().use { it.readText() }
+            connection.disconnect()
+            
+            val jsonArray = JSONArray(response)
+            val results = mutableListOf<SearchResult>()
+            
+            for (i in 0 until jsonArray.length()) {
+                val item = jsonArray.getJSONObject(i)
+                results.add(
+                    SearchResult(
+                        displayName = item.getString("display_name"),
+                        lat = item.getDouble("lat"),
+                        lon = item.getDouble("lon"),
+                        type = item.optString("type", ""),
+                        placeClass = item.optString("class", ""),
+                        addressType = item.optString("addresstype", "")
+                    )
+                )
+            }
+            
+            results
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 }
+
+data class SearchResult(
+    val displayName: String,
+    val lat: Double,
+    val lon: Double,
+    val type: String = "",
+    val placeClass: String = "",
+    val addressType: String = ""
+)
+
+data class Viewbox(
+    val minLat: Double,
+    val maxLat: Double,
+    val minLon: Double,
+    val maxLon: Double
+)
 
 sealed interface MapUiState {
     data object Loading : MapUiState
