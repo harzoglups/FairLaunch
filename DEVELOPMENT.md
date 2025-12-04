@@ -110,13 +110,21 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 ### 8. Notifications and Alerts
 - **Full-screen intent**: Launches Fairtiq and wakes screen even when locked
 - **Direct vibration**: Strong 3-burst pattern (500ms each) at max amplitude
-- **Permission flow**: Requests POST_NOTIFICATIONS on first launch (Android 13+)
+- **Permission flow**: Guided onboarding on first launch requests all necessary permissions
 - **Channel**: "Alertes de proximité" with HIGH importance
-- **Location**: `LocationCheckWorker.launchFairtiqAndVibrate()` and `MainActivity.requestNotificationPermissionIfNeeded()`
+- **Location**: `LocationCheckWorker.launchFairtiqAndVibrate()` and `OnboardingScreen.kt`
 
-### 9. App Icon
-- **Style**: Custom vector drawable, red background with white rounded "L"
-- **Color**: Red (#E53935) - distinctive and visible
+### 9. Onboarding Flow
+- **Splash screen**: Animated logo (rotation + zoom/dezoom) on pastel background (3 seconds)
+- **Guided wizard**: Step-by-step permission setup on first launch
+- **Steps**: Welcome → Location → Background location → Notifications (Android 13+) → Complete
+- **Critical instruction**: Explicit message to select "Allow all the time" for background location
+- **Multilingual**: Fully translated in 6 languages (en, fr, de, es, it, pt)
+- **One-time only**: Flag stored in SharedPreferences (`onboarding_completed`)
+- **Location**: `OnboardingScreen.kt`, `SplashScreen.kt`, `AppNavigation.kt`
+
+### 10. App Icon
+- **Style**: Custom vector drawable, white rounded "L" on adaptive background
 - **Design**: Smaller "L" with rounded corners (Q-like style)
 - **Format**: Adaptive icon for Android 8+ with fallback for older versions
 - **Location**: `drawable/ic_launcher_*` files
@@ -150,12 +158,15 @@ active_weekdays: String = "1,2,3,4,5,6,7"  // CSV: 1=Monday, 7=Sunday
 
 ## Points of Attention
 
+### Points of Attention
+
 ### For Production
-1. **Permissions**: Implement 2-step flow for BACKGROUND_LOCATION (Android 10+)
+1. **Permissions**: ✅ Done - Guided onboarding with step-by-step permission setup
 2. **Interval**: Option to revert to minutes (or keep seconds with min/max validation)
 3. **Battery optimization**: Test on different devices with Doze mode
-4. ~~**Icons**: Add custom launcher icons~~ ✅ Done - Custom red icon with rounded "L"
-5. **Notification permission**: Already implemented - requests on first launch (Android 13+)
+4. ~~**Icons**: Add custom launcher icons~~ ✅ Done - Custom icon with rounded "L"
+5. ~~**Notification permission**~~: ✅ Done - Requested during onboarding (Android 13+)
+6. ~~**Onboarding flow**~~: ✅ Done - Guided wizard for first-time users
 
 ### Known Limitations
 1. WorkManager PeriodicWork minimum = 15 minutes
@@ -199,6 +210,9 @@ active_weekdays: String = "1,2,3,4,5,6,7"  // CSV: 1=Monday, 7=Sunday
 ## Tests Performed
 
 ### Functional Tests ✅
+- [x] Splash screen with animated logo
+- [x] Guided onboarding flow on first launch
+- [x] Multilingual onboarding (6 languages)
 - [x] Create/delete points on map
 - [x] Edit marker properties (name, time window with HH:MM precision)
 - [x] View marker details via info card
@@ -216,7 +230,7 @@ active_weekdays: String = "1,2,3,4,5,6,7"  // CSV: 1=Monday, 7=Sunday
 - [x] Red proximity circles on map
 - [x] Auto-start on boot (with GPS cold start handling)
 - [x] GPS location after reboot without manual intervention
-- [x] Notification permission request on first launch (Android 13+)
+- [x] Notification permission request during onboarding (Android 13+)
 - [x] Vibration and app launch with screen locked
 - [x] Map layer selection (Street, Topographic) with floating button
 - [x] Full-screen immersive UI with floating action buttons
