@@ -79,4 +79,18 @@
     <string name="notification_channel_desc">Notificaciones al entrar en una zona de transporte</string>
     <string name="notification_transport_zone_detected">Zona de transporte detectada</string>
     <string name="notification_launching_fairtiq">Iniciando Fairtiq…</string>
+    
+    <!-- Onboarding -->
+    <string name="welcome_to_fairlaunch">¡Bienvenido a FairLaunch!</string>
+    <string name="onboarding_welcome_description">FairLaunch inicia Fairtiq automáticamente cuando te acercas a tus puntos de tránsito guardados. Configuremos los permisos necesarios.</string>
+    <string name="get_started">Comenzar</string>
+    <string name="onboarding_location_title">Acceso a la ubicación</string>
+    <string name="onboarding_location_description">FairLaunch necesita acceso a tu ubicación para detectar cuándo te acercas a un punto guardado.</string>
+    <string name="onboarding_background_location_title">Acceso a la ubicación en segundo plano</string>
+    <string name="onboarding_background_location_description">Para que la app funcione automáticamente, necesita el permiso \"Permitir siempre\". Esto permite a FairLaunch monitorear tu ubicación incluso cuando la app está cerrada.\n\nIMPORTANTE: En la siguiente pantalla, selecciona \"Permitir siempre\".</string>
+    <string name="onboarding_notifications_title">Notificaciones</string>
+    <string name="onboarding_notifications_description">Permite las notificaciones para ser informado cuando Fairtiq se inicia automáticamente.</string>
+    <string name="onboarding_complete_title">¡Todo listo!</string>
+    <string name="onboarding_complete_description">Ahora puedes agregar tus puntos de tránsito en el mapa y habilitar el seguimiento en segundo plano en los ajustes.</string>
+    <string name="start_using_app">Comenzar a usar FairLaunch</string>
 </resources>

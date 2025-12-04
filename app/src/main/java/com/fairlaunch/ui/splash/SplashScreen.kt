@@ -29,7 +29,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
-    onNavigateToMap: () -> Unit
+    onNavigateToNext: () -> Unit
 ) {
     // Animation for rotation
     val infiniteTransition = rememberInfiniteTransition(label = "splash_transition")
@@ -55,10 +55,10 @@ fun SplashScreen(
         label = "scale"
     )
     
-    // Navigate to map after 3 seconds
+    // Navigate to next screen after 3 seconds
     LaunchedEffect(Unit) {
         delay(3000)
-        onNavigateToMap()
+        onNavigateToNext()
     }
     
     val backgroundColor = if (isSystemInDarkTheme()) {
