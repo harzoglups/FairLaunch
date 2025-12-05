@@ -5,7 +5,8 @@ data class AppSettings(
     val proximityDistanceMeters: Int = 200,
     val isLocationTrackingEnabled: Boolean = false,
     val mapLayerType: MapLayerType = MapLayerType.STREET,
-    val activeWeekdays: Set<Int> = setOf(1, 2, 3, 4, 5, 6, 7) // 1=Monday, 7=Sunday (all days by default)
+    val activeWeekdays: Set<Int> = setOf(1, 2, 3, 4, 5, 6, 7), // 1=Monday, 7=Sunday (all days by default)
+    val vibrationCount: Int = 3 // Number of vibrations when entering a zone (default: 3)
 )
 
 enum class MapLayerType {

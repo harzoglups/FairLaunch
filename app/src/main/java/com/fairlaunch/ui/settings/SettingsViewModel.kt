@@ -137,4 +137,10 @@ class SettingsViewModel @Inject constructor(
             updateSettingsUseCase.updateActiveWeekdays(weekdays)
         }
     }
+    
+    fun updateVibrationCount(count: Int) {
+        viewModelScope.launch {
+            updateSettingsUseCase.updateVibrationCount(count)
+        }
+    }
 }

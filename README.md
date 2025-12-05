@@ -10,7 +10,7 @@ Forgetting to check-in with Fairtiq before boarding public transport can result 
 
 1. **Detecting when you approach** your saved train/bus stations
 2. **Waking your phone screen** even if locked
-3. **Vibrating to get your attention** (3-burst pattern)
+3. **Vibrating to get your attention** (configurable, default: 3 bursts)
 4. **Automatically opening Fairtiq** so it's the first thing you see
 5. **No manual intervention needed** - it works completely in the background
 
@@ -37,12 +37,13 @@ This way, you'll never forget to start your journey in Fairtiq, avoiding unneces
   - Configurable proximity detection
   - Time-based activation: points only trigger within their configured time window
   - Automatic launch of Fairtiq application
-  - Phone vibration on trigger
+  - Configurable vibration on trigger (default: 3 bursts)
   - Screen wake-up even when locked
   - Auto-start on device boot
 - **Configurable Settings**:
   - Position check frequency (seconds or minutes)
   - Proximity distance (meters)
+  - Vibration count (number of vibration bursts)
   - Enable/disable tracking
   - Weekday selection: choose which days GPS monitoring is active (battery saving)
 - **Anti-spam**: Only triggers once per zone entry (requires leaving and returning)
@@ -155,6 +156,7 @@ adb shell am start -n com.fairlaunch/.MainActivity
 - Tap the floating settings button (bottom-right)
 - Configure check frequency (default: 300 seconds = 5 minutes)
 - Configure proximity distance (default: 200 meters)
+- Configure vibration count (default: 3 bursts)
 - Select active weekdays (uncheck days when you don't take the train)
 - Enable tracking via the switch
 
@@ -169,7 +171,7 @@ adb shell am start -n com.fairlaunch/.MainActivity
 - The app checks your position in the background
 - Red circles on the map show proximity zones
 - When you enter a zone (at configured distance) **within the point's active time window**:
-  - The phone vibrates (strong 3-burst pattern)
+  - The phone vibrates (configurable number of bursts)
   - The screen wakes up if locked
   - The Fairtiq app launches automatically
   - **You see Fairtiq immediately** - no risk of forgetting to check-in!

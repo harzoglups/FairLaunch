@@ -30,6 +30,7 @@ package "Repository Implementations" {
     + updateLocationTracking(enabled: Boolean): Result<Unit>
     + updateMapLayer(layer: String): Result<Unit>
     + updateActiveWeekdays(weekdays: Set<Int>): Result<Unit>
+    + updateVibrationCount(count: Int): Result<Unit>
   }
 }
 
@@ -123,6 +124,7 @@ note right of DataStore
   - Tracking enabled
   - Map layer type
   - Active weekdays
+  - Vibration count
 end note
 
 note right of ProximityStateEntity

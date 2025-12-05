@@ -118,7 +118,7 @@ class LocationCheckWorker @AssistedInject constructor(
                     activePoints.forEach { point ->
                         Log.d(TAG, "  Point '${point.name}' (${point.startHour}:${point.startMinute.toString().padStart(2, '0')}-${point.endHour}:${point.endMinute.toString().padStart(2, '0')})")
                     }
-                    launchFairtiqAndVibrate()
+                    launchFairtiqAndVibrate(settings.vibrationCount)
                 } else {
                     Log.d(TAG, "Entered ${pointsToTrigger.size} proximity zone(s) but none are active at current time: $currentHour:${currentMinute.toString().padStart(2, '0')}")
                 }
@@ -220,10 +220,10 @@ class LocationCheckWorker @AssistedInject constructor(
         }
     }
 
-    private fun launchFairtiqAndVibrate() {
+    private fun launchFairtiqAndVibrate(vibrationCount: Int) {
         try {
             // Vibrate directly FIRST (before notification to ensure it works)
-            vibratePhone()
+            vibratePhone(vibrationCount)
             
             // Create notification channel
             createNotificationChannel()
@@ -269,7 +269,7 @@ class LocationCheckWorker @AssistedInject constructor(
         }
     }
     
-    private fun vibratePhone() {
+    private fun vibratePhone(vibrationCount: Int) {
         try {
             val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -279,22 +279,36 @@ class LocationCheckWorker @AssistedInject constructor(
                 context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             }
             
-            // Strong vibration pattern: 3 long bursts
-            val pattern = longArrayOf(0, 500, 200, 500, 200, 500)
+            // Create vibration pattern based on count: vibrate 500ms, pause 200ms, repeat
+            val pattern = mutableListOf<Long>()
+            val amplitudes = mutableListOf<Int>()
+            
+            pattern.add(0) // Initial delay
+            amplitudes.add(0)
+            
+            for (i in 0 until vibrationCount) {
+                pattern.add(500) // Vibrate 500ms
+                amplitudes.add(255) // Max amplitude
+                
+                if (i < vibrationCount - 1) { // Don't add pause after last vibration
+                    pattern.add(200) // Pause 200ms
+                    amplitudes.add(0)
+                }
+            }
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val effect = VibrationEffect.createWaveform(
-                    pattern,
-                    intArrayOf(0, 255, 0, 255, 0, 255), // Max amplitude
+                    pattern.toLongArray(),
+                    amplitudes.toIntArray(),
                     -1 // Don't repeat
                 )
                 vibrator.vibrate(effect)
             } else {
                 @Suppress("DEPRECATION")
-                vibrator.vibrate(pattern, -1)
+                vibrator.vibrate(pattern.toLongArray(), -1)
             }
             
-            Log.d(TAG, "Direct vibration triggered")
+            Log.d(TAG, "Direct vibration triggered ($vibrationCount times)")
         } catch (e: Exception) {
             Log.e(TAG, "Error vibrating phone", e)
         }

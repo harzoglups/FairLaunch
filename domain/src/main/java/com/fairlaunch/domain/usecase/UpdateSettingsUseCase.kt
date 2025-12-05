@@ -25,4 +25,8 @@ class UpdateSettingsUseCase(
     suspend fun updateActiveWeekdays(weekdays: Set<Int>) {
         repository.updateActiveWeekdays(weekdays)
     }
+    
+    suspend fun updateVibrationCount(count: Int) {
+        repository.updateVibrationCount(count)
+    }
 }

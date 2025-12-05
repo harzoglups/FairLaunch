@@ -326,6 +326,43 @@ fun SettingsScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SettingCard {
+                Column {
+                    var vibrationText by remember(settings.vibrationCount) {
+                        mutableStateOf<String>(settings.vibrationCount.toString())
+                    }
+
+                    Text(
+                        text = stringResource(R.string.vibration_count),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.vibration_count_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    OutlinedTextField(
+                        value = vibrationText,
+                        onValueChange = { newValue: String ->
+                            vibrationText = newValue
+                            newValue.toIntOrNull()?.let { count: Int ->
+                                if (count > 0) {
+                                    viewModel.updateVibrationCount(count)
+                                }
+                            }
+                        },
+                        label = { Text(stringResource(R.string.vibrations)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(

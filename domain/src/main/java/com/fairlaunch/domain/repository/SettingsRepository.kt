@@ -11,4 +11,5 @@ interface SettingsRepository {
     suspend fun updateLocationTrackingEnabled(enabled: Boolean)
     suspend fun updateMapLayerType(layerType: MapLayerType)
     suspend fun updateActiveWeekdays(weekdays: Set<Int>)
+    suspend fun updateVibrationCount(count: Int)
 }

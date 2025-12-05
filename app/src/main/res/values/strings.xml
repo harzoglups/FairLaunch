@@ -66,6 +66,9 @@
     <string name="check_interval_desc">How often to check your location</string>
     <string name="proximity_distance">Proximity Distance (meters)</string>
     <string name="proximity_distance_desc">Distance to trigger Fairtiq launch</string>
+    <string name="vibration_count">Vibration Count</string>
+    <string name="vibration_count_desc">Number of times to vibrate when entering a zone</string>
+    <string name="vibrations">Vibrations</string>
     <string name="seconds">Seconds</string>
     <string name="meters">Meters</string>
     <string name="info">Info</string>
