@@ -3,7 +3,11 @@ package com.fairlaunch.ui.settings
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.media.AudioAttributes
 import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -360,6 +364,60 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SettingCard {
+                Column {
+                    Text(
+                        text = "Test Vibration",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text(
+                        text = "Test if vibration works with alarm attributes",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                    Button(
+                        onClick = {
+                            // Test vibration
+                            try {
+                                val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    val vibratorManager = context.getSystemService(android.content.Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+                                    vibratorManager?.defaultVibrator
+                                } else {
+                                    @Suppress("DEPRECATION")
+                                    context.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? Vibrator
+                                }
+                                
+                                if (vibrator != null && vibrator.hasVibrator()) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        val audioAttributes = AudioAttributes.Builder()
+                                            .setUsage(AudioAttributes.USAGE_ALARM)
+                                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                            .build()
+                                        
+                                        val pattern = longArrayOf(0, 500, 200, 500, 200, 500, 200, 500, 200, 500)
+                                        val amplitudes = intArrayOf(0, 255, 0, 255, 0, 255, 0, 255, 0, 255)
+                                        val effect = VibrationEffect.createWaveform(pattern, amplitudes, -1)
+                                        vibrator.vibrate(effect, audioAttributes)
+                                    } else {
+                                        @Suppress("DEPRECATION")
+                                        vibrator.vibrate(longArrayOf(0, 500, 200, 500, 200, 500, 200, 500, 200, 500), -1)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                android.util.Log.e("SettingsScreen", "Error testing vibration", e)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Test Vibration Now")
+                    }
                 }
             }
 

@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.media.AudioAttributes
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -94,14 +95,22 @@ class LocationCheckWorker @AssistedInject constructor(
                 return androidx.work.ListenableWorker.Result.success()
             }
 
-            Log.d(TAG, "Current location: ${location.latitude}, ${location.longitude}")
+            Log.d(TAG, "Current location: ${location.latitude}, ${location.longitude}, accuracy: ${location.accuracy}m")
             
             // Check proximity - returns list of points we've entered
-            val pointsToTrigger = checkProximityUseCase(
+            val checkResult = checkProximityUseCase.invokeWithDetails(
                 currentLatitude = location.latitude,
                 currentLongitude = location.longitude,
                 proximityDistanceMeters = settings.proximityDistanceMeters
             )
+            
+            // Log detailed information about all points
+            Log.d(TAG, "Proximity check for ${checkResult.allPointsDetails.size} points (threshold: ${settings.proximityDistanceMeters}m):")
+            checkResult.allPointsDetails.forEach { detail ->
+                Log.d(TAG, "  '${detail.point.name}': distance=${detail.distance.toInt()}m, isInside=${detail.isInside}, wasInside=${detail.wasInside}, triggered=${detail.triggered}")
+            }
+            
+            val pointsToTrigger = checkResult.pointsToTrigger
 
             if (pointsToTrigger.isNotEmpty()) {
                 // Get current hour and minute
@@ -153,29 +162,35 @@ class LocationCheckWorker @AssistedInject constructor(
                 // Try to get last known location first
                 val lastLocation = fusedLocationClient.lastLocation.await()
                 if (lastLocation != null && isLocationRecent(lastLocation)) {
-                    Log.d(TAG, "Using recent cached location")
+                    Log.d(TAG, "Using recent cached location (age: ${(System.currentTimeMillis() - lastLocation.time) / 1000}s, accuracy: ${lastLocation.accuracy}m)")
                     return@withTimeoutOrNull lastLocation
                 }
                 
-                // Request fresh location
-                Log.d(TAG, "Requesting fresh location...")
-                val locationRequest = LocationRequest.Builder(
-                    Priority.PRIORITY_HIGH_ACCURACY,
-                    5000L
-                ).apply {
-                    setMaxUpdates(1)
-                    setWaitForAccurateLocation(false)
-                }.build()
+                if (lastLocation != null) {
+                    Log.d(TAG, "Last location too old (age: ${(System.currentTimeMillis() - lastLocation.time) / 1000}s), requesting fresh location...")
+                } else {
+                    Log.d(TAG, "No cached location, requesting fresh location...")
+                }
                 
+                // Request fresh location with BALANCED power (works better when phone is in pocket)
+                // HIGH_ACCURACY might timeout if GPS can't get a fix quickly
                 if (ActivityCompat.checkSelfPermission(
                         context,
                         Manifest.permission.ACCESS_FINE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
-                    fusedLocationClient.getCurrentLocation(
-                        Priority.PRIORITY_HIGH_ACCURACY,
+                    val freshLocation = fusedLocationClient.getCurrentLocation(
+                        Priority.PRIORITY_BALANCED_POWER_ACCURACY,
                         null
                     ).await()
+                    
+                    if (freshLocation != null) {
+                        Log.d(TAG, "Got fresh location (accuracy: ${freshLocation.accuracy}m)")
+                        return@withTimeoutOrNull freshLocation
+                    } else {
+                        Log.w(TAG, "Fresh location request returned null, using last known location if available")
+                        return@withTimeoutOrNull lastLocation // Fallback to last known even if old
+                    }
                 } else {
                     null
                 }
@@ -188,7 +203,10 @@ class LocationCheckWorker @AssistedInject constructor(
     
     private fun isLocationRecent(location: Location): Boolean {
         val ageMs = System.currentTimeMillis() - location.time
-        return ageMs < 60000 // Less than 1 minute old
+        val ageSeconds = ageMs / 1000
+        // Consider location recent if less than 2 minutes old
+        // This is reasonable for train station detection
+        return ageMs < 120000
     }
     
     private fun rescheduleIfNeeded(intervalSeconds: Int) {
@@ -271,13 +289,31 @@ class LocationCheckWorker @AssistedInject constructor(
     
     private fun vibratePhone(vibrationCount: Int) {
         try {
+            Log.d(TAG, "vibratePhone called with count=$vibrationCount")
+            
             val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+                if (vibratorManager == null) {
+                    Log.e(TAG, "VibratorManager is null")
+                    return
+                }
                 vibratorManager.defaultVibrator
             } else {
                 @Suppress("DEPRECATION")
-                context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
             }
+            
+            if (vibrator == null) {
+                Log.e(TAG, "Vibrator is null")
+                return
+            }
+            
+            if (!vibrator.hasVibrator()) {
+                Log.e(TAG, "Device has no vibrator")
+                return
+            }
+            
+            Log.d(TAG, "Vibrator available, creating pattern for $vibrationCount vibrations")
             
             // Create vibration pattern based on count: vibrate 500ms, pause 200ms, repeat
             val pattern = mutableListOf<Long>()
@@ -296,16 +332,26 @@ class LocationCheckWorker @AssistedInject constructor(
                 }
             }
             
+            Log.d(TAG, "Pattern: ${pattern.toLongArray().contentToString()}, Amplitudes: ${amplitudes.toIntArray().contentToString()}")
+            
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // Create AudioAttributes for ALARM usage - this allows vibration from background
+                val audioAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+                
                 val effect = VibrationEffect.createWaveform(
                     pattern.toLongArray(),
                     amplitudes.toIntArray(),
                     -1 // Don't repeat
                 )
-                vibrator.vibrate(effect)
+                vibrator.vibrate(effect, audioAttributes)
+                Log.d(TAG, "vibrate(effect, audioAttributes) called successfully with USAGE_ALARM")
             } else {
                 @Suppress("DEPRECATION")
                 vibrator.vibrate(pattern.toLongArray(), -1)
+                Log.d(TAG, "vibrate(pattern) called successfully")
             }
             
             Log.d(TAG, "Direct vibration triggered ($vibrationCount times)")

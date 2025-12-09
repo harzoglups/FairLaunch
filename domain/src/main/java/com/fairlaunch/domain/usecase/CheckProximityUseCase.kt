@@ -14,13 +14,36 @@ class CheckProximityUseCase(
     private val mapPointRepository: MapPointRepository,
     private val proximityRepository: ProximityRepository
 ) {
+    data class ProximityCheckDetails(
+        val pointsToTrigger: List<MapPoint>,
+        val allPointsDetails: List<PointCheckDetail>
+    )
+    
+    data class PointCheckDetail(
+        val point: MapPoint,
+        val distance: Float,
+        val isInside: Boolean,
+        val wasInside: Boolean,
+        val triggered: Boolean
+    )
+
     suspend operator fun invoke(
         currentLatitude: Double,
         currentLongitude: Double,
         proximityDistanceMeters: Int
     ): List<MapPoint> {
+        val result = invokeWithDetails(currentLatitude, currentLongitude, proximityDistanceMeters)
+        return result.pointsToTrigger
+    }
+    
+    suspend fun invokeWithDetails(
+        currentLatitude: Double,
+        currentLongitude: Double,
+        proximityDistanceMeters: Int
+    ): ProximityCheckDetails {
         val points = mapPointRepository.getAllPoints().first()
         val pointsToTrigger = mutableListOf<MapPoint>()
+        val allPointsDetails = mutableListOf<PointCheckDetail>()
 
         points.forEach { point ->
             val distance = calculateDistance(
@@ -32,13 +55,25 @@ class CheckProximityUseCase(
 
             val isInside = distance <= proximityDistanceMeters
             val previousState = proximityRepository.getProximityState(point.id).first()
+            val wasInside = previousState?.isInside ?: false
 
             // Trigger if:
             // 1. We're inside the zone AND
             // 2. Either we have no previous state OR we were outside before
-            if (isInside && (previousState == null || !previousState.isInside)) {
+            val triggered = isInside && (previousState == null || !previousState.isInside)
+            if (triggered) {
                 pointsToTrigger.add(point)
             }
+            
+            allPointsDetails.add(
+                PointCheckDetail(
+                    point = point,
+                    distance = distance,
+                    isInside = isInside,
+                    wasInside = wasInside,
+                    triggered = triggered
+                )
+            )
 
             // Update the state
             proximityRepository.updateProximityState(
@@ -49,7 +84,7 @@ class CheckProximityUseCase(
             )
         }
 
-        return pointsToTrigger
+        return ProximityCheckDetails(pointsToTrigger, allPointsDetails)
     }
 
     private fun calculateDistance(
