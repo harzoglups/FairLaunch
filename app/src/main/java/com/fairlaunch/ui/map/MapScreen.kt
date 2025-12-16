@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.MyLocation
@@ -136,6 +137,7 @@ fun MapScreen(
             var searchResults by remember { mutableStateOf<List<SearchResult>>(emptyList()) }
             var isSearching by remember { mutableStateOf(false) }
             var searchMarker by remember { mutableStateOf<Marker?>(null) } // Temporary marker for search results
+            var currentMarkerIndex by remember { mutableStateOf(0) } // For marker navigation
             
             Box(modifier = Modifier.fillMaxSize()) {
                 MapContent(
@@ -318,7 +320,7 @@ fun MapScreen(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .navigationBarsPadding()
-                            .padding(bottom = 80.dp)
+                            .padding(bottom = 180.dp) // Increased from 80dp to account for 3 floating buttons
                             .padding(horizontal = 16.dp)
                     )
                 }
@@ -365,6 +367,39 @@ fun MapScreen(
                     horizontalAlignment = Alignment.End,
                     verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
                 ) {
+                    // Navigate between markers button (only show if there are markers)
+                    if (state.points.isNotEmpty()) {
+                        SmallFloatingActionButton(
+                            onClick = {
+                                // Navigate to next marker
+                                currentMarkerIndex = (currentMarkerIndex + 1) % state.points.size
+                                val targetPoint = state.points[currentMarkerIndex]
+                                mapView?.controller?.animateTo(GeoPoint(targetPoint.latitude, targetPoint.longitude))
+                                mapView?.controller?.setZoom(16.0)
+                                // Show info card for the marker
+                                selectedPoint = targetPoint
+                            },
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = "${currentMarkerIndex + 1}/${state.points.size}",
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                                Icon(
+                                    Icons.AutoMirrored.Filled.NavigateNext, 
+                                    contentDescription = "Next marker",
+                                    modifier = Modifier.padding(0.dp)
+                                )
+                            }
+                        }
+                    }
+                    
                     // GPS location button
                     SmallFloatingActionButton(
                         onClick = {
@@ -665,21 +700,14 @@ private fun MapContent(
                 }
                 
                 // Remove old markers and circles (but keep search marker and location overlay)
+                // Note: We don't recycle bitmaps here because they will be recreated immediately
+                // Recycling only happens in onDispose when leaving the screen entirely
                 val overlaysToRemove = map.overlays.filter { overlay ->
                     when {
                         overlay is MyLocationNewOverlay -> false // Keep location overlay
                         overlay is Marker && overlay.relatedObject == "SEARCH_MARKER" -> false // Keep search marker
                         overlay is Marker || overlay is Polygon -> true // Remove user markers and circles
                         else -> false
-                    }
-                }
-                
-                // Recycle bitmaps from removed markers to free memory
-                overlaysToRemove.filterIsInstance<Marker>().forEach { marker ->
-                    marker.icon?.let { drawable ->
-                        if (drawable is android.graphics.drawable.BitmapDrawable) {
-                            drawable.bitmap?.recycle()
-                        }
                     }
                 }
                 
@@ -699,7 +727,7 @@ private fun MapContent(
                     circle.outlinePaint.strokeWidth = 2f
                     map.overlays.add(circle)
                     
-                    // Create marker
+                    // Create marker with custom blue pin icon
                     val marker = Marker(map).apply {
                         position = GeoPoint(mapPoint.latitude, mapPoint.longitude)
                         title = if (mapPoint.name.isNotEmpty()) mapPoint.name else context.getString(R.string.point_number, mapPoint.id)
@@ -708,6 +736,43 @@ private fun MapContent(
                         infoWindow = null
                         // Store the point ID in the marker's related object for our touch handler
                         relatedObject = mapPoint.id
+                        
+                        // Create a blue pin-style marker icon
+                        val size = 80
+                        val bitmap = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+                        val canvas = android.graphics.Canvas(bitmap)
+                        
+                        // Draw a pin shape (circle on top, triangle pointing down)
+                        val paint = android.graphics.Paint().apply {
+                            color = android.graphics.Color.BLUE // Blue for user markers
+                            style = android.graphics.Paint.Style.FILL
+                            isAntiAlias = true
+                        }
+                        val strokePaint = android.graphics.Paint().apply {
+                            color = android.graphics.Color.WHITE
+                            style = android.graphics.Paint.Style.STROKE
+                            strokeWidth = 4f
+                            isAntiAlias = true
+                        }
+                        
+                        // Draw circle (top part of pin)
+                        val circleRadius = size / 4f
+                        val circleCenterX = size / 2f
+                        val circleCenterY = circleRadius + 5
+                        canvas.drawCircle(circleCenterX, circleCenterY, circleRadius, paint)
+                        canvas.drawCircle(circleCenterX, circleCenterY, circleRadius, strokePaint)
+                        
+                        // Draw triangle pointing down (bottom part of pin)
+                        val path = android.graphics.Path().apply {
+                            moveTo(circleCenterX - circleRadius / 2, circleCenterY + circleRadius)
+                            lineTo(circleCenterX, size - 5f)
+                            lineTo(circleCenterX + circleRadius / 2, circleCenterY + circleRadius)
+                            close()
+                        }
+                        canvas.drawPath(path, paint)
+                        canvas.drawPath(path, strokePaint)
+                        
+                        icon = android.graphics.drawable.BitmapDrawable(context.resources, bitmap)
                     }
                     
                     map.overlays.add(marker)
