@@ -1,8 +1,8 @@
-@startuml FairLaunch-UI-Layer
+@startuml AutoTiq-UI-Layer
 !theme plain
 skinparam backgroundColor #FFFFFF
 
-title FairLaunch - UI Layer (Screens & Navigation)
+title AutoTiq - UI Layer (Screens & Navigation)
 
 package "Navigation" {
   class AppNavigation {
@@ -119,7 +119,7 @@ package "Dependency Injection" {
   }
   
   class DatabaseModule {
-    + provideDatabase(): FairLaunchDatabase
+    + provideDatabase(): AutoTiqDatabase
     + provideMapPointDao(): MapPointDao
     + provideProximityStateDao(): ProximityStateDao
     + provideDataStore(): DataStore<Preferences>

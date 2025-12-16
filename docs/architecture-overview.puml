@@ -1,9 +1,9 @@
-@startuml FairLaunch-Architecture-Overview
+@startuml AutoTiq-Architecture-Overview
 !theme plain
 skinparam backgroundColor #FFFFFF
 skinparam componentStyle rectangle
 
-title FairLaunch - Clean Architecture Overview
+title AutoTiq - Clean Architecture Overview
 
 package "App Layer (Presentation)" {
   [MainActivity]
@@ -49,7 +49,7 @@ package "Data Layer" {
   }
   
   package "Database (Room)" {
-    [FairLaunchDatabase]
+    [AutoTiqDatabase]
     [MapPointDao]
     [ProximityStateDao]
     [MapPointEntity]
@@ -110,8 +110,8 @@ SettingsRepository <|.. [SettingsRepositoryImpl]
 
 [SettingsRepositoryImpl] --> [DataStore]
 
-[MapPointDao] --> [FairLaunchDatabase]
-[ProximityStateDao] --> [FairLaunchDatabase]
+[MapPointDao] --> [AutoTiqDatabase]
+[ProximityStateDao] --> [AutoTiqDatabase]
 
 [MapPointDao] --> [MapPointEntity]
 [ProximityStateDao] --> [ProximityStateEntity]

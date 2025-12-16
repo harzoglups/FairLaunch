@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.fairlaunch.data"
+    namespace = "com.cussou.autotiq.data"
     compileSdk = 34
 
     defaultConfig {

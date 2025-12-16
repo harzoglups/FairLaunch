@@ -1,6 +1,6 @@
-# FairLaunch Memory Monitoring Tools
+# AutoTiq Memory Monitoring Tools
 
-This directory contains tools to monitor and analyze memory usage of the FairLaunch app.
+This directory contains tools to monitor and analyze memory usage of the AutoTiq app.
 
 ## Available Scripts
 
@@ -32,7 +32,7 @@ This directory contains tools to monitor and analyze memory usage of the FairLau
   - CPU usage
   - Background worker status
   - Swap usage warnings
-- CSV log file: `fairlaunch_monitor_YYYYMMDD_HHMMSS.csv`
+- CSV log file: `autotiq_monitor_YYYYMMDD_HHMMSS.csv`
 
 **When to use:**
 - During development to spot memory leaks
@@ -99,7 +99,7 @@ This directory contains tools to monitor and analyze memory usage of the FairLau
 ## Memory Optimizations Applied
 
 ### 1. OSMDroid Cache Limiting
-- **File:** `FairLaunchApplication.kt`
+- **File:** `AutoTiqApplication.kt`
 - **Changes:**
   - Disk cache: 50 MB max (trim to 40 MB)
   - Tile expiration: 7 days
@@ -136,7 +136,7 @@ If you experience an ANR (Application Not Responding):
 1. **Check if ANR traces are still available:**
    ```bash
    adb logcat -d | grep ANR
-   adb shell dumpsys dropbox --print data_app_anr | grep com.fairlaunch
+   adb shell dumpsys dropbox --print data_app_anr | grep com.autotiq
    ```
 
 2. **Take a memory snapshot immediately:**
@@ -151,7 +151,7 @@ If you experience an ANR (Application Not Responding):
 
 4. **Look for high swap usage:**
    ```bash
-   adb shell dumpsys meminfo com.fairlaunch | grep SWAP
+   adb shell dumpsys meminfo com.autotiq | grep SWAP
    ```
 
 5. **Review recent worker activity:**
@@ -217,7 +217,7 @@ If you experience an ANR (Application Not Responding):
    ```
 
 3. **Analyze CSV data:**
-   Open `fairlaunch_monitor_*.csv` in Excel/Sheets to:
+   Open `autotiq_monitor_*.csv` in Excel/Sheets to:
    - Plot memory trends over time
    - Identify memory spikes
    - Correlate with user actions

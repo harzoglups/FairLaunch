@@ -1,8 +1,8 @@
-@startuml FairLaunch-Sequence-User-Journey
+@startuml AutoTiq-Sequence-User-Journey
 !theme plain
 skinparam backgroundColor #FFFFFF
 
-title FairLaunch - User Journey (First Launch to Automatic Trigger)
+title AutoTiq - User Journey (First Launch to Automatic Trigger)
 
 actor User
 participant MainActivity

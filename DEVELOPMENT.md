@@ -1,4 +1,4 @@
-# FairLaunch - Development Notes
+# AutoTiq - Development Notes
 
 ## Quick Start for New Session
 
@@ -12,7 +12,7 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 ~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 # Launch the app
-~/Library/Android/sdk/platform-tools/adb shell am start -n com.fairlaunch/.MainActivity
+~/Library/Android/sdk/platform-tools/adb shell am start -n com.autotiq/.MainActivity
 ```
 
 ### Debugging
@@ -33,10 +33,10 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 ~/Library/Android/sdk/platform-tools/adb shell settings get secure location_providers_allowed
 
 # Check app permissions
-~/Library/Android/sdk/platform-tools/adb shell dumpsys package com.fairlaunch | grep -A 5 "granted=true"
+~/Library/Android/sdk/platform-tools/adb shell dumpsys package com.autotiq | grep -A 5 "granted=true"
 
 # Check WorkManager diagnostics
-~/Library/Android/sdk/platform-tools/adb shell am broadcast -a "androidx.work.diagnostics.REQUEST_DIAGNOSTICS" -p com.fairlaunch
+~/Library/Android/sdk/platform-tools/adb shell am broadcast -a "androidx.work.diagnostics.REQUEST_DIAGNOSTICS" -p com.autotiq
 ```
 
 ## Important Technical Decisions
@@ -55,10 +55,10 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
 ### 3. Hilt + WorkManager
 - **Required configuration**:
-  - `FairLaunchApplication` implements `Configuration.Provider`
+  - `AutoTiqApplication` implements `Configuration.Provider`
   - `HiltWorkerFactory` injection
   - Disable WorkManager auto-init in `AndroidManifest.xml`
-- **Location**: `FairLaunchApplication.kt`, `AndroidManifest.xml` (meta-data with `tools:node="remove"`)
+- **Location**: `AutoTiqApplication.kt`, `AndroidManifest.xml` (meta-data with `tools:node="remove"`)
 
 ### 4. Distance Calculation
 - **Method**: Haversine formula (pure Kotlin)

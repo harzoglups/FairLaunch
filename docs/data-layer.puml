@@ -1,8 +1,8 @@
-@startuml FairLaunch-Data-Layer
+@startuml AutoTiq-Data-Layer
 !theme plain
 skinparam backgroundColor #FFFFFF
 
-title FairLaunch - Data Layer (Database & Repositories)
+title AutoTiq - Data Layer (Database & Repositories)
 
 package "Repository Implementations" {
   class MapPointRepositoryImpl {
@@ -35,7 +35,7 @@ package "Repository Implementations" {
 }
 
 package "Room Database" {
-  class FairLaunchDatabase {
+  class AutoTiqDatabase {
     + mapPointDao(): MapPointDao
     + proximityStateDao(): ProximityStateDao
   }
@@ -100,8 +100,8 @@ ProximityRepositoryImpl --> ProximityStateMapper
 
 SettingsRepositoryImpl --> DataStore
 
-FairLaunchDatabase --> MapPointDao : provides
-FairLaunchDatabase --> ProximityStateDao : provides
+AutoTiqDatabase --> MapPointDao : provides
+AutoTiqDatabase --> ProximityStateDao : provides
 
 MapPointDao ..> MapPointEntity : uses
 ProximityStateDao ..> ProximityStateEntity : uses
@@ -111,7 +111,7 @@ ProximityStateMapper ..> ProximityStateEntity : converts
 
 ProximityStateEntity --> MapPointEntity : FK
 
-note right of FairLaunchDatabase
+note right of AutoTiqDatabase
   Room Database
   Version: 1
   Entities: MapPointEntity, ProximityStateEntity

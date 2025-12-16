@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# FairLaunch Memory & Performance Monitor
+# AutoTiq Memory & Performance Monitor
 # Usage: ./monitor-memory.sh [interval_seconds]
 
-PACKAGE_NAME="com.fairlaunch"
+PACKAGE_NAME="com.autotiq"
 INTERVAL=${1:-5}  # Default: 5 seconds between measurements
 ADB="$HOME/Library/Android/sdk/platform-tools/adb"
 
@@ -49,7 +49,7 @@ get_cpu_info() {
 
 # Get location provider status
 get_location_status() {
-    $ADB shell dumpsys location | grep -A 10 "com.fairlaunch" | grep -E "(GPS|NETWORK|FUSED)" | head -3
+    $ADB shell dumpsys location | grep -A 10 "com.autotiq" | grep -E "(GPS|NETWORK|FUSED)" | head -3
 }
 
 # Get worker status
@@ -61,7 +61,7 @@ get_worker_status() {
 print_header() {
     clear
     echo -e "${CYAN}╔════════════════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║           FairLaunch Memory & Performance Monitor (${INTERVAL}s interval)            ║${NC}"
+    echo -e "${CYAN}║           AutoTiq Memory & Performance Monitor (${INTERVAL}s interval)            ║${NC}"
     echo -e "${CYAN}╚════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 }
@@ -77,7 +77,7 @@ format_memory() {
 }
 
 # Monitor loop
-echo -e "${GREEN}Starting FairLaunch monitor... Press Ctrl+C to stop${NC}"
+echo -e "${GREEN}Starting AutoTiq monitor... Press Ctrl+C to stop${NC}"
 echo ""
 
 # Initialize counters
@@ -87,7 +87,7 @@ max_pss=0
 min_pss=999999999
 
 # CSV log file
-LOG_FILE="fairlaunch_monitor_$(date +%Y%m%d_%H%M%S).csv"
+LOG_FILE="autotiq_monitor_$(date +%Y%m%d_%H%M%S).csv"
 echo "Timestamp,Total_PSS_KB,Native_KB,Dalvik_KB,Graphics_KB,Other_KB,System_KB,Swap_KB,CPU_%" > $LOG_FILE
 
 while true; do

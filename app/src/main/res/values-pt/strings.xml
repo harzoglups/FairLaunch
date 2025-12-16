@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">FairLaunch</string>
+    <string name="app_name">AutoTiq</string>
     
     <!-- Permission strings -->
-    <string name="permission_location_rationale">FairLaunch precisa de acesso à sua localização para detectar quando você se aproxima de um ponto salvo.</string>
-    <string name="permission_background_location_rationale">Para monitorar sua localização em segundo plano e iniciar o Fairtiq automaticamente, o FairLaunch precisa da permissão \"Permitir sempre\".\n\nEsta permissão permite que o app verifique sua localização mesmo quando o app está fechado.</string>
+    <string name="permission_location_rationale">AutoTiq precisa de acesso à sua localização para detectar quando você se aproxima de um ponto salvo.</string>
+    <string name="permission_background_location_rationale">Para monitorar sua localização em segundo plano e iniciar o Fairtiq automaticamente, o AutoTiq precisa da permissão \"Permitir sempre\".\n\nEsta permissão permite que o app verifique sua localização mesmo quando o app está fechado.</string>
     <string name="permission_background_location_required">Permissão em segundo plano necessária</string>
     <string name="permission_background_location_button">Permitir acesso em segundo plano</string>
     <string name="permission_location_denied">Permissão de localização negada. O aplicativo não funcionará corretamente.</string>
@@ -81,16 +81,16 @@
     <string name="notification_launching_fairtiq">Iniciando Fairtiq…</string>
     
     <!-- Onboarding -->
-    <string name="welcome_to_fairlaunch">Bem-vindo ao FairLaunch!</string>
-    <string name="onboarding_welcome_description">O FairLaunch inicia o Fairtiq automaticamente quando você se aproxima dos seus pontos de trânsito salvos. Vamos configurar as permissões necessárias.</string>
+    <string name="welcome_to_autotiq">Bem-vindo ao AutoTiq!</string>
+    <string name="onboarding_welcome_description">O AutoTiq inicia o Fairtiq automaticamente quando você se aproxima dos seus pontos de trânsito salvos. Vamos configurar as permissões necessárias.</string>
     <string name="get_started">Começar</string>
     <string name="onboarding_location_title">Acesso à localização</string>
-    <string name="onboarding_location_description">O FairLaunch precisa de acesso à sua localização para detectar quando você se aproxima de um ponto salvo.</string>
+    <string name="onboarding_location_description">O AutoTiq precisa de acesso à sua localização para detectar quando você se aproxima de um ponto salvo.</string>
     <string name="onboarding_background_location_title">Acesso à localização em segundo plano</string>
-    <string name="onboarding_background_location_description">Para funcionar automaticamente, o app precisa da permissão \"Permitir sempre\". Isso permite ao FairLaunch monitorar sua localização mesmo quando o app está fechado.\n\nIMPORTANTE: Na próxima tela, selecione \"Permitir sempre\".</string>
+    <string name="onboarding_background_location_description">Para funcionar automaticamente, o app precisa da permissão \"Permitir sempre\". Isso permite ao AutoTiq monitorar sua localização mesmo quando o app está fechado.\n\nIMPORTANTE: Na próxima tela, selecione \"Permitir sempre\".</string>
     <string name="onboarding_notifications_title">Notificações</string>
     <string name="onboarding_notifications_description">Permita notificações para ser informado quando o Fairtiq for iniciado automaticamente.</string>
     <string name="onboarding_complete_title">Tudo pronto!</string>
     <string name="onboarding_complete_description">Agora você pode adicionar seus pontos de trânsito no mapa e ativar o rastreamento em segundo plano nas configurações.</string>
-    <string name="start_using_app">Começar a usar o FairLaunch</string>
+    <string name="start_using_app">Começar a usar o AutoTiq</string>
 </resources>

@@ -1,8 +1,8 @@
-@startuml FairLaunch-Sequence-Proximity-Check
+@startuml AutoTiq-Sequence-Proximity-Check
 !theme plain
 skinparam backgroundColor #FFFFFF
 
-title FairLaunch - Proximity Check Sequence
+title AutoTiq - Proximity Check Sequence
 
 actor User
 participant "Android System" as System

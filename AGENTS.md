@@ -1,4 +1,4 @@
-# FairLaunch - Agent Guidelines
+# AutoTiq - Agent Guidelines
 
 ## Git Commit Policy
 **CRITICAL**: NEVER create git commits unless explicitly requested by the user.
@@ -27,17 +27,17 @@
 - **Java setup**: If gradle fails, set `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`
 - Build: `./gradlew build`
 - Run tests: `./gradlew test`
-- Run single test: `./gradlew test --tests "com.fairlaunch.domain.usecase.GetMapPointsUseCaseTest"`
+- Run single test: `./gradlew test --tests "com.autotiq.domain.usecase.GetMapPointsUseCaseTest"`
 - Run instrumented tests: `./gradlew connectedAndroidTest`
 - Lint: `./gradlew lint`
 - Assemble debug: `./gradlew assembleDebug`
 - Install on device: `~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk`
-- Launch app: `~/Library/Android/sdk/platform-tools/adb shell am start -n com.fairlaunch/.MainActivity`
+- Launch app: `~/Library/Android/sdk/platform-tools/adb shell am start -n com.autotiq/.MainActivity`
 
 ## Testing Changes
 **CRITICAL**: After making code changes, ALWAYS run these commands to build, install, and launch the app:
 ```bash
-./gradlew assembleDebug && ~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk && ~/Library/Android/sdk/platform-tools/adb shell am start -n com.fairlaunch/.MainActivity
+./gradlew assembleDebug && ~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk && ~/Library/Android/sdk/platform-tools/adb shell am start -n com.autotiq/.MainActivity
 ```
 This ensures the user can immediately test the changes on their device.
 
@@ -91,4 +91,4 @@ Clean Architecture with 3 layers: **domain** (pure Kotlin), **data** (Android), 
 ## Debugging
 - View Worker logs: `~/Library/Android/sdk/platform-tools/adb logcat | grep LocationCheckWorker`
 - Check devices: `~/Library/Android/sdk/platform-tools/adb devices`
-- Launch app: `~/Library/Android/sdk/platform-tools/adb shell am start -n com.fairlaunch/.MainActivity`
+- Launch app: `~/Library/Android/sdk/platform-tools/adb shell am start -n com.autotiq/.MainActivity`

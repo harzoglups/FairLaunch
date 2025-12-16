@@ -1,4 +1,4 @@
-# FairLaunch - Quick Start
+# AutoTiq - Quick Start
 
 ## 🚀 For a New Development Session
 
@@ -16,7 +16,7 @@
 
 ```bash
 # Go to the project
-cd /Users/sylvain/AndroidStudioProjects/FairLaunch
+cd /Users/sylvain/AndroidStudioProjects/AutoTiq
 
 # Build (with Android Studio Java)
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
@@ -26,7 +26,7 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 ~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 # Launch the app
-~/Library/Android/sdk/platform-tools/adb shell am start -n com.fairlaunch/.MainActivity
+~/Library/Android/sdk/platform-tools/adb shell am start -n com.autotiq/.MainActivity
 ```
 
 ### 3. Test the Worker
@@ -73,10 +73,10 @@ LocationCheckWorker: Rescheduling next check in 30s
 ~/Library/Android/sdk/platform-tools/adb logcat -c
 
 # View all app logs
-~/Library/Android/sdk/platform-tools/adb logcat | grep fairlaunch
+~/Library/Android/sdk/platform-tools/adb logcat | grep autotiq
 
 # WorkManager diagnostics
-~/Library/Android/sdk/platform-tools/adb shell am broadcast -a "androidx.work.diagnostics.REQUEST_DIAGNOSTICS" -p com.fairlaunch
+~/Library/Android/sdk/platform-tools/adb shell am broadcast -a "androidx.work.diagnostics.REQUEST_DIAGNOSTICS" -p com.autotiq
 ```
 
 ### Build
@@ -100,7 +100,7 @@ LocationCheckWorker: Rescheduling next check in 30s
 ~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 # Uninstall
-~/Library/Android/sdk/platform-tools/adb uninstall com.fairlaunch
+~/Library/Android/sdk/platform-tools/adb uninstall com.autotiq
 
 # Launch Fairtiq (for testing)
 ~/Library/Android/sdk/platform-tools/adb shell monkey -p com.fairtiq.android -c android.intent.category.LAUNCHER 1

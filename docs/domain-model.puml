@@ -1,8 +1,8 @@
-@startuml FairLaunch-Domain-Model
+@startuml AutoTiq-Domain-Model
 !theme plain
 skinparam backgroundColor #FFFFFF
 
-title FairLaunch - Domain Model (Models & Use Cases)
+title AutoTiq - Domain Model (Models & Use Cases)
 
 package "Domain Models" {
   class MapPoint {

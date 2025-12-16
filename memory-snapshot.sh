@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# FairLaunch Memory Snapshot Tool
+# AutoTiq Memory Snapshot Tool
 # Takes a detailed memory snapshot for analysis
 
-PACKAGE_NAME="com.fairlaunch"
+PACKAGE_NAME="com.autotiq"
 ADB="$HOME/Library/Android/sdk/platform-tools/adb"
 OUTPUT_DIR="memory_snapshots"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
@@ -16,7 +16,7 @@ NC='\033[0m'
 
 mkdir -p $OUTPUT_DIR
 
-echo -e "${BLUE}Taking memory snapshot for FairLaunch...${NC}"
+echo -e "${BLUE}Taking memory snapshot for AutoTiq...${NC}"
 echo ""
 
 # Check if app is running

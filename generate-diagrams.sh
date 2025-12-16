@@ -8,7 +8,7 @@ DOCS_DIR="docs"
 PLANTUML_JAR="plantuml.jar"
 PLANTUML_URL="https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-1.2024.3.jar"
 
-echo "🎨 FairLaunch - PlantUML Diagram Generator"
+echo "🎨 AutoTiq - PlantUML Diagram Generator"
 echo ""
 
 # Check if Java is installed

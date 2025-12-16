@@ -63,5 +63,5 @@ release_notes_test.md
 plantuml.jar
 
 # Memory monitoring files
-fairlaunch_monitor_*.csv
+autotiq_monitor_*.csv
 memory_snapshots/

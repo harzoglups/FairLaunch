@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# FairLaunch Memory Test Suite
+# AutoTiq Memory Test Suite
 # Automated tests to verify memory optimizations
 
-PACKAGE_NAME="com.fairlaunch"
+PACKAGE_NAME="com.autotiq"
 ADB="$HOME/Library/Android/sdk/platform-tools/adb"
 
 # Colors
@@ -43,7 +43,7 @@ get_swap() {
 }
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║     FairLaunch Memory Optimization Test Suite             ║${NC}"
+echo -e "${BLUE}║     AutoTiq Memory Optimization Test Suite             ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 

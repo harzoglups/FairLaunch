@@ -14,7 +14,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FairLaunch"
+rootProject.name = "AutoTiq"
 include(":app")
 include(":domain")
 include(":data")

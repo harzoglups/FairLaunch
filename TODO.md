@@ -1,4 +1,4 @@
-# FairLaunch - Status & Notes
+# AutoTiq - Status & Notes
 
 ## ✅ Completed Features
 
@@ -96,7 +96,7 @@
 ## 🏗️ Architecture
 
 ```
-FairLaunch/
+AutoTiq/
 ├── domain/          # Pure Kotlin - business logic
 │   ├── model/       # MapPoint, AppSettings, ProximityState
 │   ├── repository/  # Repository interfaces

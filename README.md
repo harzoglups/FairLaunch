@@ -1,12 +1,12 @@
-# FairLaunch
+# AutoTiq
 
 **Never miss your Fairtiq check-in again!**
 
-FairLaunch is an Android application that automatically launches the Fairtiq app when you approach your saved transit points. It wakes your phone, vibrates, and displays Fairtiq on your lock screen - making it impossible to forget to start your journey before boarding the train.
+AutoTiq is an Android application that automatically launches the Fairtiq app when you approach your saved transit points. It wakes your phone, vibrates, and displays Fairtiq on your lock screen - making it impossible to forget to start your journey before boarding the train.
 
-## 🎯 Why FairLaunch?
+## 🎯 Why AutoTiq?
 
-Forgetting to check-in with Fairtiq before boarding public transport can result in a fine for an honest mistake. FairLaunch solves this problem by:
+Forgetting to check-in with Fairtiq before boarding public transport can result in a fine for an honest mistake. AutoTiq solves this problem by:
 
 1. **Detecting when you approach** your saved train/bus stations
 2. **Waking your phone screen** even if locked
@@ -54,8 +54,8 @@ This way, you'll never forget to start your journey in Fairtiq, avoiding unneces
 ### Method 1: Install Pre-built APK (Recommended)
 
 1. **Download the APK**:
-   - Go to the [Releases page](https://github.com/yourusername/FairLaunch/releases)
-   - Download the latest `FairLaunch-vX.X.X.apk` file
+   - Go to the [Releases page](https://github.com/yourusername/AutoTiq/releases)
+   - Download the latest `AutoTiq-vX.X.X.apk` file
 
 2. **Enable installation from unknown sources**:
    - Open **Settings** on your Android device
@@ -68,7 +68,7 @@ This way, you'll never forget to start your journey in Fairtiq, avoiding unneces
    - Wait for the installation to complete
 
 4. **Grant permissions during onboarding**:
-   - Open FairLaunch
+   - Open AutoTiq
    - Follow the onboarding wizard
    - **IMPORTANT**: When asked for location permission, select **"Allow all the time"** (not "Only while using the app")
    - Grant notification permission (Android 13+)
@@ -85,8 +85,8 @@ This way, you'll never forget to start your journey in Fairtiq, avoiding unneces
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/FairLaunch.git
-cd FairLaunch
+git clone https://github.com/yourusername/AutoTiq.git
+cd AutoTiq
 
 # Build the project
 ./gradlew build
@@ -105,7 +105,7 @@ cd FairLaunch
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 # Launch the app
-adb shell am start -n com.fairlaunch/.MainActivity
+adb shell am start -n com.autotiq/.MainActivity
 ```
 
 ## 🚀 Usage
@@ -114,7 +114,7 @@ adb shell am start -n com.fairlaunch/.MainActivity
 
 1. **Splash Screen**: Welcome animation (3 seconds)
 2. **Onboarding Wizard**:
-   - **Welcome screen**: Introduction to FairLaunch
+   - **Welcome screen**: Introduction to AutoTiq
    - **Location permission**: Allow access to your location
    - **Background location permission**: **CRITICAL** - Select "Allow all the time"
    - **Notifications** (Android 13+): Allow notifications for alerts
@@ -193,46 +193,46 @@ The app requires the following permissions, explained during onboarding:
 
 ## 🏗️ Architecture
 
-FairLaunch follows Clean Architecture principles with 3 distinct layers:
+AutoTiq follows Clean Architecture principles with 3 distinct layers:
 
 ### Architecture Diagrams
 
 **Architecture Overview**
 
-![Architecture Overview](docs/FairLaunch-Architecture-Overview.png)
+![Architecture Overview](docs/AutoTiq-Architecture-Overview.png)
 
 <details>
 <summary><b>Domain Model</b> (Click to expand)</summary>
 
-![Domain Model](docs/FairLaunch-Domain-Model.png)
+![Domain Model](docs/AutoTiq-Domain-Model.png)
 
 </details>
 
 <details>
 <summary><b>Data Layer</b> (Click to expand)</summary>
 
-![Data Layer](docs/FairLaunch-Data-Layer.png)
+![Data Layer](docs/AutoTiq-Data-Layer.png)
 
 </details>
 
 <details>
 <summary><b>UI Layer</b> (Click to expand)</summary>
 
-![UI Layer](docs/FairLaunch-UI-Layer.png)
+![UI Layer](docs/AutoTiq-UI-Layer.png)
 
 </details>
 
 <details>
 <summary><b>Proximity Check Sequence</b> (Click to expand)</summary>
 
-![Proximity Check Sequence](docs/FairLaunch-Sequence-Proximity-Check.png)
+![Proximity Check Sequence](docs/AutoTiq-Sequence-Proximity-Check.png)
 
 </details>
 
 <details>
 <summary><b>User Journey</b> (Click to expand)</summary>
 
-![User Journey](docs/FairLaunch-Sequence-User-Journey.png)
+![User Journey](docs/AutoTiq-Sequence-User-Journey.png)
 
 </details>
 
@@ -275,9 +275,9 @@ FairLaunch follows Clean Architecture principles with 3 distinct layers:
 ## 📂 Project Structure
 
 ```
-FairLaunch/
+AutoTiq/
 ├── app/                    # UI layer
-│   └── src/main/java/com/fairlaunch/
+│   └── src/main/java/com/autotiq/
 │       ├── di/            # Dependency injection
 │       ├── receiver/      # Boot receiver for auto-start
 │       ├── worker/        # Background location worker (WorkManager)
@@ -290,12 +290,12 @@ FairLaunch/
 │       │   └── theme/     # Compose theme
 │       └── MainActivity.kt
 ├── data/                   # Data layer
-│   └── src/main/java/com/fairlaunch/data/
+│   └── src/main/java/com/autotiq/data/
 │       ├── local/         # Room database
 │       ├── repository/    # Repository implementations
 │       └── mapper/        # Mappers
 └── domain/                 # Domain layer (pure Kotlin)
-    └── src/main/java/com/fairlaunch/domain/
+    └── src/main/java/com/autotiq/domain/
         ├── model/         # Domain entities
         ├── repository/    # Repository interfaces
         └── usecase/       # Business logic

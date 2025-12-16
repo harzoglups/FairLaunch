@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.fairlaunch"
+    namespace = "com.cussou.autotiq"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.fairlaunch"
+        applicationId = "com.cussou.autotiq"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

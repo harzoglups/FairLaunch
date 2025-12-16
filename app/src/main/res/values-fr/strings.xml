@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">FairLaunch</string>
+    <string name="app_name">AutoTiq</string>
     
     <!-- Permission strings -->
-    <string name="permission_location_rationale">FairLaunch a besoin d\'accéder à votre position pour détecter quand vous approchez d\'un point sauvegardé.</string>
-    <string name="permission_background_location_rationale">Pour surveiller votre position en arrière-plan et lancer automatiquement Fairtiq, FairLaunch a besoin de la permission \"Toujours autoriser\".\n\nCette permission permet à l\'application de vérifier votre position même quand l\'app est fermée.</string>
+    <string name="permission_location_rationale">AutoTiq a besoin d\'accéder à votre position pour détecter quand vous approchez d\'un point sauvegardé.</string>
+    <string name="permission_background_location_rationale">Pour surveiller votre position en arrière-plan et lancer automatiquement Fairtiq, AutoTiq a besoin de la permission \"Toujours autoriser\".\n\nCette permission permet à l\'application de vérifier votre position même quand l\'app est fermée.</string>
     <string name="permission_background_location_required">Permission arrière-plan requise</string>
     <string name="permission_background_location_button">Autoriser l\'accès en arrière-plan</string>
     <string name="permission_location_denied">Permission de localisation refusée. L\'application ne pourra pas fonctionner correctement.</string>
@@ -84,16 +84,16 @@
     <string name="notification_launching_fairtiq">Ouverture de Fairtiq…</string>
     
     <!-- Onboarding -->
-    <string name="welcome_to_fairlaunch">Bienvenue sur FairLaunch !</string>
-    <string name="onboarding_welcome_description">FairLaunch lance automatiquement Fairtiq lorsque vous approchez de vos points de transport sauvegardés. Configurons les permissions nécessaires.</string>
+    <string name="welcome_to_autotiq">Bienvenue sur AutoTiq !</string>
+    <string name="onboarding_welcome_description">AutoTiq lance automatiquement Fairtiq lorsque vous approchez de vos points de transport sauvegardés. Configurons les permissions nécessaires.</string>
     <string name="get_started">Commencer</string>
     <string name="onboarding_location_title">Accès à la localisation</string>
-    <string name="onboarding_location_description">FairLaunch a besoin d\'accéder à votre position pour détecter quand vous approchez d\'un point sauvegardé.</string>
+    <string name="onboarding_location_description">AutoTiq a besoin d\'accéder à votre position pour détecter quand vous approchez d\'un point sauvegardé.</string>
     <string name="onboarding_background_location_title">Accès à la localisation en arrière-plan</string>
-    <string name="onboarding_background_location_description">Pour que l\'application fonctionne automatiquement, elle a besoin de la permission \"Toujours autoriser\". Cela permet à FairLaunch de surveiller votre position même quand l\'application est fermée.\n\nIMPORTANT : Sur l\'écran suivant, sélectionnez \"Toujours autoriser\".</string>
+    <string name="onboarding_background_location_description">Pour que l\'application fonctionne automatiquement, elle a besoin de la permission \"Toujours autoriser\". Cela permet à AutoTiq de surveiller votre position même quand l\'application est fermée.\n\nIMPORTANT : Sur l\'écran suivant, sélectionnez \"Toujours autoriser\".</string>
     <string name="onboarding_notifications_title">Notifications</string>
     <string name="onboarding_notifications_description">Autorisez les notifications pour être informé lorsque Fairtiq est lancé automatiquement.</string>
     <string name="onboarding_complete_title">Tout est prêt !</string>
     <string name="onboarding_complete_description">Vous pouvez maintenant ajouter vos points de transport sur la carte et activer le suivi en arrière-plan dans les paramètres.</string>
-    <string name="start_using_app">Commencer à utiliser FairLaunch</string>
+    <string name="start_using_app">Commencer à utiliser AutoTiq</string>
 </resources>
