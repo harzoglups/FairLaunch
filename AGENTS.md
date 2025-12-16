@@ -1,11 +1,27 @@
 # AutoTiq - Agent Guidelines
 
 ## Git Commit Policy
-**CRITICAL**: NEVER create git commits unless explicitly requested by the user.
-- Build and install the app for testing FIRST
-- Wait for user confirmation that the feature works correctly
-- Only commit after explicit approval: "make a commit", "commit this", "create a commit", etc.
-- If you commit prematurely, you MUST apologize and offer to amend or revert
+**ABSOLUTE RULE - NO EXCEPTIONS**: NEVER EVER create git commits unless the user uses one of these EXACT phrases:
+- "commit" / "commits" / "tu peux commit" / "fais un commit"
+- "make a commit" / "create a commit"
+- "commit this" / "commit that"
+
+**FORBIDDEN INTERPRETATIONS:**
+- "corrige les workflow" = FIX ONLY, DO NOT COMMIT
+- "tu peux y aller" = DO THE WORK, DO NOT COMMIT
+- "parfait" / "super" / "ok" = ACKNOWLEDGMENT, NOT COMMIT AUTHORIZATION
+- "continue" = CONTINUE WORKING, DO NOT COMMIT
+
+**MANDATORY WORKFLOW:**
+1. Make the requested changes (code, docs, configs, etc.)
+2. Build and test if applicable
+3. Show git status and diff
+4. **STOP and WAIT** for explicit commit authorization
+5. Only run `git commit` if user explicitly says "commit"
+
+**If you commit without explicit authorization:**
+- You MUST immediately offer to `git reset HEAD~1` to undo the commit
+- You MUST apologize and acknowledge the violation of this rule
 
 ## Commit Message Format
 **REQUIRED**: All commit messages MUST follow Conventional Commits specification.
