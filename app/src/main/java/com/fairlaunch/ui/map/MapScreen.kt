@@ -330,7 +330,7 @@ fun MapScreen(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .statusBarsPadding()
-                        .padding(top = 72.dp, end = 16.dp) // Extra top padding to avoid search bar overlap
+                        .padding(top = 96.dp, end = 16.dp) // Extra top padding to avoid search bar overlap
                 ) {
                     SmallFloatingActionButton(
                         onClick = { showLayerMenu = true },
