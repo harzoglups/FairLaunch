@@ -1,0 +1,99 @@
+<resources>
+    <string name="app_name">AutoTiq</string>
+    
+    <!-- Permission strings -->
+    <string name="permission_location_rationale">AutoTiq trenger tilgang til din plassering for å oppdage når du nærmer deg et lagret punkt.</string>
+    <string name="permission_background_location_rationale">For å overvåke din plassering i bakgrunnen og automatisk starte Fairtiq, trenger AutoTiq tillatelsen \"Tillat hele tiden\".\n\nDenne tillatelsen gjør at appen kan sjekke din plassering selv når appen er lukket.</string>
+    <string name="permission_background_location_required">Bakgrunnstillatelse kreves</string>
+    <string name="permission_background_location_button">Tillat bakgrunnstilgang</string>
+    <string name="permission_location_denied">Plasseringstillatelse nektet. Appen vil ikke fungere riktig.</string>
+    <string name="permission_background_location_denied">Uten bakgrunnstilgang kan appen bare overvåke din plassering når den er åpen.</string>
+    <string name="permission_open_settings">Åpne innstillinger</string>
+    <string name="permission_location_required">Plasseringstillatelse kreves</string>
+    <string name="permission_grant">Gi tillatelse</string>
+    <string name="permission_foreground_only">Tillatelse begrenset til appbruk</string>
+    <string name="permission_allow_always">Tillat \"Hele tiden\"</string>
+    <string name="permission_allow">Tillat</string>
+    <string name="permission_later">Senere</string>
+    
+    <!-- Map screen -->
+    <string name="map_layers">Kartlag</string>
+    <string name="settings">Innstillinger</string>
+    <string name="edit">Rediger</string>
+    <string name="point_number">Punkt #%1$d</string>
+    <string name="active_time">Aktiv: %1$s - %2$s</string>
+    <string name="search_location">Søk etter et sted</string>
+    <string name="my_location">Min plassering</string>
+    
+    <!-- Edit marker dialog -->
+    <string name="edit_marker">Rediger markør</string>
+    <string name="marker_name">Navn</string>
+    <string name="active_time_window">Aktivt tidsvindu</string>
+    <string name="start_time">Start:</string>
+    <string name="end_time">Slutt:</string>
+    <string name="time_window_info">Fairtiq vil bare starte når du går inn i sonen i dette tidsvinduet</string>
+    <string name="save">Lagre</string>
+    <string name="cancel">Avbryt</string>
+    <string name="ok">OK</string>
+    
+    <!-- Map layer types -->
+    <string name="map_layer_street">Gatekart</string>
+    <string name="map_layer_topo">Topografisk</string>
+    
+    <!-- Settings screen -->
+    <string name="back">Tilbake</string>
+    <string name="location_tracking">Plasseringssporing</string>
+    <string name="enable_background_tracking">Aktiver bakgrunnssporing</string>
+    <string name="enable_background_tracking_desc">Overvåk din plassering i bakgrunnen</string>
+    <string name="active_days">Aktive dager</string>
+    <string name="active_days_desc">Velg hvilke ukedager din plassering skal overvåkes</string>
+    <string name="monday">Mandag</string>
+    <string name="tuesday">Tirsdag</string>
+    <string name="wednesday">Onsdag</string>
+    <string name="thursday">Torsdag</string>
+    <string name="friday">Fredag</string>
+    <string name="saturday">Lørdag</string>
+    <string name="sunday">Søndag</string>
+    <string name="monday_short">M</string>
+    <string name="tuesday_short">T</string>
+    <string name="wednesday_short">O</string>
+    <string name="thursday_short">T</string>
+    <string name="friday_short">F</string>
+    <string name="saturday_short">L</string>
+    <string name="sunday_short">S</string>
+    <string name="detection_parameters">Deteksjonsparametere</string>
+    <string name="check_interval">Kontrollintervall (sekunder)</string>
+    <string name="check_interval_desc">Hvor ofte din plassering skal sjekkes</string>
+    <string name="proximity_distance">Nærhetsdistanse (meter)</string>
+    <string name="proximity_distance_desc">Avstand for å utløse Fairtiq-start</string>
+    <string name="vibration_count">Antall vibrasjoner</string>
+    <string name="vibration_count_desc">Antall ganger telefonen vibrerer når du går inn i en sone</string>
+    <string name="vibrations">Vibrasjoner</string>
+    <string name="seconds">Sekunder</string>
+    <string name="meters">Meter</string>
+    <string name="info">Info</string>
+    <string name="app_version">Appversjon</string>
+    <string name="version">Versjon %1$s</string>
+    <string name="how_it_works">Hvordan det fungerer</string>
+    <string name="how_it_works_content">• Langt trykk på kartet for å legge til et punkt (redigeringsdialogen åpnes automatisk)\n• Kort trykk på en markør for å vise detaljer\n• Langt trykk på en markør for å slette den\n• Konfigurer punktegenskaper: navn og aktivt tidsvindu (time:minutt)\n• Aktiver bakgrunnssporing for å overvåke din plassering\n• Når du går inn i et punkts sone i løpet av dets aktive tidsvindu:\n  - Fairtiq starter automatisk\n  - Telefonen vibrerer (3-vibrasjonsmønster)\n  - Skjermen våkner hvis den er låst\n• Du må forlate sonen og gå inn igjen for å utløse på nytt (anti-spam)</string>
+    
+    <!-- Notifications -->
+    <string name="notification_channel_name">Nærhetsvarsler</string>
+    <string name="notification_channel_desc">Varsler når du går inn i en transportsone</string>
+    <string name="notification_transport_zone_detected">Transportsone oppdaget</string>
+    <string name="notification_launching_fairtiq">Starter Fairtiq…</string>
+    
+    <!-- Onboarding -->
+    <string name="welcome_to_autotiq">Velkommen til AutoTiq!</string>
+    <string name="onboarding_welcome_description">AutoTiq starter automatisk Fairtiq når du nærmer deg dine lagrede kollektivtransportpunkter. La oss sette opp nødvendige tillatelser.</string>
+    <string name="get_started">Kom i gang</string>
+    <string name="onboarding_location_title">Plasseringstilgang</string>
+    <string name="onboarding_location_description">AutoTiq trenger tilgang til din plassering for å oppdage når du nærmer deg et lagret punkt.</string>
+    <string name="onboarding_background_location_title">Bakgrunnsplasseringstilgang</string>
+    <string name="onboarding_background_location_description">For at appen skal fungere automatisk, trenger den tillatelsen \"Tillat hele tiden\". Dette gjør at AutoTiq kan overvåke din plassering selv når appen er lukket.\n\nVIKTIG: På neste skjerm, velg \"Tillat hele tiden\".</string>
+    <string name="onboarding_notifications_title">Varsler</string>
+    <string name="onboarding_notifications_description">Tillat varsler for å bli informert når Fairtiq startes automatisk.</string>
+    <string name="onboarding_complete_title">Alt klart!</string>
+    <string name="onboarding_complete_description">Du kan nå legge til dine kollektivtransportpunkter på kartet og aktivere bakgrunnssporing i innstillingene.</string>
+    <string name="start_using_app">Begynn å bruke AutoTiq</string>
+</resources>
