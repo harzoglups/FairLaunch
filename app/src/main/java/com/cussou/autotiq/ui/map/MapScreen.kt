@@ -585,6 +585,9 @@ private fun MapContent(
                     setTileSource(mapLayerType.toTileSource())
                     setMultiTouchControls(true)
                     
+                    // Disable built-in zoom buttons to avoid overlap with custom floating buttons
+                    setBuiltInZoomControls(false)
+                    
                     // Optimize memory usage
                     // Limit how many tiles are kept in memory (default is way too high)
                     isTilesScaledToDpi = true
