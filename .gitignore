@@ -61,3 +61,7 @@ release_notes_test.md
 
 # PlantUML jar (downloaded binary, can be regenerated)
 plantuml.jar
+
+# Memory monitoring files
+fairlaunch_monitor_*.csv
+memory_snapshots/
