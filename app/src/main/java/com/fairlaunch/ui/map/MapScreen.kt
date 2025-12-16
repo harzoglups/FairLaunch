@@ -320,7 +320,7 @@ fun MapScreen(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .navigationBarsPadding()
-                            .padding(bottom = 180.dp) // Increased from 80dp to account for 3 floating buttons
+                            .padding(bottom = 80.dp) // Space for horizontal button row
                             .padding(horizontal = 16.dp)
                     )
                 }
@@ -358,14 +358,14 @@ fun MapScreen(
                     }
                 }
                 
-                // Floating settings button (bottom right)
-                Column(
+                // Floating buttons (bottom center, horizontal row)
+                Row(
                     modifier = Modifier
-                        .align(Alignment.BottomEnd)
+                        .align(Alignment.BottomCenter)
                         .navigationBarsPadding()
                         .padding(16.dp),
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Navigate between markers button (only show if there are markers)
                     if (state.points.isNotEmpty()) {
