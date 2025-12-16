@@ -67,6 +67,10 @@ Pour un train pris tous les matins à 8h15 : marquer la gare, configurer l'horai
 
 AutoTiq est 100% gratuit, sans publicité, sans collecte de données, et open source.
 
+⚖️ MENTIONS LÉGALES
+
+"Fairtiq" est une marque déposée de Fairtiq AG. AutoTiq est une application indépendante, non affiliée, non sponsorisée et non approuvée par Fairtiq AG.
+
 🔗 Plus d'informations : https://github.com/harzoglups/FairLaunch
 ```
 
@@ -138,6 +142,10 @@ For a train taken every morning at 8:15am: mark the station, configure the 8am-8
 🆓 FREE & AD-FREE
 
 AutoTiq is 100% free, ad-free, no data collection, and open source.
+
+⚖️ LEGAL NOTICE
+
+"Fairtiq" is a registered trademark of Fairtiq AG. AutoTiq is an independent application, not affiliated with, sponsored by, or endorsed by Fairtiq AG.
 
 🔗 More information: https://github.com/harzoglups/FairLaunch
 ```
