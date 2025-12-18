@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -24,7 +26,21 @@ android {
     }
 
     signingConfigs {
-        // Use debug signing for release builds (no keystore needed)
+        // Production release signing
+        create("release") {
+            val keystorePropertiesFile = rootProject.file("keystore.properties")
+            if (keystorePropertiesFile.exists()) {
+                val keystoreProperties = Properties()
+                keystoreProperties.load(keystorePropertiesFile.inputStream())
+                
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+        
+        // Debug signing (fallback)
         getByName("debug") {
             storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
             storePassword = "android"
@@ -45,9 +61,13 @@ android {
                 "proguard-rules.pro"
             )
             
-            // Sign with debug key (Gradle's default debug signing config)
-            // This makes APKs installable without managing production keystores
-            signingConfig = signingConfigs.getByName("debug")
+            // Use production keystore if available, otherwise fallback to debug
+            val keystorePropertiesFile = rootProject.file("keystore.properties")
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
     compileOptions {
