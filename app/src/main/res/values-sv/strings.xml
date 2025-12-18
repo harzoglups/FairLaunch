@@ -25,7 +25,7 @@
     <string name="search_location">Sök efter en plats</string>
     <string name="my_location">Min plats</string>
     <string name="empty_state_title">Inga zoner ännu</string>
-    <string name="empty_state_message">Tryck länge på kartan för att lägga till din första zon</string>
+    <string name="empty_state_message">Tryck länge på kartan för att lägga till din första zon, eller använd sökningen</string>
     <string name="create_zone_here">Skapa zon här</string>
     <string name="search_result">Sökresultat</string>
     

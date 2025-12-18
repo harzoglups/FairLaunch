@@ -25,7 +25,7 @@
     <string name="search_location">Rechercher un lieu</string>
     <string name="my_location">Ma position</string>
     <string name="empty_state_title">Aucune zone pour le moment</string>
-    <string name="empty_state_message">Appuyez longuement sur la carte pour ajouter votre première zone</string>
+    <string name="empty_state_message">Appuyez longuement sur la carte pour ajouter votre première zone, ou utilisez la recherche</string>
     <string name="create_zone_here">Créer une zone ici</string>
     <string name="search_result">Résultat de recherche</string>
     

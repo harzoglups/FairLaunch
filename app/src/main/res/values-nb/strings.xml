@@ -25,7 +25,7 @@
     <string name="search_location">Søk etter et sted</string>
     <string name="my_location">Min plassering</string>
     <string name="empty_state_title">Ingen soner ennå</string>
-    <string name="empty_state_message">Trykk lenge på kartet for å legge til din første sone</string>
+    <string name="empty_state_message">Trykk lenge på kartet for å legge til din første sone, eller bruk søket</string>
     <string name="create_zone_here">Opprett sone her</string>
     <string name="search_result">Søkeresultat</string>
     

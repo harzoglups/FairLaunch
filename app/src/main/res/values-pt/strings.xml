@@ -25,7 +25,7 @@
     <string name="search_location">Procurar um local</string>
     <string name="my_location">Minha localização</string>
     <string name="empty_state_title">Ainda não há zonas</string>
-    <string name="empty_state_message">Pressione longamente no mapa para adicionar sua primeira zona</string>
+    <string name="empty_state_message">Pressione longamente no mapa para adicionar sua primeira zona, ou use a pesquisa</string>
     <string name="create_zone_here">Criar zona aqui</string>
     <string name="search_result">Resultado da pesquisa</string>
     

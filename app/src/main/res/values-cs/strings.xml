@@ -25,7 +25,7 @@
     <string name="search_location">Hledat místo</string>
     <string name="my_location">Moje poloha</string>
     <string name="empty_state_title">Zatím žádné zóny</string>
-    <string name="empty_state_message">Stiskněte dlouho na mapu pro přidání první zóny</string>
+    <string name="empty_state_message">Stiskněte dlouho na mapu pro přidání první zóny nebo použijte vyhledávání</string>
     <string name="create_zone_here">Vytvořit zónu zde</string>
     <string name="search_result">Výsledek vyhledávání</string>
     
