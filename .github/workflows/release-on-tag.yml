@@ -27,7 +27,7 @@ jobs:
       - name: Grant execute permission for scripts
         run: |
           chmod +x gradlew
-          chmod +x update-version.sh
+          chmod +x scripts/build/update-version.sh
           
       - name: Get previous tag
         id: previous_tag
@@ -42,7 +42,7 @@ jobs:
       - name: Update version in build.gradle.kts
         run: |
           CURRENT_TAG="${{ steps.previous_tag.outputs.current_tag }}"
-          ./update-version.sh "$CURRENT_TAG"
+          ./scripts/build/update-version.sh "$CURRENT_TAG"
           echo "✅ Version updated to $CURRENT_TAG"
           
       - name: Create debug keystore for signing

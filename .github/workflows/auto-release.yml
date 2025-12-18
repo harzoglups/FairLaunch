@@ -185,13 +185,13 @@ jobs:
         if: steps.analyze_commits.outputs.should_release == 'true'
         run: |
           chmod +x gradlew
-          chmod +x update-version.sh
+          chmod +x scripts/build/update-version.sh
           
       - name: Update version in build.gradle.kts
         if: steps.analyze_commits.outputs.should_release == 'true'
         run: |
           NEW_VERSION="${{ steps.next_version.outputs.new_version }}"
-          ./update-version.sh "$NEW_VERSION"
+          ./scripts/build/update-version.sh "$NEW_VERSION"
           echo "✅ Version updated to $NEW_VERSION"
           
       - name: Create debug keystore for signing
