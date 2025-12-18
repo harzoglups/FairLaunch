@@ -90,7 +90,7 @@ fun MapScreen(
     var editingPoint by remember { mutableStateOf<MapPoint?>(null) }
     var selectedPoint by remember { mutableStateOf<MapPoint?>(null) } // For showing info bubble
     var pointToDelete by remember { mutableStateOf<MapPoint?>(null) } // For delete confirmation dialog
-    var pendingNewPoint by remember { mutableStateOf<Pair<Double, Double>?>(null) } // For new point creation (lat, lon)
+    var pendingNewPoint by remember { mutableStateOf<Triple<Double, Double, String?>?>(null) } // For new point creation (lat, lon, suggestedName)
     var selectedSearchResult by remember { mutableStateOf<Pair<String, GeoPoint>?>(null) } // For search result info (name, location)
     
     // Force dark status bar icons (black) on map screen
@@ -153,7 +153,7 @@ fun MapScreen(
                     },
                     onAddPoint = { lat, lon -> 
                         // Store coordinates and show dialog instead of creating immediately
-                        pendingNewPoint = Pair(lat, lon)
+                        pendingNewPoint = Triple(lat, lon, null) // No suggested name for long press
                     },
                     onRequestDeletePoint = { point -> 
                         // Show confirmation dialog
@@ -343,7 +343,9 @@ fun MapScreen(
                         onCreateZone = {
                             // Close search result card and open zone creation dialog
                             selectedSearchResult = null
-                            pendingNewPoint = Pair(location.latitude, location.longitude)
+                            // Extract name before first comma as suggested name
+                            val suggestedName = name.substringBefore(',').trim()
+                            pendingNewPoint = Triple(location.latitude, location.longitude, suggestedName)
                             // Remove the search marker so the new zone marker is visible
                             mapView?.let { map ->
                                 searchMarker?.let { marker ->
@@ -541,10 +543,11 @@ fun MapScreen(
     }
     
     // Show dialog for creating a new point
-    pendingNewPoint?.let { (lat, lon) ->
+    pendingNewPoint?.let { (lat, lon, suggestedName) ->
         NewMarkerDialog(
             latitude = lat,
             longitude = lon,
+            suggestedName = suggestedName,
             onDismiss = { 
                 // User cancelled - don't create the point
                 pendingNewPoint = null
@@ -1286,10 +1289,11 @@ private class LongPressOverlay(
 private fun NewMarkerDialog(
     latitude: Double,
     longitude: Double,
+    suggestedName: String? = null,
     onDismiss: () -> Unit,
     onSave: (name: String, startHour: Int, startMinute: Int, endHour: Int, endMinute: Int) -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(suggestedName ?: "") }
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
     
