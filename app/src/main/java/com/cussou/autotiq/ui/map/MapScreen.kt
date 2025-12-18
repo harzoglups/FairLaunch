@@ -91,6 +91,7 @@ fun MapScreen(
     var selectedPoint by remember { mutableStateOf<MapPoint?>(null) } // For showing info bubble
     var pointToDelete by remember { mutableStateOf<MapPoint?>(null) } // For delete confirmation dialog
     var pendingNewPoint by remember { mutableStateOf<Pair<Double, Double>?>(null) } // For new point creation (lat, lon)
+    var selectedSearchResult by remember { mutableStateOf<Pair<String, GeoPoint>?>(null) } // For search result info (name, location)
     
     // Force dark status bar icons (black) on map screen
     SideEffect {
@@ -168,6 +169,7 @@ fun MapScreen(
                         // Hide keyboard when clicking on map
                         keyboardController?.hide()
                         selectedPoint = null // Close info card when clicking on map
+                        selectedSearchResult = null // Close search result info card
                         // Remove search marker when clicking on map
                         searchMarker?.let { marker ->
                             // Recycle bitmap to free memory
@@ -249,6 +251,9 @@ fun MapScreen(
                                 // Mark this as a search marker using relatedObject
                                 relatedObject = "SEARCH_MARKER"
                                 
+                                // Enable the info window to show the title
+                                setInfoWindow(null) // Disable default info window
+                                
                                 // Create a larger red pin-style marker to differentiate from user markers
                                 val size = 80 // Increased size for better visibility
                                 val bitmap = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
@@ -299,6 +304,12 @@ fun MapScreen(
                             map.controller.setZoom(15.0)
                         }
                         
+                        // Store search result info and show info card
+                        selectedSearchResult = Pair(result.displayName, GeoPoint(result.lat, result.lon))
+                        
+                        // Close any open zone info card
+                        selectedPoint = null
+                        
                         searchQuery = ""
                         searchResults = emptyList()
                     },
@@ -317,6 +328,52 @@ fun MapScreen(
                             editingPoint = point
                         },
                         onClose = { selectedPoint = null },
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .navigationBarsPadding()
+                            .padding(bottom = 80.dp) // Space for horizontal button row
+                            .padding(horizontal = 16.dp)
+                    )
+                }
+                
+                // Show info card for selected search result
+                selectedSearchResult?.let { (name, location) ->
+                    SearchResultInfoCard(
+                        name = name,
+                        onCreateZone = {
+                            // Close search result card and open zone creation dialog
+                            selectedSearchResult = null
+                            pendingNewPoint = Pair(location.latitude, location.longitude)
+                            // Remove the search marker so the new zone marker is visible
+                            mapView?.let { map ->
+                                searchMarker?.let { marker ->
+                                    marker.icon?.let { drawable ->
+                                        if (drawable is android.graphics.drawable.BitmapDrawable) {
+                                            drawable.bitmap?.recycle()
+                                        }
+                                    }
+                                    map.overlays.remove(marker)
+                                }
+                                searchMarker = null
+                                map.invalidate()
+                            }
+                        },
+                        onClose = { 
+                            selectedSearchResult = null
+                            // Also remove the search marker
+                            mapView?.let { map ->
+                                searchMarker?.let { marker ->
+                                    marker.icon?.let { drawable ->
+                                        if (drawable is android.graphics.drawable.BitmapDrawable) {
+                                            drawable.bitmap?.recycle()
+                                        }
+                                    }
+                                    map.overlays.remove(marker)
+                                }
+                                searchMarker = null
+                                map.invalidate()
+                            }
+                        },
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .navigationBarsPadding()
@@ -359,7 +416,8 @@ fun MapScreen(
                 }
                 
                 // Empty state message when no points exist (above buttons)
-                if (state.points.isEmpty()) {
+                // Hide if search result card is shown
+                if (state.points.isEmpty() && selectedSearchResult == null) {
                     Card(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
@@ -547,6 +605,62 @@ private fun MarkerInfoCard(
                 androidx.compose.material3.TextButton(onClick = onEdit) {
                     Text(stringResource(R.string.edit))
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SearchResultInfoCard(
+    name: String,
+    onCreateZone: () -> Unit,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    androidx.compose.material3.Card(
+        modifier = modifier.fillMaxWidth(),
+        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp),
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.search_result),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                    )
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        maxLines = 2,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                }
+                androidx.compose.material3.IconButton(onClick = onClose) {
+                    androidx.compose.material3.Icon(
+                        Icons.Default.Clear,
+                        contentDescription = "Close",
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+            androidx.compose.material3.Button(
+                onClick = onCreateZone,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            ) {
+                Text(stringResource(R.string.create_zone_here))
             }
         }
     }

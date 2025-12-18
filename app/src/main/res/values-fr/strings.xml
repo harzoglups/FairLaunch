@@ -26,6 +26,8 @@
     <string name="my_location">Ma position</string>
     <string name="empty_state_title">Aucune zone pour le moment</string>
     <string name="empty_state_message">Appuyez longuement sur la carte pour ajouter votre première zone</string>
+    <string name="create_zone_here">Créer une zone ici</string>
+    <string name="search_result">Résultat de recherche</string>
     
     <!-- Edit marker dialog -->
     <string name="edit_marker">Modifier la zone</string>

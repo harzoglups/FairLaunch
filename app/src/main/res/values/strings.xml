@@ -26,6 +26,8 @@
     <string name="my_location">My Location</string>
     <string name="empty_state_title">No zones yet</string>
     <string name="empty_state_message">Long press on the map to add your first zone</string>
+    <string name="create_zone_here">Create zone here</string>
+    <string name="search_result">Search result</string>
     
     <!-- Edit marker dialog -->
     <string name="edit_marker">Edit Zone</string>
