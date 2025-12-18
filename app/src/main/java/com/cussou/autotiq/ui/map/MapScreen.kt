@@ -299,9 +299,15 @@ fun MapScreen(
                             
                             map.invalidate()
                             
-                            // Animate to location
+                            // Animate to location with smart zoom
                             map.controller.animateTo(GeoPoint(result.lat, result.lon))
-                            map.controller.setZoom(15.0)
+                            val optimalZoom = calculateOptimalZoom(
+                                result.lat,
+                                result.lon,
+                                state.points,
+                                state.settings.proximityDistanceMeters
+                            )
+                            map.controller.setZoom(optimalZoom)
                         }
                         
                         // Store search result info and show info card
@@ -455,7 +461,14 @@ fun MapScreen(
                                 currentMarkerIndex = (currentMarkerIndex + 1) % state.points.size
                                 val targetPoint = state.points[currentMarkerIndex]
                                 mapView?.controller?.animateTo(GeoPoint(targetPoint.latitude, targetPoint.longitude))
-                                mapView?.controller?.setZoom(16.0)
+                                // Use smart zoom to show nearby markers
+                                val optimalZoom = calculateOptimalZoom(
+                                    targetPoint.latitude,
+                                    targetPoint.longitude,
+                                    state.points,
+                                    state.settings.proximityDistanceMeters
+                                )
+                                mapView?.controller?.setZoom(optimalZoom)
                                 // Show info card for the marker
                                 selectedPoint = targetPoint
                             },
@@ -485,7 +498,14 @@ fun MapScreen(
                         onClick = {
                             locationOverlay?.myLocation?.let { location ->
                                 mapView?.controller?.animateTo(location)
-                                mapView?.controller?.setZoom(17.0)
+                                // Use smart zoom to show nearby markers around user location
+                                val optimalZoom = calculateOptimalZoom(
+                                    location.latitude,
+                                    location.longitude,
+                                    state.points,
+                                    state.settings.proximityDistanceMeters
+                                )
+                                mapView?.controller?.setZoom(optimalZoom)
                             }
                         },
                         containerColor = MaterialTheme.colorScheme.surface,
@@ -1077,6 +1097,45 @@ private fun MapContent(
 private fun MapLayerType.toTileSource() = when (this) {
     MapLayerType.STREET -> TileSourceFactory.MAPNIK
     MapLayerType.TOPO -> TileSourceFactory.OpenTopo
+}
+
+/**
+ * Calculates optimal zoom level based on the proximity zone radius.
+ * The zoom level is adjusted so the proximity circle is comfortably visible in the viewport.
+ * 
+ * Strategy:
+ * - Calculate zoom to show ~3x the proximity radius
+ * - This ensures the full proximity zone + surrounding context is visible
+ * - Formula: zoom = log2(worldSize / (metersToShow / cos(latitude)))
+ * 
+ * @param proximityDistanceMeters Proximity distance setting (zone radius in meters)
+ * @param latitude Latitude of the target point (affects meter-to-pixel conversion)
+ * @return Optimal zoom level (10.0-18.0)
+ */
+private fun calculateOptimalZoom(
+    targetLat: Double,
+    targetLon: Double,
+    allPoints: List<MapPoint>,
+    proximityDistanceMeters: Int
+): Double {
+    // Show approximately 3x the proximity radius to give context
+    // This means the full zone circle + surrounding area will be visible
+    val metersToShow = proximityDistanceMeters * 3.0
+    
+    // OSMDroid zoom calculation
+    // At zoom level Z, the map shows (40075017 / 2^Z) meters at the equator
+    // Adjusted by cos(latitude) for other latitudes
+    val earthCircumference = 40075017.0 // meters at equator
+    val latitudeRadians = Math.toRadians(targetLat)
+    val metersPerPixelAtZoom0 = earthCircumference * Math.cos(latitudeRadians)
+    
+    // Calculate zoom level needed to show the desired meters
+    // We want to show metersToShow in approximately 256 pixels (tile size)
+    val screenWidthMeters = metersToShow * 2.0 // Show on both sides of center
+    val zoom = Math.log(metersPerPixelAtZoom0 / screenWidthMeters) / Math.log(2.0)
+    
+    // Clamp zoom to reasonable range (10.0 to 18.0)
+    return zoom.coerceIn(10.0, 18.0)
 }
 
 private fun MapLayerType.displayName(context: android.content.Context) = when (this) {

@@ -304,12 +304,22 @@ This document lists potential improvements and new features to consider before m
 ---
 
 ### 17. Smart Zoom
-**Status**: Fixed zoom when navigating  
-**Description**: Zoom is fixed at 16.0 when navigating to markers.  
-**Suggestion**:
-- Calculate optimal zoom based on nearby markers
-- Show all relevant markers in viewport
-- Different zoom for single marker vs. cluster
+**Status**: ✅ Implemented (v1.0.10)  
+**Description**: Dynamic zoom based on proximity zone radius.  
+**Implementation**:
+- Zoom level calculated to show ~3x the proximity zone radius
+- Ensures the full proximity circle + surrounding context is visible
+- Uses OSMDroid zoom formula: `log2(worldSize / metersToShow / cos(latitude))`
+- Adapts to user's proximity distance setting (default 200m):
+  - 100m radius → zoom ~16.5 (tight view)
+  - 200m radius → zoom ~15.5 (comfortable view)
+  - 500m radius → zoom ~14.0 (wide view)
+- Applied to three navigation actions:
+  - Marker navigation button (cycle through zones)
+  - GPS location button (center on user)
+  - Search result selection
+- Zoom respects user's preference for proximity distance
+- Clamped to range 10.0-18.0 for usability
 
 **Priority**: Low  
 **Effort**: Medium
