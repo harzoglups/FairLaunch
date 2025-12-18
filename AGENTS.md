@@ -170,3 +170,67 @@ curl -I https://privacy.cussou.com/autotiq/
 - ✅ Before submitting new version to Play Console
 - ✅ When privacy policy content changes
 - ✅ When app version changes
+
+## Play Console Release Notes
+**WHEN REQUESTED**: Generate Play Console release notes by analyzing git commits.
+
+**Process:**
+1. Analyze commits since last tag/release
+2. Filter for USER-RELEVANT changes only:
+   - ✅ Include: `feat(ui)`, `feat(map)`, `feat(settings)`, `fix(map)`, `fix(gps)`, `fix(notification)`, `perf(map)`, `perf(worker)`
+   - ❌ Exclude: `fix(ci)`, `fix(build)`, `fix(workflow)`, `chore()`, `docs()`, `refactor()`, `test()`
+3. If no user-relevant commits found, use generic message
+
+**Output Format:**
+```xml
+<en-US>
+[English release notes - translate commit messages to user-friendly descriptions]
+</en-US>
+
+<fr-FR>
+[French translation - natural French, not literal translation]
+</fr-FR>
+
+<de-DE>
+[German translation - natural German, not literal translation]
+</de-DE>
+```
+
+**Translation Guidelines:**
+- Write natural, user-friendly descriptions (not literal commit translations)
+- Focus on benefits to the user, not technical implementation
+- Use simple, clear language
+- Keep it concise (2-5 bullet points max)
+
+**Examples:**
+
+Good:
+```
+<en-US>
+• Faster map loading when opening the app
+• Fixed issue where notifications weren't showing
+• Improved GPS accuracy in urban areas
+</en-US>
+```
+
+Bad (too technical):
+```
+<en-US>
+• perf(map): use FusedLocationProviderClient.lastLocation for instant cached location
+• fix(notification): add missing notification channel configuration
+```
+
+**Fallback (no user-relevant changes):**
+```xml
+<en-US>
+Bug fixes and performance improvements.
+</en-US>
+
+<fr-FR>
+Corrections de bugs et améliorations de performance.
+</fr-FR>
+
+<de-DE>
+Fehlerbehebungen und Leistungsverbesserungen.
+</de-DE>
+```
