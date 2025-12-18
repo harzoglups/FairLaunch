@@ -37,7 +37,10 @@ enum class PermissionStatus {
 
 sealed class ImportExportEvent {
     data class ShowToast(val messageResId: Int, val args: Array<Any> = emptyArray()) : ImportExportEvent()
-    data class ShowImportDialog(val zonesCount: Int, val existingCount: Int) : ImportExportEvent()
+    data class ShowImportStrategyDialog(
+        val zonesToImport: List<ZoneExport>,
+        val existingZonesCount: Int
+    ) : ImportExportEvent()
 }
 
 @HiltViewModel
@@ -363,11 +366,23 @@ class SettingsViewModel @Inject constructor(
                     return@launch
                 }
                 
-                Log.d(TAG, "Found ${validZones.size} valid zones, importing...")
+                Log.d(TAG, "Found ${validZones.size} valid zones")
                 
-                // Always merge (add zones to existing ones)
-                // TODO: In the future, add a dialog to ask user if they want to replace or merge
-                importZonesDirectly(validZones)
+                // Check if existing zones exist
+                val existingZones = getMapPointsUseCase().first()
+                
+                if (existingZones.isEmpty()) {
+                    // No existing zones, import directly
+                    Log.d(TAG, "No existing zones, importing directly")
+                    importZonesDirectly(validZones)
+                } else {
+                    // Show dialog to choose import strategy
+                    Log.d(TAG, "Found ${existingZones.size} existing zones, showing strategy dialog")
+                    _importExportEvent.value = ImportExportEvent.ShowImportStrategyDialog(
+                        zonesToImport = validZones,
+                        existingZonesCount = existingZones.size
+                    )
+                }
                 
             } catch (e: IOException) {
                 Log.e(TAG, "IO error importing zones", e)
@@ -403,6 +418,97 @@ class SettingsViewModel @Inject constructor(
             _importExportEvent.value = ImportExportEvent.ShowToast(
                 com.cussou.autotiq.R.string.import_error
             )
+        }
+    }
+    
+    /**
+     * Import zones with REPLACE strategy: delete all existing zones first, then import
+     */
+    fun importWithReplace(zones: List<ZoneExport>) {
+        viewModelScope.launch {
+            try {
+                Log.d(TAG, "Import with REPLACE strategy: deleting all existing zones")
+                
+                // Get all existing zones
+                val existingZones = getMapPointsUseCase().first()
+                
+                // Delete all existing zones
+                existingZones.forEach { point ->
+                    mapPointRepository.deletePoint(point.id)
+                }
+                
+                Log.d(TAG, "Deleted ${existingZones.size} existing zones, now importing ${zones.size} new zones")
+                
+                // Import new zones
+                var successCount = 0
+                zones.forEach { zone ->
+                    val result = mapPointRepository.insertPoint(zone.toMapPoint())
+                    if (result is com.cussou.autotiq.domain.util.Result.Success) {
+                        successCount++
+                    }
+                }
+                
+                Log.d(TAG, "Replace import successful: $successCount zones")
+                _importExportEvent.value = ImportExportEvent.ShowToast(
+                    com.cussou.autotiq.R.string.import_replace_success,
+                    arrayOf(successCount)
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Error during replace import", e)
+                _importExportEvent.value = ImportExportEvent.ShowToast(
+                    com.cussou.autotiq.R.string.import_error
+                )
+            }
+        }
+    }
+    
+    /**
+     * Import zones with MERGE strategy: skip duplicates (exact lat/lon match)
+     */
+    fun importWithMerge(zones: List<ZoneExport>) {
+        viewModelScope.launch {
+            try {
+                Log.d(TAG, "Import with MERGE strategy: skipping duplicates")
+                
+                // Get all existing zones
+                val existingZones = getMapPointsUseCase().first()
+                
+                // Create a set of existing coordinates for fast lookup
+                val existingCoordinates = existingZones.map { 
+                    Pair(it.latitude, it.longitude) 
+                }.toSet()
+                
+                Log.d(TAG, "Found ${existingCoordinates.size} existing coordinate pairs")
+                
+                // Filter out zones that already exist (exact lat/lon match)
+                val newZones = zones.filter { zone ->
+                    val coordinates = Pair(zone.latitude, zone.longitude)
+                    !existingCoordinates.contains(coordinates)
+                }
+                
+                val skippedCount = zones.size - newZones.size
+                Log.d(TAG, "Skipping $skippedCount duplicate zones, importing ${newZones.size} new zones")
+                
+                // Import only new zones
+                var successCount = 0
+                newZones.forEach { zone ->
+                    val result = mapPointRepository.insertPoint(zone.toMapPoint())
+                    if (result is com.cussou.autotiq.domain.util.Result.Success) {
+                        successCount++
+                    }
+                }
+                
+                Log.d(TAG, "Merge import successful: $successCount new zones, $skippedCount duplicates skipped")
+                _importExportEvent.value = ImportExportEvent.ShowToast(
+                    com.cussou.autotiq.R.string.import_merge_success,
+                    arrayOf(successCount, skippedCount)
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Error during merge import", e)
+                _importExportEvent.value = ImportExportEvent.ShowToast(
+                    com.cussou.autotiq.R.string.import_error
+                )
+            }
         }
     }
 }

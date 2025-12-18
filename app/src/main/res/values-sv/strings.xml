@@ -101,11 +101,11 @@
     <string name="export_error">Kunde inte exportera zoner</string>
     <string name="import_success">%1$d zoner importerade framgångsrikt</string>
     <string name="import_error">Kunde inte importera zoner</string>
-    <string name="import_confirm_title">Importera zoner?</string>
-    <string name="import_confirm_message">Detta kommer att lägga till %1$d zoner till dina befintliga zoner. Fortsätta?</string>
-    <string name="import_replace_title">Ersätta befintliga zoner?</string>
-    <string name="import_replace_message">Du har %1$d befintliga zoner. Vill du ersätta dem eller slå ihop?</string>
-    <string name="replace">Ersätt</string>
+    <string name="import_strategy_title">Importstrategi</string>
+    <string name="import_strategy_message">Du har %1$d befintliga zoner och vill importera %2$d zoner.\n\nErsätt alla: Ta bort alla befintliga zoner och importera nya\nSlå ihop: Behåll befintliga zoner och lägg till endast nya (hoppa över dubbletter)</string>
+    <string name="import_replace_success">%1$d zoner importerade (alla tidigare zoner borttagna)</string>
+    <string name="import_merge_success">%1$d nya zoner importerade, %2$d dubbletter överhoppade</string>
+    <string name="replace_all">Ersätt alla</string>
     <string name="merge">Slå ihop</string>
     <string name="no_zones_to_export">Inga zoner att exportera</string>
     <string name="app_version">Appversion</string>

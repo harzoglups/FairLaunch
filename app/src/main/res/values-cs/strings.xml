@@ -101,11 +101,11 @@
     <string name="export_error">Nepodařilo se exportovat zóny</string>
     <string name="import_success">%1$d zón úspěšně importováno</string>
     <string name="import_error">Nepodařilo se importovat zóny</string>
-    <string name="import_confirm_title">Importovat zóny?</string>
-    <string name="import_confirm_message">Toto přidá %1$d zón k vašim stávajícím zónám. Pokračovat?</string>
-    <string name="import_replace_title">Nahradit stávající zóny?</string>
-    <string name="import_replace_message">Máte %1$d stávajících zón. Chcete je nahradit nebo sloučit?</string>
-    <string name="replace">Nahradit</string>
+    <string name="import_strategy_title">Strategie importu</string>
+    <string name="import_strategy_message">Máte %1$d stávajících zón a chcete importovat %2$d zón.\n\nNahradit vše: Smazat všechny stávající zóny a importovat nové\nSloučit: Ponechat stávající zóny a přidat pouze nové (přeskočit duplikáty)</string>
+    <string name="import_replace_success">%1$d zón importováno (všechny předchozí zóny smazány)</string>
+    <string name="import_merge_success">%1$d nových zón importováno, %2$d duplikátů přeskočeno</string>
+    <string name="replace_all">Nahradit vše</string>
     <string name="merge">Sloučit</string>
     <string name="no_zones_to_export">Žádné zóny k exportu</string>
     <string name="app_version">Verze aplikace</string>

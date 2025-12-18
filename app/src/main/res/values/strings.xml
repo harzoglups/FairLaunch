@@ -104,11 +104,11 @@
     <string name="export_error">Failed to export zones</string>
     <string name="import_success">%1$d zones imported successfully</string>
     <string name="import_error">Failed to import zones</string>
-    <string name="import_confirm_title">Import zones?</string>
-    <string name="import_confirm_message">This will add %1$d zones to your existing zones. Continue?</string>
-    <string name="import_replace_title">Replace existing zones?</string>
-    <string name="import_replace_message">You have %1$d existing zones. Do you want to replace them or merge?</string>
-    <string name="replace">Replace</string>
+    <string name="import_strategy_title">Import Strategy</string>
+    <string name="import_strategy_message">You have %1$d existing zones and want to import %2$d zones.\n\nReplace: Delete all existing zones and import new ones\nMerge: Keep existing zones and add only new ones (skip duplicates)</string>
+    <string name="import_replace_success">%1$d zones imported (all previous zones deleted)</string>
+    <string name="import_merge_success">%1$d new zones imported, %2$d duplicates skipped</string>
+    <string name="replace_all">Replace All</string>
     <string name="merge">Merge</string>
     <string name="no_zones_to_export">No zones to export</string>
     <string name="app_version">App Version</string>

@@ -104,11 +104,11 @@
     <string name="export_error">Fehler beim Exportieren der Zonen</string>
     <string name="import_success">%1$d Zonen erfolgreich importiert</string>
     <string name="import_error">Fehler beim Importieren der Zonen</string>
-    <string name="import_confirm_title">Zonen importieren?</string>
-    <string name="import_confirm_message">Dies fügt %1$d Zonen zu Ihren bestehenden Zonen hinzu. Fortfahren?</string>
-    <string name="import_replace_title">Bestehende Zonen ersetzen?</string>
-    <string name="import_replace_message">Sie haben %1$d bestehende Zonen. Möchten Sie diese ersetzen oder zusammenführen?</string>
-    <string name="replace">Ersetzen</string>
+    <string name="import_strategy_title">Importstrategie</string>
+    <string name="import_strategy_message">Sie haben %1$d bestehende Zonen und möchten %2$d Zonen importieren.\n\nAlles ersetzen: Alle bestehenden Zonen löschen und neue importieren\nZusammenführen: Bestehende Zonen behalten und nur neue hinzufügen (Duplikate überspringen)</string>
+    <string name="import_replace_success">%1$d Zonen importiert (alle vorherigen Zonen gelöscht)</string>
+    <string name="import_merge_success">%1$d neue Zonen importiert, %2$d Duplikate übersprungen</string>
+    <string name="replace_all">Alles ersetzen</string>
     <string name="merge">Zusammenführen</string>
     <string name="no_zones_to_export">Keine Zonen zum Exportieren</string>
     <string name="app_version">App-Version</string>

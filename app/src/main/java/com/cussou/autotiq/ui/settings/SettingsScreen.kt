@@ -756,9 +756,41 @@ fun SettingsScreen(
                 ).show()
                 viewModel.clearEvent()
             }
-            is ImportExportEvent.ShowImportDialog -> {
-                // Not implemented yet - will be added in next iteration
-                viewModel.clearEvent()
+            is ImportExportEvent.ShowImportStrategyDialog -> {
+                // Show dialog to choose import strategy
+                AlertDialog(
+                    onDismissRequest = { viewModel.clearEvent() },
+                    title = { 
+                        Text(stringResource(R.string.import_strategy_title)) 
+                    },
+                    text = { 
+                        Text(stringResource(
+                            R.string.import_strategy_message,
+                            event.existingZonesCount,
+                            event.zonesToImport.size
+                        ))
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                viewModel.importWithReplace(event.zonesToImport)
+                                viewModel.clearEvent()
+                            }
+                        ) {
+                            Text(stringResource(R.string.replace_all))
+                        }
+                    },
+                    dismissButton = {
+                        OutlinedButton(
+                            onClick = {
+                                viewModel.importWithMerge(event.zonesToImport)
+                                viewModel.clearEvent()
+                            }
+                        ) {
+                            Text(stringResource(R.string.merge))
+                        }
+                    }
+                )
             }
         }
     }
