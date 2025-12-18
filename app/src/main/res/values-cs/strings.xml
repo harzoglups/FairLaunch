@@ -78,6 +78,14 @@
     <string name="seconds">Sekundy</string>
     <string name="meters">Metry</string>
     <string name="info">Info</string>
+    <string name="battery_consumption">Spotřeba baterie</string>
+    <string name="estimated_battery_usage">Odhadovaná spotřeba baterie</string>
+    <string name="battery_based_on_settings">Podle vašeho aktuálního nastavení:</string>
+    <string name="battery_scans_per_hour">%1$d GPS skenování za hodinu</string>
+    <string name="battery_mah_per_hour">~%1$s mAh za hodinu</string>
+    <string name="battery_mah_per_day">~%1$s mAh denně (%2$d aktivních dnů)</string>
+    <string name="battery_percent_per_day">~%1$s%% baterie denně</string>
+    <string name="battery_note">Poznámka: Skutečná spotřeba se může lišit v závislosti na zařízení, podmínkách GPS a časových oknech nakonfigurovaných pro každou zónu.</string>
     <string name="backup_restore">Zálohování &amp; Obnovení</string>
     <string name="export_zones">Exportovat zóny</string>
     <string name="import_zones">Importovat zóny</string>

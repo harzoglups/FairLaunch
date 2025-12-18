@@ -457,6 +457,80 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
+                text = stringResource(R.string.battery_consumption),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            SettingCard {
+                Column {
+                    Text(
+                        text = stringResource(R.string.estimated_battery_usage),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.battery_based_on_settings),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    
+                    // Calculate battery estimation
+                    val scansPerHour = 3600f / settings.checkIntervalSeconds
+                    val activeDaysCount = settings.activeWeekdays.size
+                    val activeDaysRatio = activeDaysCount / 7f
+                    
+                    // Estimation: ~0.3 mAh per GPS scan (BALANCED power mode)
+                    val mAhPerScan = 0.3f
+                    val estimatedMahPerHour = scansPerHour * mAhPerScan
+                    val estimatedMahPerDay = estimatedMahPerHour * 24f * activeDaysRatio
+                    
+                    // Typical phone battery: 3000-5000 mAh
+                    val typicalBatteryCapacity = 4000f
+                    val percentPerDay = (estimatedMahPerDay / typicalBatteryCapacity) * 100f
+                    
+                    Text(
+                        text = "• " + stringResource(R.string.battery_scans_per_hour, scansPerHour.toInt()),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(vertical = 2.dp)
+                    )
+                    Text(
+                        text = "• " + stringResource(R.string.battery_mah_per_hour, String.format("%.1f", estimatedMahPerHour)),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(vertical = 2.dp)
+                    )
+                    Text(
+                        text = "• " + stringResource(R.string.battery_mah_per_day, String.format("%.1f", estimatedMahPerDay), activeDaysCount),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(vertical = 2.dp)
+                    )
+                    Text(
+                        text = "• " + stringResource(R.string.battery_percent_per_day, String.format("%.1f", percentPerDay)),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = when {
+                            percentPerDay < 2f -> MaterialTheme.colorScheme.tertiary // Green-ish
+                            percentPerDay < 5f -> MaterialTheme.colorScheme.primary // Normal
+                            else -> MaterialTheme.colorScheme.error // High consumption
+                        },
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    
+                    Text(
+                        text = stringResource(R.string.battery_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
                 text = stringResource(R.string.backup_restore),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 16.dp)

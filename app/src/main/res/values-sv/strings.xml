@@ -78,6 +78,14 @@
     <string name="seconds">Sekunder</string>
     <string name="meters">Meter</string>
     <string name="info">Info</string>
+    <string name="battery_consumption">Batteriförbrukning</string>
+    <string name="estimated_battery_usage">Uppskattad batterianvändning</string>
+    <string name="battery_based_on_settings">Baserat på dina nuvarande inställningar:</string>
+    <string name="battery_scans_per_hour">%1$d GPS-skanningar per timme</string>
+    <string name="battery_mah_per_hour">~%1$s mAh per timme</string>
+    <string name="battery_mah_per_day">~%1$s mAh per dag (%2$d aktiva dagar)</string>
+    <string name="battery_percent_per_day">~%1$s%% batteri per dag</string>
+    <string name="battery_note">Obs: Faktisk förbrukning kan variera beroende på enhet, GPS-förhållanden och tidsfönster konfigurerade för varje zon.</string>
     <string name="backup_restore">Säkerhetskopiering &amp; återställning</string>
     <string name="export_zones">Exportera zoner</string>
     <string name="import_zones">Importera zoner</string>

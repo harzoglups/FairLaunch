@@ -78,6 +78,14 @@
     <string name="seconds">Segundos</string>
     <string name="meters">Metros</string>
     <string name="info">Info</string>
+    <string name="battery_consumption">Consumo de bateria</string>
+    <string name="estimated_battery_usage">Uso estimado da bateria</string>
+    <string name="battery_based_on_settings">Com base nas suas configurações atuais:</string>
+    <string name="battery_scans_per_hour">%1$d verificações GPS por hora</string>
+    <string name="battery_mah_per_hour">~%1$s mAh por hora</string>
+    <string name="battery_mah_per_day">~%1$s mAh por dia (%2$d dias ativos)</string>
+    <string name="battery_percent_per_day">~%1$s%% de bateria por dia</string>
+    <string name="battery_note">Nota: O consumo real pode variar dependendo do dispositivo, condições GPS e janelas de tempo configuradas para cada zona.</string>
     <string name="backup_restore">Backup e restauração</string>
     <string name="export_zones">Exportar zonas</string>
     <string name="import_zones">Importar zonas</string>

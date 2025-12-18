@@ -190,10 +190,10 @@ This document lists potential improvements and new features to consider before m
 ---
 
 ### 11. Battery Saving Mode
-**Status**: No battery optimization  
+**Status**: ⚠️ Partially implemented (v1.0.9)  
 **Description**: App checks location at fixed interval regardless of context.  
 **Suggestion**:
-- Show estimated battery consumption in Settings
+- ✅ Show estimated battery consumption in Settings
 - "Battery Saver" mode with longer check intervals
 - Smart intervals based on time of day
 - Disable during nights/weekends if not needed
@@ -202,9 +202,13 @@ This document lists potential improvements and new features to consider before m
 **Effort**: Medium
 
 **Implementation Notes**:
-- Use Android's Battery Manager to estimate consumption
-- Add preset profiles: "Aggressive", "Balanced", "Battery Saver"
-- Integrate with active days feature (already exists)
+- ✅ Battery estimation displays: scans per hour, mAh per hour/day, percentage per day
+- ✅ Color-coded percentage: green (<2%), blue (2-5%), red (>5%)
+- ✅ Updates dynamically based on check interval and active days settings
+- ✅ Implemented in all 9 supported languages
+- ⏳ TODO: Add preset profiles: "Aggressive", "Balanced", "Battery Saver"
+- ⏳ TODO: Smart intervals based on time of day
+- ⏳ TODO: Integration with time windows per zone
 
 ---
 

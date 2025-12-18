@@ -78,6 +78,14 @@
     <string name="seconds">Sekunder</string>
     <string name="meters">Meter</string>
     <string name="info">Info</string>
+    <string name="battery_consumption">Batteriforbruk</string>
+    <string name="estimated_battery_usage">Estimert batteribruk</string>
+    <string name="battery_based_on_settings">Basert på dine nåværende innstillinger:</string>
+    <string name="battery_scans_per_hour">%1$d GPS-skanninger per time</string>
+    <string name="battery_mah_per_hour">~%1$s mAh per time</string>
+    <string name="battery_mah_per_day">~%1$s mAh per dag (%2$d aktive dager)</string>
+    <string name="battery_percent_per_day">~%1$s%% batteri per dag</string>
+    <string name="battery_note">Merk: Faktisk forbruk kan variere basert på enhet, GPS-forhold og tidsvinduer konfigurert for hver sone.</string>
     <string name="backup_restore">Sikkerhetskopi og gjenoppretting</string>
     <string name="export_zones">Eksporter soner</string>
     <string name="import_zones">Importer soner</string>
