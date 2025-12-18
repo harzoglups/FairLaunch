@@ -68,6 +68,11 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            
+            // Include native debug symbols for better crash reports in Play Console
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
         }
     }
     compileOptions {
