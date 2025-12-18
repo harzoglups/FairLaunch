@@ -401,31 +401,50 @@ fun SettingsScreen(
                         onClick = {
                             // Test vibration
                             try {
+                                android.util.Log.d("SettingsScreen", "Test vibration button clicked")
+                                
                                 val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                     val vibratorManager = context.getSystemService(android.content.Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+                                    android.util.Log.d("SettingsScreen", "Using VibratorManager (API 31+)")
                                     vibratorManager?.defaultVibrator
                                 } else {
+                                    android.util.Log.d("SettingsScreen", "Using Vibrator service (API < 31)")
                                     @Suppress("DEPRECATION")
                                     context.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? Vibrator
                                 }
                                 
-                                if (vibrator != null && vibrator.hasVibrator()) {
-                                    // minSdk 26+ guarantees VibrationEffect availability
-                                    val audioAttributes = AudioAttributes.Builder()
-                                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                                        .build()
-                                    
-                                    val pattern = longArrayOf(0, 500, 200, 500, 200, 500, 200, 500, 200, 500)
-                                    val amplitudes = intArrayOf(0, 255, 0, 255, 0, 255, 0, 255, 0, 255)
-                                    val effect = VibrationEffect.createWaveform(pattern, amplitudes, -1)
-                                    
-                                    // Suppress deprecation warning - needed for background vibration
-                                    @Suppress("DEPRECATION")
-                                    vibrator.vibrate(effect, audioAttributes)
+                                if (vibrator == null) {
+                                    android.util.Log.e("SettingsScreen", "Vibrator is null")
+                                    android.widget.Toast.makeText(context, "Vibrator not available", android.widget.Toast.LENGTH_SHORT).show()
+                                    return@Button
                                 }
+                                
+                                if (!vibrator.hasVibrator()) {
+                                    android.util.Log.e("SettingsScreen", "Device has no vibrator")
+                                    android.widget.Toast.makeText(context, "Device has no vibrator", android.widget.Toast.LENGTH_SHORT).show()
+                                    return@Button
+                                }
+                                
+                                android.util.Log.d("SettingsScreen", "Vibrator available, creating pattern")
+                                
+                                // Create vibration pattern matching LocationCheckWorker
+                                val pattern = longArrayOf(0, 500, 200, 500, 200, 500, 200, 500, 200, 500)
+                                val amplitudes = intArrayOf(0, 255, 0, 255, 0, 255, 0, 255, 0, 255)
+                                val effect = VibrationEffect.createWaveform(pattern, amplitudes, -1)
+                                
+                                val audioAttributes = AudioAttributes.Builder()
+                                    .setUsage(AudioAttributes.USAGE_ALARM)
+                                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                    .build()
+                                
+                                android.util.Log.d("SettingsScreen", "Starting vibration")
+                                @Suppress("DEPRECATION")
+                                vibrator.vibrate(effect, audioAttributes)
+                                
+                                android.widget.Toast.makeText(context, "Vibration test started", android.widget.Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
                                 android.util.Log.e("SettingsScreen", "Error testing vibration", e)
+                                android.widget.Toast.makeText(context, "Error: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
                             }
                         },
                         modifier = Modifier.fillMaxWidth()
