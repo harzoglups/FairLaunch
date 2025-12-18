@@ -684,6 +684,9 @@ private fun MapContent(
                     var touchedMarkerId: Long? = null
                     val longPressThreshold = 500L // milliseconds
                     val movementThreshold = 20f // pixels
+                    
+                    // Long press visual feedback overlay
+                    var longPressOverlay: LongPressOverlay? = null
 
                     setOnTouchListener { _, event ->
                         when (event.action) {
@@ -708,9 +711,29 @@ private fun MapContent(
                                         touchedMarkerId = marker.relatedObject as? Long
                                     }
                                 }
+                                
+                                // Start long press visual feedback
+                                val touchGeoPoint = projection.fromPixels(event.x.toInt(), event.y.toInt()) as GeoPoint
+                                longPressOverlay = LongPressOverlay(this, touchGeoPoint, longPressThreshold).also { overlay ->
+                                    overlays.add(overlay)
+                                    overlay.startAnimation()
+                                }
+                                
                                 false
                             }
-                            MotionEvent.ACTION_UP -> {
+                            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                                // Remove long press visual feedback
+                                longPressOverlay?.let { overlay ->
+                                    overlay.stopAnimation()
+                                    overlays.remove(overlay)
+                                    invalidate()
+                                }
+                                longPressOverlay = null
+                                
+                                if (event.action == MotionEvent.ACTION_CANCEL) {
+                                    return@setOnTouchListener false
+                                }
+                                
                                 val duration = System.currentTimeMillis() - touchStartTime
                                 val dx = Math.abs(event.x - touchStartX)
                                 val dy = Math.abs(event.y - touchStartY)
@@ -1030,4 +1053,83 @@ private fun DeleteConfirmationDialog(
             }
         }
     )
+}
+
+/**
+ * Overlay that shows a growing circle during long press for visual feedback
+ */
+private class LongPressOverlay(
+    private val mapView: MapView,
+    private val geoPoint: GeoPoint,
+    private val durationMs: Long
+) : org.osmdroid.views.overlay.Overlay() {
+    
+    private val fillPaint = android.graphics.Paint().apply {
+        color = 0x8000BCD4.toInt() // More opaque cyan fill
+        style = android.graphics.Paint.Style.FILL
+        isAntiAlias = true
+    }
+    
+    private val strokePaint = android.graphics.Paint().apply {
+        color = 0xFF00BCD4.toInt() // Solid cyan border
+        style = android.graphics.Paint.Style.STROKE
+        strokeWidth = 6f // Thicker border
+        isAntiAlias = true
+    }
+    
+    private val centerDotPaint = android.graphics.Paint().apply {
+        color = 0xFF00BCD4.toInt() // Solid cyan center
+        style = android.graphics.Paint.Style.FILL
+        isAntiAlias = true
+    }
+    
+    private var startTime = 0L
+    private var isAnimating = false
+    private val handler = Handler(Looper.getMainLooper())
+    private val maxRadius = 80f // Bigger circle
+    
+    private val animationRunnable = object : Runnable {
+        override fun run() {
+            if (isAnimating) {
+                mapView.invalidate()
+                handler.postDelayed(this, 16) // ~60fps
+            }
+        }
+    }
+    
+    fun startAnimation() {
+        startTime = System.currentTimeMillis()
+        isAnimating = true
+        handler.post(animationRunnable)
+    }
+    
+    fun stopAnimation() {
+        isAnimating = false
+        handler.removeCallbacks(animationRunnable)
+    }
+    
+    override fun draw(canvas: android.graphics.Canvas, mapView: MapView, shadow: Boolean) {
+        if (shadow || !isAnimating) return
+        
+        val projection = mapView.projection
+        val point = projection.toPixels(geoPoint, null)
+        
+        val elapsed = System.currentTimeMillis() - startTime
+        val progress = (elapsed.toFloat() / durationMs).coerceIn(0f, 1f)
+        val currentRadius = maxRadius * progress
+        
+        // Draw growing circle with fill and stroke
+        canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), currentRadius, fillPaint)
+        canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), currentRadius, strokePaint)
+        
+        // Draw center dot for better visibility
+        canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), 8f, centerDotPaint)
+        
+        // Draw outer ripple effect (inverse animation for extra visibility)
+        val outerRadius = maxRadius * (1f - progress * 0.5f) // Shrinks from max to half
+        val outerAlpha = (255 * (1f - progress)).toInt()
+        strokePaint.alpha = outerAlpha
+        canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), outerRadius + 20f, strokePaint)
+        strokePaint.alpha = 255 // Reset alpha
+    }
 }
