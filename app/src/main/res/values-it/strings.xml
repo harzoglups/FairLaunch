@@ -15,6 +15,7 @@
     <string name="permission_allow_always">Consenti \"Sempre\"</string>
     <string name="permission_allow">Consenti</string>
     <string name="permission_later">Più tardi</string>
+    <string name="onboarding_continue">Continua</string>
     
     <!-- Map screen -->
     <string name="map_layers">Livelli mappa</string>
@@ -94,6 +95,15 @@
     <string name="battery_mah_per_day">~%1$s mAh al giorno (%2$d giorni attivi)</string>
     <string name="battery_percent_per_day">~%1$s%% di batteria al giorno</string>
     <string name="battery_note">Nota: Il consumo effettivo può variare in base al dispositivo, alle condizioni GPS e alle finestre orarie configurate per ogni zona.</string>
+    <string name="battery_optimization_warning_title">Ottimizzazione batteria attiva</string>
+    <string name="battery_optimization_warning_message">Il rilevamento in background potrebbe non funzionare correttamente. Disattiva l\'ottimizzazione della batteria per AutoTiq.</string>
+    <string name="battery_optimization_button">Disattiva ottimizzazione</string>
+    <string name="battery_optimization_success">Ottimizzazione batteria disattivata</string>
+    <string name="battery_optimization_success_message">Rilevamento in background pronto</string>
+    <string name="battery_optimization_dialog_title">Ottimizzazione batteria rilevata</string>
+    <string name="battery_optimization_dialog_message">AutoTiq richiede accesso illimitato alla batteria per rilevare le zone in background in modo affidabile. Ciò aumenta leggermente il consumo della batteria ma garantisce il funzionamento del rilevamento automatico.\n\nNella schermata successiva, seleziona \"Non ottimizzare\" o \"Senza restrizioni\".</string>
+    <string name="battery_optimization_open_settings">Apri impostazioni</string>
+    <string name="battery_optimization_later">Più tardi</string>
     <string name="testing">Test</string>
     <string name="test_mode">Modalità Test</string>
     <string name="test_mode_desc">Attiva sempre le notifiche in una zona (ignora lo stato precedente)</string>
@@ -133,6 +143,8 @@
     <string name="onboarding_location_description">AutoTiq necessita dell\'accesso alla tua posizione per rilevare quando ti avvicini a una zona salvata.</string>
     <string name="onboarding_background_location_title">Accesso alla posizione in background</string>
     <string name="onboarding_background_location_description">Per funzionare automaticamente, l\'app necessita del permesso \"Consenti sempre\". Questo permette a AutoTiq di monitorare la tua posizione anche quando l\'app è chiusa.\n\nIMPORTANTE: Nella schermata successiva, seleziona \"Consenti sempre\".</string>
+    <string name="onboarding_battery_optimization_title">Ottimizzazione batteria</string>
+    <string name="onboarding_battery_optimization_description">Per un rilevamento affidabile in background, AutoTiq necessita di accesso illimitato alla batteria. Nella schermata successiva, seleziona \"Non ottimizzare\" o \"Senza restrizioni\".\n\nCiò garantisce che Android non interrompa i controlli di posizione in background.</string>
     <string name="onboarding_notifications_title">Notifiche</string>
     <string name="onboarding_notifications_description">Consenti le notifiche per essere informato quando Fairtiq viene avviato automaticamente.</string>
     <string name="onboarding_complete_title">Tutto pronto!</string>

@@ -2,8 +2,12 @@ package com.cussou.autotiq.ui.onboarding
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
@@ -63,6 +68,9 @@ fun OnboardingScreen(
     var hasNotificationPermission by remember {
         mutableStateOf(checkNotificationPermission(context))
     }
+    var isBatteryOptimizationDisabled by remember {
+        mutableStateOf(checkBatteryOptimizationDisabled(context))
+    }
     
     // Location permission launcher
     val locationLauncher = rememberLauncherForActivityResult(
@@ -83,21 +91,8 @@ fun OnboardingScreen(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         hasBackgroundPermission = isGranted
-        if (isGranted) {
-            // Move to notification permission step if Android 13+
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                currentStep = OnboardingStep.NOTIFICATIONS
-            } else {
-                currentStep = OnboardingStep.COMPLETE
-            }
-        } else {
-            // Continue even if background permission denied
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                currentStep = OnboardingStep.NOTIFICATIONS
-            } else {
-                currentStep = OnboardingStep.COMPLETE
-            }
-        }
+        // Always move to battery optimization step after background location
+        currentStep = OnboardingStep.BATTERY_OPTIMIZATION
     }
     
     // Notification permission launcher (Android 13+)
@@ -106,6 +101,20 @@ fun OnboardingScreen(
     ) { isGranted ->
         hasNotificationPermission = isGranted
         currentStep = OnboardingStep.COMPLETE
+    }
+    
+    // Battery optimization launcher - detects when user returns from settings
+    val batteryOptimizationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { _ ->
+        // Check if battery optimization was disabled when user returns
+        isBatteryOptimizationDisabled = checkBatteryOptimizationDisabled(context)
+        // Always move to next step (non-blocking UX)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            currentStep = OnboardingStep.NOTIFICATIONS
+        } else {
+            currentStep = OnboardingStep.COMPLETE
+        }
     }
     
     Column(
@@ -151,12 +160,26 @@ fun OnboardingScreen(
                         }
                     },
                     onSkip = {
+                        currentStep = OnboardingStep.BATTERY_OPTIMIZATION
+                    }
+                )
+            }
+            OnboardingStep.BATTERY_OPTIMIZATION -> {
+                BatteryOptimizationStep(
+                    onRequestOptimization = {
+                        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                            data = Uri.parse("package:${context.packageName}")
+                        }
+                        batteryOptimizationLauncher.launch(intent)
+                    },
+                    onSkip = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             currentStep = OnboardingStep.NOTIFICATIONS
                         } else {
                             currentStep = OnboardingStep.COMPLETE
                         }
-                    }
+                    },
+                    isBatteryOptimizationDisabled = isBatteryOptimizationDisabled
                 )
             }
             OnboardingStep.NOTIFICATIONS -> {
@@ -235,6 +258,90 @@ private fun BackgroundLocationPermissionStep(
         onSkip = onSkip,
         important = true
     )
+}
+
+@Composable
+private fun BatteryOptimizationStep(
+    onRequestOptimization: () -> Unit,
+    onSkip: () -> Unit,
+    isBatteryOptimizationDisabled: Boolean
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Default.BatteryAlert,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = if (isBatteryOptimizationDisabled) 
+                    MaterialTheme.colorScheme.primary 
+                else 
+                    MaterialTheme.colorScheme.error
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = stringResource(R.string.onboarding_battery_optimization_title),
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.onboarding_battery_optimization_description),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            // Status indicator
+            if (isBatteryOptimizationDisabled) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Text(
+                        text = "✓ " + stringResource(R.string.battery_optimization_success),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(12.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = onRequestOptimization,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isBatteryOptimizationDisabled
+            ) {
+                Text(
+                    if (isBatteryOptimizationDisabled)
+                        stringResource(R.string.permission_allow) + " ✓"
+                    else
+                        stringResource(R.string.permission_allow)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            TextButton(
+                onClick = onSkip,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    if (isBatteryOptimizationDisabled)
+                        stringResource(R.string.onboarding_continue)
+                    else
+                        stringResource(R.string.permission_later)
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -351,6 +458,7 @@ private enum class OnboardingStep {
     WELCOME,
     LOCATION,
     BACKGROUND_LOCATION,
+    BATTERY_OPTIMIZATION,
     NOTIFICATIONS,
     COMPLETE
 }
@@ -389,4 +497,9 @@ private fun checkNotificationPermission(context: Context): Boolean {
     } else {
         true // Not needed on older Android versions
     }
+}
+
+private fun checkBatteryOptimizationDisabled(context: Context): Boolean {
+    val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+    return powerManager.isIgnoringBatteryOptimizations(context.packageName)
 }

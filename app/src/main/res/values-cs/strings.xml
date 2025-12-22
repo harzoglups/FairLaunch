@@ -15,6 +15,7 @@
     <string name="permission_allow_always">Povolit \"Vždy\"</string>
     <string name="permission_allow">Povolit</string>
     <string name="permission_later">Později</string>
+    <string name="onboarding_continue">Pokračovat</string>
     
     <!-- Map screen -->
     <string name="map_layers">Vrstvy mapy</string>
@@ -94,6 +95,15 @@
     <string name="battery_mah_per_day">~%1$s mAh denně (%2$d aktivních dnů)</string>
     <string name="battery_percent_per_day">~%1$s%% baterie denně</string>
     <string name="battery_note">Poznámka: Skutečná spotřeba se může lišit v závislosti na zařízení, podmínkách GPS a časových oknech nakonfigurovaných pro každou zónu.</string>
+    <string name="battery_optimization_warning_title">Optimalizace baterie aktivní</string>
+    <string name="battery_optimization_warning_message">Detekce na pozadí nemusí fungovat spolehlivě. Vypněte optimalizaci baterie pro AutoTiq.</string>
+    <string name="battery_optimization_button">Vypnout optimalizaci</string>
+    <string name="battery_optimization_success">Optimalizace baterie vypnuta</string>
+    <string name="battery_optimization_success_message">Detekce na pozadí připravena</string>
+    <string name="battery_optimization_dialog_title">Detekována optimalizace baterie</string>
+    <string name="battery_optimization_dialog_message">AutoTiq vyžaduje neomezený přístup k baterii pro spolehlivou detekci zón na pozadí. Toto mírně zvýší spotřebu baterie, ale zajistí funkčnost automatické detekce.\n\nNa další obrazovce vyberte \"Neoptimalizovat\" nebo \"Bez omezení\".</string>
+    <string name="battery_optimization_open_settings">Otevřít nastavení</string>
+    <string name="battery_optimization_later">Později</string>
     <string name="testing">Testování</string>
     <string name="test_mode">Testovací režim</string>
     <string name="test_mode_desc">Vždy spustit oznámení v zóně (ignorovat předchozí stav)</string>
@@ -133,6 +143,8 @@
     <string name="onboarding_location_description">AutoTiq potřebuje přístup k vaší poloze, aby detekoval, když se blížíte k uložené zóně.</string>
     <string name="onboarding_background_location_title">Přístup k poloze na pozadí</string>
     <string name="onboarding_background_location_description">Pro automatické fungování aplikace je potřeba oprávnění \"Povolit vždy\". To umožňuje AutoTiq sledovat vaši polohu i když je aplikace zavřená.\n\nDŮLEŽITÉ: Na další obrazovce vyberte \"Povolit vždy\".</string>
+    <string name="onboarding_battery_optimization_title">Optimalizace baterie</string>
+    <string name="onboarding_battery_optimization_description">Pro spolehlivou detekci na pozadí potřebuje AutoTiq neomezený přístup k baterii. Na další obrazovce vyberte \"Neoptimalizovat\" nebo \"Neomezené\".\n\nTím zajistíte, že Android nezastaví kontroly polohy na pozadí.</string>
     <string name="onboarding_notifications_title">Oznámení</string>
     <string name="onboarding_notifications_description">Povolte oznámení, abyste byli informováni, když je Fairtiq automaticky spuštěn.</string>
     <string name="onboarding_complete_title">Vše připraveno!</string>

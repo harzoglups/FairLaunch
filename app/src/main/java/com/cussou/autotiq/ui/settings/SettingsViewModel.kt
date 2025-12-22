@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
@@ -73,12 +74,18 @@ class SettingsViewModel @Inject constructor(
     
     private val _isFairtiqInstalled = MutableStateFlow(checkFairtiqInstalled())
     val isFairtiqInstalled: StateFlow<Boolean> = _isFairtiqInstalled.asStateFlow()
+    
+    private val _isBatteryOptimizationDisabled = MutableStateFlow(checkBatteryOptimizationDisabled())
+    val isBatteryOptimizationDisabled: StateFlow<Boolean> = _isBatteryOptimizationDisabled.asStateFlow()
+    
+    private val _batteryOptimizationDialogDismissCount = MutableStateFlow(0)
 
     init {
         Log.d(TAG, "SettingsViewModel initialized")
         Log.d(TAG, "Android SDK: ${Build.VERSION.SDK_INT}")
         Log.d(TAG, "Initial permission status: ${_permissionStatus.value}")
         Log.d(TAG, "Fairtiq installed: ${_isFairtiqInstalled.value}")
+        Log.d(TAG, "Battery optimization disabled: ${_isBatteryOptimizationDisabled.value}")
     }
     
     private fun checkFairtiqInstalled(): Boolean {
@@ -91,6 +98,33 @@ class SettingsViewModel @Inject constructor(
             Log.w(TAG, "Fairtiq app is NOT installed")
             false
         }
+    }
+    
+    private fun checkBatteryOptimizationDisabled(): Boolean {
+        val powerManager = application.getSystemService(android.content.Context.POWER_SERVICE) as PowerManager
+        val isIgnoring = powerManager.isIgnoringBatteryOptimizations(application.packageName)
+        Log.d(TAG, "Battery optimization disabled: $isIgnoring")
+        return isIgnoring
+    }
+    
+    fun refreshBatteryOptimizationStatus() {
+        Log.d(TAG, "Refreshing battery optimization status")
+        _isBatteryOptimizationDisabled.value = checkBatteryOptimizationDisabled()
+        Log.d(TAG, "New battery optimization status: ${_isBatteryOptimizationDisabled.value}")
+    }
+    
+    fun shouldShowBatteryOptimizationDialog(): Boolean {
+        // Show dialog if:
+        // 1. Battery optimization is ON (bad)
+        // 2. User hasn't dismissed it more than 3 times
+        val shouldShow = !_isBatteryOptimizationDisabled.value && _batteryOptimizationDialogDismissCount.value < 3
+        Log.d(TAG, "Should show battery optimization dialog: $shouldShow (dismiss count: ${_batteryOptimizationDialogDismissCount.value})")
+        return shouldShow
+    }
+    
+    fun onBatteryOptimizationDialogDismissed() {
+        _batteryOptimizationDialogDismissCount.value++
+        Log.d(TAG, "Battery optimization dialog dismissed (count: ${_batteryOptimizationDialogDismissCount.value})")
     }
 
     private fun checkPermissionStatus(): PermissionStatus {
