@@ -71,9 +71,25 @@ fun SettingsScreen(
     val permissionStatus by viewModel.permissionStatus.collectAsStateWithLifecycle()
     val importExportEvent by viewModel.importExportEvent.collectAsStateWithLifecycle()
     val isFairtiqInstalled by viewModel.isFairtiqInstalled.collectAsStateWithLifecycle()
+    val isBatteryOptimizationDisabled by viewModel.isBatteryOptimizationDisabled.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     
     var showBackgroundLocationDialog by remember { mutableStateOf(false) }
+    var showBatteryOptimizationDialog by remember { mutableStateOf(false) }
+    
+    // Refresh battery optimization status when screen resumes
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshBatteryOptimizationStatus()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
     
     // Launcher for background location permission (Android 10+)
     val backgroundLocationLauncher = rememberLauncherForActivityResult(
@@ -154,6 +170,88 @@ fun SettingsScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(stringResource(R.string.install_fairtiq))
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            
+            // Battery Optimization Warning (show when tracking is ON and battery optimization is ON)
+            if (settings.isLocationTrackingEnabled && !isBatteryOptimizationDisabled) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.battery_optimization_warning_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.battery_optimization_warning_message),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                        Button(
+                            onClick = {
+                                try {
+                                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                                        data = Uri.parse("package:${context.packageName}")
+                                    }
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    // Fallback to general battery optimization settings
+                                    val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                                    context.startActivity(intent)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(R.string.battery_optimization_button))
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            
+            // Battery Optimization Success (show when tracking is ON and battery optimization is OFF)
+            if (settings.isLocationTrackingEnabled && isBatteryOptimizationDisabled) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "✓",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(end = 12.dp)
+                        )
+                        Column {
+                            Text(
+                                text = stringResource(R.string.battery_optimization_success),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                            Text(
+                                text = stringResource(R.string.battery_optimization_success_message),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
                         }
                     }
                 }
@@ -298,7 +396,12 @@ fun SettingsScreen(
                                 if (permissionStatus != PermissionStatus.GRANTED) {
                                     showBackgroundLocationDialog = true
                                 } else {
+                                    // Enable tracking first
                                     viewModel.updateLocationTracking(true)
+                                    // Then show battery optimization dialog if needed
+                                    if (!isBatteryOptimizationDisabled && viewModel.shouldShowBatteryOptimizationDialog()) {
+                                        showBatteryOptimizationDialog = true
+                                    }
                                 }
                             } else {
                                 viewModel.updateLocationTracking(enabled)
@@ -856,6 +959,51 @@ fun SettingsScreen(
                     }
                 ) {
                     Text(stringResource(R.string.permission_later))
+                }
+            }
+        )
+    }
+    
+    // Battery optimization dialog
+    if (showBatteryOptimizationDialog) {
+        AlertDialog(
+            onDismissRequest = { 
+                showBatteryOptimizationDialog = false
+                viewModel.onBatteryOptimizationDialogDismissed()
+            },
+            title = { 
+                Text(stringResource(R.string.battery_optimization_dialog_title)) 
+            },
+            text = { 
+                Text(stringResource(R.string.battery_optimization_dialog_message))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showBatteryOptimizationDialog = false
+                        try {
+                            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                                data = Uri.parse("package:${context.packageName}")
+                            }
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            // Fallback to general battery optimization settings
+                            val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                            context.startActivity(intent)
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.battery_optimization_open_settings))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { 
+                        showBatteryOptimizationDialog = false
+                        viewModel.onBatteryOptimizationDialogDismissed()
+                    }
+                ) {
+                    Text(stringResource(R.string.battery_optimization_later))
                 }
             }
         )

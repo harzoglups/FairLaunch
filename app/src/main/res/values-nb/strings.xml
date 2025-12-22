@@ -15,6 +15,7 @@
     <string name="permission_allow_always">Tillat \"Hele tiden\"</string>
     <string name="permission_allow">Tillat</string>
     <string name="permission_later">Senere</string>
+    <string name="onboarding_continue">Fortsett</string>
     
     <!-- Map screen -->
     <string name="map_layers">Kartlag</string>
@@ -94,6 +95,15 @@
     <string name="battery_mah_per_day">~%1$s mAh per dag (%2$d aktive dager)</string>
     <string name="battery_percent_per_day">~%1$s%% batteri per dag</string>
     <string name="battery_note">Merk: Faktisk forbruk kan variere basert på enhet, GPS-forhold og tidsvinduer konfigurert for hver sone.</string>
+    <string name="battery_optimization_warning_title">Batterioptimalisering aktiv</string>
+    <string name="battery_optimization_warning_message">Bakgrunnsdeteksjon fungerer kanskje ikke pålitelig. Deaktiver batterioptimalisering for AutoTiq.</string>
+    <string name="battery_optimization_button">Deaktiver optimalisering</string>
+    <string name="battery_optimization_success">Batterioptimalisering deaktivert</string>
+    <string name="battery_optimization_success_message">Bakgrunnsdeteksjon klar</string>
+    <string name="battery_optimization_dialog_title">Batterioptimalisering oppdaget</string>
+    <string name="battery_optimization_dialog_message">AutoTiq trenger ubegrenset batteritilgang for å pålitelig detektere soner i bakgrunnen. Dette øker batteriforbruket litt, men sikrer at automatisk deteksjon fungerer.\n\nPå neste skjerm, velg \"Ikke optimaliser\" eller \"Ubegrenset\".</string>
+    <string name="battery_optimization_open_settings">Åpne innstillinger</string>
+    <string name="battery_optimization_later">Senere</string>
     <string name="testing">Testing</string>
     <string name="test_mode">Testmodus</string>
     <string name="test_mode_desc">Utløs alltid varsler i en sone (ignorer forrige tilstand)</string>
@@ -133,6 +143,8 @@
     <string name="onboarding_location_description">AutoTiq trenger tilgang til din plassering for å oppdage når du nærmer deg en lagret sone.</string>
     <string name="onboarding_background_location_title">Bakgrunnsplasseringstilgang</string>
     <string name="onboarding_background_location_description">For at appen skal fungere automatisk, trenger den tillatelsen \"Tillat hele tiden\". Dette gjør at AutoTiq kan overvåke din plassering selv når appen er lukket.\n\nVIKTIG: På neste skjerm, velg \"Tillat hele tiden\".</string>
+    <string name="onboarding_battery_optimization_title">Batterioptimalisering</string>
+    <string name="onboarding_battery_optimization_description">For pålitelig bakgrunnsdeteksjon trenger AutoTiq ubegrenset batteritilgang. På neste skjerm, velg \"Ikke optimaliser\" eller \"Ubegrenset\".\n\nDette sikrer at Android ikke stopper posisjonssjekker i bakgrunnen.</string>
     <string name="onboarding_notifications_title">Varsler</string>
     <string name="onboarding_notifications_description">Tillat varsler for å bli informert når Fairtiq startes automatisk.</string>
     <string name="onboarding_complete_title">Alt klart!</string>
