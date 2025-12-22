@@ -319,13 +319,20 @@ All content ready in `PLAY_STORE_DESCRIPTION.md`:
 - ✅ Feature list and screenshots guidance
 
 **Languages supported:**
-1. French (primary)
-2. English
-3. German
-4. Italian
-5. Czech
-6. Swedish
-7. Norwegian
+1. French (primary) - `<fr-FR>`
+2. English - `<en-US>`
+3. German - `<de-DE>`
+4. Italian - `<it-IT>`
+5. Czech - `<cs-CZ>`
+6. Swedish - `<sv-SE>`
+7. Norwegian - `<no-NO>` (Play Console) / `values-nb/` (Android resources)
+8. Spanish - `<es-ES>`
+9. Portuguese - `<pt-PT>`
+
+**Note**: Norwegian uses different language codes:
+- **Play Console**: `<no-NO>` (generic Norwegian)
+- **Android resources**: `values-nb/` (Norwegian Bokmål)
+- Both refer to the same language content
 
 ---
 

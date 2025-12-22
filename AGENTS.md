@@ -203,7 +203,13 @@ curl -I $PRIVACY_POLICY_URL
 <de-DE>
 [German translation - natural German, not literal translation]
 </de-DE>
+
+<no-NO>
+[Norwegian translation - Play Console uses no-NO, not nb-NO]
+</no-NO>
 ```
+
+**Note**: Norwegian language code is `<no-NO>` on Play Console, even though the app uses `values-nb/` (Bokmål) for Android resources.
 
 **Translation Guidelines:**
 - Write natural, user-friendly descriptions (not literal commit translations)
